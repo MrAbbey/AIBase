@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AIBase.iml" filepath="$PROJECT_DIR$/AIBase.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AIBase.git.iml" filepath="$PROJECT_DIR$/AIBase.git.iml" />
       <module fileurl="file://$PROJECT_DIR$/aibaselib/aibaselib.iml" filepath="$PROJECT_DIR$/aibaselib/aibaselib.iml" />
     </modules>
   </component>
