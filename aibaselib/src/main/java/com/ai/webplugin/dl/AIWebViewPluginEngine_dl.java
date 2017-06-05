@@ -6,7 +6,9 @@ import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
 import com.ai.base.util.BeanInvoker;
+import com.ai.webplugin.config.WebViewPluginCfg;
 import com.ryg.dynamicload.DLBasePluginActivity;
+import com.ryg.dynamicload.internal.DLPluginManager;
 
 import java.io.File;
 import java.io.InputStream;
@@ -25,7 +27,7 @@ public class AIWebViewPluginEngine_dl {
 
     private DLBasePluginActivity mDLActivity;
     protected DexClassLoader classLoader = null;
-    private String mApkPath;
+    private boolean isFromAPP = false;
 
     private Handler mHandler = new Handler();
 
@@ -43,8 +45,13 @@ public class AIWebViewPluginEngine_dl {
         //
     }
 
-    public void setApkPath(String apkPath) {
-        this.mApkPath = apkPath;
+
+    public boolean isFromAPP() {
+        return isFromAPP;
+    }
+
+    public void setFromAPP(boolean fromAPP) {
+        isFromAPP = fromAPP;
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -65,10 +72,11 @@ public class AIWebViewPluginEngine_dl {
 
             for (String name : names) {
                 String className = plugincfg.attr(name, WebViewPluginCfg_dl.CONFIG_ATTR_CLASS);
-                if (mApkPath != null) {
-
+                String packageName = plugincfg.attr(name,WebViewPluginCfg_dl.CONFIG_ATTR_PACKAGENAME);
+                if (isFromAPP) {
                     // 从插件里加载
-                    classLoader = new DexClassLoader(mApkPath, dexPath.getAbsolutePath(), null, mDLActivity.that.getClassLoader());
+                    classLoader = DLPluginManager.getInstance(mDLActivity.that).getPackage(packageName).classLoader;
+                    //new DexClassLoader(mApkPath, dexPath.getAbsolutePath(), null, mDLActivity.that.getClassLoader());
                     Class  mLoadClassDynamic = classLoader.loadClass(className);
 
                     Constructor<?> constructor = mLoadClassDynamic.getConstructor(DLBasePluginActivity.class);
