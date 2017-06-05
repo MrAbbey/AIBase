@@ -4,6 +4,8 @@ package com.ai.base;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import com.ai.base.util.PermissionUitls;
+
 /**
  * Created by wuyoujian on 17/3/29.
  */
@@ -41,6 +43,9 @@ public abstract class AIBaseActivity extends AppCompatActivity {
         super.onDestroy();
         AIActivityCollector.getInstance().removeActivity(this);
     }
-
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        PermissionUitls.getInstance();
+        PermissionUitls.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
 
 }
