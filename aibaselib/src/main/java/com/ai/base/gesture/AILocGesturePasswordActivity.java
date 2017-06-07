@@ -40,7 +40,6 @@ public class AILocGesturePasswordActivity extends AIBaseActivity {
         mTryTimes = tryTimes;
         mTryCount = mTryTimes;
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -128,11 +127,8 @@ public class AILocGesturePasswordActivity extends AIBaseActivity {
                     mGesturePasswordLayout.setViewColor(false);
                     return;
                 } else {
-                    if (password.equalsIgnoreCase(mAnswer)) {
-                        setCheckStatus(true);
-                    } else {
-                        setCheckStatus(false);
-                    }
+                    boolean isPass = password.equalsIgnoreCase(mAnswer);
+                    setCheckStatus(isPass);
                 }
             } else {
                 unmatchedExceedBoundary();

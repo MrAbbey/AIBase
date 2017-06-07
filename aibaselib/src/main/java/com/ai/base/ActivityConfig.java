@@ -15,7 +15,7 @@ public class ActivityConfig {
     // 保存最后一次调用onPause()的系统时间戳
     private long lockTime = 0;
 
-    private String gestureAnswer;
+    private String gestureAnswer;//手势密码
     private boolean testModelOn = false;
 
     public String getGestureAnswer() {
