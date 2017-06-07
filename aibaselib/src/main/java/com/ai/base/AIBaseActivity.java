@@ -31,18 +31,11 @@ public abstract class AIBaseActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        if (ActivityConfig.getInstance().isShowGesturePasswordActivity()
-                &&!this.getClass().getSimpleName().equalsIgnoreCase("AILocGesturePasswordActivity")
-                &&mEnbleGesturePwd) {
-            //startActivity(new Intent(this, AILocGesturePasswordActivity.class));
-        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        ActivityConfig.getInstance().saveLockTime();
     }
 
     @Override
@@ -58,19 +51,16 @@ public abstract class AIBaseActivity extends AppCompatActivity {
 
     //用来控制应用前后台切换的逻辑
     private boolean isCurrentRunningForeground = true;
-    private final long TIME_OUT = 10 * 1000;
-    private long startTime = 0;//切换到后台时的时间戳
-    private long endTime = 0;//后台返回时的时间戳
     @Override
     public void onStart() {
         super.onStart();
         if (!isCurrentRunningForeground) {
-            endTime = System.currentTimeMillis();
-            if (endTime - startTime > TIME_OUT){
+            if (ActivityConfig.getInstance().isShowGesturePasswordActivity()
+                    &&!(this instanceof AILocGesturePasswordActivity)
+                    &&mEnbleGesturePwd) {
                 startActivity(new Intent(this, AILocGesturePasswordActivity.class));
+
             }
-            endTime = 0;
-            startTime = 0;
             LogUtil.d("song", ">>>>>>>>>>>>>>>>>>>切到前台 activity process");
         }
     }
@@ -79,7 +69,7 @@ public abstract class AIBaseActivity extends AppCompatActivity {
         super.onStop();
         isCurrentRunningForeground = isRunningForeground();
         if (!isCurrentRunningForeground) {
-            startTime = System.currentTimeMillis();
+            ActivityConfig.getInstance().saveLockTime();
             LogUtil.d("song",">>>>>>>>>>>>>>>>>>>切到后台 activity process");
         }
     }

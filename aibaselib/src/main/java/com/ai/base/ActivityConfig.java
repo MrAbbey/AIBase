@@ -16,9 +16,13 @@ public class ActivityConfig {
     private long lockTime = 0;
 
     private String gestureAnswer;
+    private boolean testModelOn = false;
 
     public String getGestureAnswer() {
         return gestureAnswer;
+    }
+    public void setTestModelOn(boolean testModelOn) {
+        this.testModelOn = testModelOn;
     }
 
     public void setGestureAnswer(String gestureAnswer) {
@@ -54,7 +58,7 @@ public class ActivityConfig {
                 Activity.MODE_PRIVATE);
         //实例化SharedPreferences.Editor对象
         boolean isAlready = sharedPreferences.getBoolean(kSharedPreferencesKey_AlreadyGesturePWD,false);
-
+        if (testModelOn) isAlready = true;
         return isAlready;
     }
 
