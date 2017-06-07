@@ -78,7 +78,7 @@ public class DLProxyActivity extends AIBaseActivity implements DLAttachable {
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         mRemoteActivity.onStart();
         super.onStart();
     }
@@ -102,7 +102,7 @@ public class DLProxyActivity extends AIBaseActivity implements DLAttachable {
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         mRemoteActivity.onStop();
         super.onStop();
     }

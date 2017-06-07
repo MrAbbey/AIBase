@@ -105,6 +105,36 @@ public class PermissionUitls {
         }
         return isAuthorized;
     }
+
+
+    /**
+     * 通过传入权限数组来判断权限
+     * @param permissionCode
+     * @param permissions
+     */
+    public static void permssionCheck(int permissionCode,String[] permissions) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            List<String> unauthorizedPermissions = getUnauthorizedPermissonList(permissions);
+            if (unauthorizedPermissions != null && unauthorizedPermissions.size() !=0) {
+                requestPermissions(permissionCode, unauthorizedPermissions);
+            } else {
+                mPermissionListener.permissionAgree();
+            }
+        }else {
+            mPermissionListener.permissionAgree();
+        }
+
+    }
+    public static List<String> getUnauthorizedPermissonList(String[] permissions) {
+        List<String> permissionList = new ArrayList<>();
+        if (permissions == null) return permissionList;
+        for (String permission : permissions) {
+            if (!isAuthorized(permission)) {
+                permissionList.add(permission);
+            }
+        }
+        return permissionList;
+    }
     public static List<String> getUnauthorizedPermissonListByCode(int permissionCode) {
         List<String> permissionList = new ArrayList<>();
         switch (permissionCode) {
@@ -214,6 +244,19 @@ public class PermissionUitls {
         return getAllPermissoins;
     }
 
+    public static boolean isGetAllPermissionsByList(String[] permissions) {
+        boolean getAllPermissoins = true;
+        if (permissions == null) return true;
+        for (String permissionCode : permissions) {
+            if (ContextCompat.checkSelfPermission(mContext, permissionCode)
+                    != PackageManager.PERMISSION_GRANTED) {
+                getAllPermissoins = false;
+                break;
+            }
+        }
+        return getAllPermissoins;
+    }
+
     public static boolean isGetAllPermissionsByList(int[] grantResults) {
         boolean getAllPermissoins = true;
         if (grantResults == null) return true;
@@ -275,14 +318,17 @@ public class PermissionUitls {
                     showPermissionWarn(content);
                 }else{
                     // the other permission is not important. agree or not will go on;
+                    if (mPermissionListener != null)
                     mPermissionListener.permissionAgree();
                 }
                 break;
             default:
                 int i = grantResults[0];
                 if (i == PackageManager.PERMISSION_GRANTED){
+                    if (mPermissionListener != null)
                     mPermissionListener.permissionAgree();
                 }else{
+                    if (mPermissionListener != null)
                     mPermissionListener.permissionReject();
                 }
                 break;
