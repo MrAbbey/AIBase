@@ -6,8 +6,7 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,7 +20,7 @@ import com.ai.base.util.Utility;
 
 public class AILocGesturePasswordActivity extends AIBaseActivity {
 
-    private LinearLayout mLinearLayout;
+    private RelativeLayout mRelativeLayout;
     private TextView mTextView;
     private AIGesturePasswordLayout mGesturePasswordLayout;
 
@@ -63,39 +62,38 @@ public class AILocGesturePasswordActivity extends AIBaseActivity {
 
     private void initView() {
 
-        mLinearLayout = new LinearLayout(this);
-        mLinearLayout.setBackgroundColor(Color.WHITE);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-
-        mLinearLayout.setOrientation(LinearLayout.VERTICAL);
-        mLinearLayout.setPadding(Utility.dip2px(this,16),Utility.dip2px(this,16),
+        mRelativeLayout = new RelativeLayout(this);
+        mRelativeLayout.setBackgroundColor(Color.WHITE);
+        mRelativeLayout.setPadding(Utility.dip2px(this,16),Utility.dip2px(this,16),
                 Utility.dip2px(this,16),Utility.dip2px(this,16));
 
-        mLinearLayout.setLayoutParams(params);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT);
 
-        LinearLayout.LayoutParams tvParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
+        mRelativeLayout.setLayoutParams(params);
+
+
+        RelativeLayout.LayoutParams tvParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        tvParams.setMargins(0,Utility.dip2px(this,16),0,0);
+
         mTextView = new TextView(this);
         mTextView.setText("请绘制手势密码");
         mTextView.setTextColor(Color.BLACK);
         mTextView.setTextSize(16);
         mTextView.setGravity(Gravity.CENTER);
         mTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-        mLinearLayout.addView(mTextView,tvParams);
+        mRelativeLayout.addView(mTextView,tvParams);
 
         mGesturePasswordLayout = new AIGesturePasswordLayout(this);
         mGesturePasswordLayout.setGravity(Gravity.CENTER_VERTICAL);
         mGesturePasswordLayout.setBackgroundColor(0x00ffffff);
-
-        mGesturePasswordLayout.setShowPath(true);
         mGesturePasswordLayout.setOnGestureLockViewListener(mListener);
-
         //
-        tvParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        mLinearLayout.addView(mGesturePasswordLayout,tvParams);
-        setContentView(mLinearLayout);
+        tvParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT);
+        mRelativeLayout.addView(mGesturePasswordLayout,tvParams);
+        setContentView(mRelativeLayout);
     }
 
     @Override
