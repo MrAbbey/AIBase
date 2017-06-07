@@ -68,7 +68,7 @@ public class AIWebViewPluginEngine_dl {
             String[] names = plugincfg.getNames();
             if (names.length > 0) mWebView.getSettings().setJavaScriptEnabled(true);
 
-            File dexPath = mDLActivity.that.getDir("dex", 0);
+            //File dexPath = mDLActivity.that.getDir("dex", 0);
 
             for (String name : names) {
                 String className = plugincfg.attr(name, WebViewPluginCfg_dl.CONFIG_ATTR_CLASS);

@@ -15,6 +15,16 @@ public class ActivityConfig {
     // 保存最后一次调用onPause()的系统时间戳
     private long lockTime = 0;
 
+    private String gestureAnswer;
+
+    public String getGestureAnswer() {
+        return gestureAnswer;
+    }
+
+    public void setGestureAnswer(String gestureAnswer) {
+        this.gestureAnswer = gestureAnswer;
+    }
+
     public void setDurTime(long kDurTime) {
         this.kDurTime = kDurTime;
     }
