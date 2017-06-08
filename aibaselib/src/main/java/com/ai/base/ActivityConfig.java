@@ -3,6 +3,9 @@ package com.ai.base;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
+import com.ai.Interfaces.AIGesturePasswordListener;
+import com.ai.Interfaces.ActivityJumpListener;
+
 /**
  * Created by wuyoujian on 17/5/1.
  */
@@ -17,7 +20,24 @@ public class ActivityConfig {
 
     private String gestureAnswer;//手势密码
     private boolean testModelOn = false;
+    private ActivityJumpListener activityJumpListener;// 在子类中实现，并且是宿主app中
+    private AIGesturePasswordListener aiGesturePasswordListener;// 在子类中实现
 
+    public AIGesturePasswordListener getAiGesturePasswordListener() {
+        return aiGesturePasswordListener;
+    }
+
+    public ActivityJumpListener getActivityJumpListener() {
+        return activityJumpListener;
+    }
+
+    public void setActivityJumpListener(ActivityJumpListener activityJumpListener) {
+        this.activityJumpListener = activityJumpListener;
+    }
+
+    public void setAiGesturePasswordListener(AIGesturePasswordListener aiGesturePasswordListener) {
+        this.aiGesturePasswordListener = aiGesturePasswordListener;
+    }
     public String getGestureAnswer() {
         return gestureAnswer;
     }

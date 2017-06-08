@@ -6,13 +6,18 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ai.Interfaces.AIGesturePasswordListener;
 import com.ai.base.ActivityConfig;
 import com.ai.base.AIBaseActivity;
 import com.ai.base.util.Utility;
+
+import static android.widget.RelativeLayout.ALIGN_PARENT_BOTTOM;
+import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
 
 /**
  * Created by wuyoujian on 17/4/27.
@@ -23,7 +28,6 @@ public class AILocGesturePasswordActivity extends AIBaseActivity {
     private RelativeLayout mRelativeLayout;
     private TextView mTextView;
     private AIGesturePasswordLayout mGesturePasswordLayout;
-
     /**
      * 发送密码错误结果广播
      */
@@ -35,7 +39,7 @@ public class AILocGesturePasswordActivity extends AIBaseActivity {
      */
     private int mTryTimes = 3;
     private int mTryCount = mTryTimes;
-
+    private Button mChangeButton;
     public void setTryTimes(int tryTimes) {
         mTryTimes = tryTimes;
         mTryCount = mTryTimes;
@@ -92,6 +96,26 @@ public class AILocGesturePasswordActivity extends AIBaseActivity {
         tvParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.MATCH_PARENT);
         mRelativeLayout.addView(mGesturePasswordLayout,tvParams);
+        mChangeButton = new Button(this);
+        tvParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+
+        tvParams.addRule(ALIGN_PARENT_RIGHT);
+        tvParams.addRule(ALIGN_PARENT_BOTTOM);
+        mChangeButton.setBackgroundColor(Color.TRANSPARENT);
+        mChangeButton.setText("切换到密码登录");
+        mChangeButton.setTextColor(0xff3595ff);
+        mChangeButton.setTextSize(16);
+        mRelativeLayout.addView(mChangeButton,tvParams);
+        mChangeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Button btn = (Button)v;
+                btn.setTextColor(Color.GRAY);
+                AIGesturePasswordListener aiGesturePasswordListener = ActivityConfig.getInstance().getAiGesturePasswordListener();
+                aiGesturePasswordListener.backLogin();
+            }
+        });
         setContentView(mRelativeLayout);
     }
 

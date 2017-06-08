@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import com.ai.Interfaces.AIGesturePasswordListener;
 import com.ai.base.gesture.AILocGesturePasswordActivity;
 import com.ai.base.util.LogUtil;
 import com.ai.base.util.PermissionUitls;
@@ -20,7 +21,6 @@ import java.util.List;
 public abstract class AIBaseActivity extends AppCompatActivity {
 
     protected  boolean mEnbleGesturePwd = true;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,8 +58,7 @@ public abstract class AIBaseActivity extends AppCompatActivity {
             if (ActivityConfig.getInstance().isShowGesturePasswordActivity()
                     &&!(this instanceof AILocGesturePasswordActivity)
                     &&mEnbleGesturePwd) {
-                startActivity(new Intent(this, AILocGesturePasswordActivity.class));
-
+                ActivityConfig.getInstance().getActivityJumpListener().jumpToAILocGesturePasswordActivity();
             }
             LogUtil.d("song", ">>>>>>>>>>>>>>>>>>>切到前台 activity process");
         }
@@ -89,5 +88,4 @@ public abstract class AIBaseActivity extends AppCompatActivity {
         LogUtil.d("song", "EntryActivity isRunningBackGround");
         return false;
     }
-
 }
