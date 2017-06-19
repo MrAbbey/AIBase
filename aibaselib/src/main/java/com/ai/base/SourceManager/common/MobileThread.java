@@ -1,5 +1,7 @@
 package com.ai.base.SourceManager.common;
 
+import android.webkit.WebResourceResponse;
+
 /**
  * Created by baggio on 2017/6/12.
  */
@@ -64,7 +66,7 @@ public abstract class MobileThread  extends Thread {
 
     }
 
-    protected abstract void execute() throws Exception;
+    protected abstract WebResourceResponse execute() throws Exception;
 
     protected void callback(boolean flag) {
     }

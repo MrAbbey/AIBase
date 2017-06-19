@@ -70,7 +70,7 @@ public class ActivityConfig {
         String key = kSharedPreferencesKey_AlreadyGesturePWD;
         // 保存到本地
         editor.putBoolean(key,true);
-        editor.apply();
+        editor.commit();
     }
 
     public boolean isAlreadyGesturePassword() {
@@ -89,6 +89,7 @@ public class ActivityConfig {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         String key = kSharedPreferencesKey_AlreadyGesturePWD;
         editor.putBoolean(key,false);
+        editor.commit();
     }
 
 

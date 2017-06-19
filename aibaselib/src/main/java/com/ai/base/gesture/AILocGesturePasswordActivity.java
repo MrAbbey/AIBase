@@ -28,6 +28,7 @@ public class AILocGesturePasswordActivity extends AIBaseActivity {
     private RelativeLayout mRelativeLayout;
     private TextView mTextView;
     private AIGesturePasswordLayout mGesturePasswordLayout;
+    private AIGesturePasswordListener aiGesturePasswordListener;
     /**
      * 发送密码错误结果广播
      */
@@ -59,7 +60,7 @@ public class AILocGesturePasswordActivity extends AIBaseActivity {
             this.mAnswer = answer;
         } catch (Exception e) {
         }
-
+        aiGesturePasswordListener = ActivityConfig.getInstance().getAiGesturePasswordListener();
         initView();
     }
 
@@ -112,8 +113,8 @@ public class AILocGesturePasswordActivity extends AIBaseActivity {
             public void onClick(View v) {
                 Button btn = (Button)v;
                 btn.setTextColor(Color.GRAY);
-                AIGesturePasswordListener aiGesturePasswordListener = ActivityConfig.getInstance().getAiGesturePasswordListener();
                 aiGesturePasswordListener.backLogin();
+                finish();
             }
         });
         setContentView(mRelativeLayout);
@@ -173,10 +174,11 @@ public class AILocGesturePasswordActivity extends AIBaseActivity {
      */
     private void unmatchedExceedBoundary() {
         // 正常情况这里需要做处理（如退出或重登）
-        ActivityConfig.getInstance().clearAlreadyGesturePassword();
         Toast.makeText(this, "错误次数太多，请重新用密码登录", Toast.LENGTH_SHORT).show();
 
         sendPasswordErrorBroadcast();
+        aiGesturePasswordListener.backLogin();
+        finish();
         finish();
     }
 

@@ -40,7 +40,7 @@ public class LocalStorageManager {
         try {
             String encryptValue = AESEncrypt.encrypt(value, mEncryptKey);
             editor.putString(key,encryptValue);
-            editor.apply();
+            editor.commit();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -69,6 +69,7 @@ public class LocalStorageManager {
         //实例化SharedPreferences.Editor对象
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.clear();
+        editor.commit();
     }
 
     public void remove(String key){
@@ -77,5 +78,6 @@ public class LocalStorageManager {
         //实例化SharedPreferences.Editor对象
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.remove(key);
+        editor.commit();
     }
 }

@@ -6,19 +6,17 @@ import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Message;
+import android.webkit.WebResourceResponse;
 
-import com.ai.base.SourceManager.common.GlobalString;
 import com.ai.base.SourceManager.common.MobileThread;
 import com.ai.base.SourceManager.config.ServerPageConfig;
 import com.ai.base.SourceManager.ui.ConfirmDialog;
 import com.ai.base.SourceManager.ui.progressDialog.SimpleProgressDialog;
-import com.ai.base.SourceManager.utils.FileUtil;
 import com.ai.base.okHttp.OkHttpBaseAPI;
 import com.ai.base.util.FileUtilCommon;
 import com.ailk.common.data.IData;
 import com.ailk.common.data.impl.DataMap;
 
-import java.io.File;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -75,7 +73,7 @@ public class ResourceManager {
 
     public void update() throws Exception {
         MobileThread updateThread = new MobileThread("Update") {
-            protected void execute() throws Exception {
+            protected WebResourceResponse execute() throws Exception {
                 long start = System.currentTimeMillis();
                 IData versions = getVersion();
                /* if (AppRecord.isFirst(mContext)) {
@@ -93,11 +91,12 @@ public class ResourceManager {
                 }*/
 
                 Map remoteResVersions = ResVersionManager.getRemoteResVersions(mContext,baseAddress);
-                if (remoteResVersions == null) return;
+                if (remoteResVersions == null) return null;
                 if (ResVersionManager.isUpdateResource(mContextWapper, remoteResVersions)) {
                     handler.sendEmptyMessage(1);
                 }
 
+                return null;
             }
 
             protected void error(Exception e) {
@@ -136,12 +135,13 @@ public class ResourceManager {
 
     public void updateRes() {
         MobileThread updateResourceThread = new MobileThread("updateResource") {
-            protected void execute() throws Exception {
+            protected WebResourceResponse execute() throws Exception {
                 // TODO: 2017/6/12 根据解析出来的版本下载相应的文件
                 if (handler != null) {
                     handler.sendEmptyMessage(4);
                 }
                 downloadResource();
+                return null;
             }
 
             protected void error(Exception e) {
@@ -203,6 +203,10 @@ public class ResourceManager {
         int length = temps.length;
         String fileName = temps[length-1];
         String downPath = path.substring(0, path.length() - fileName.length());
+        //http://211.137.133.80:8010/mbosscentre/v5/jcl/i18n/code.zh_CN.js?v=1
+        if (fileName.contains("?v=")){
+            fileName = fileName.split("\\?v=")[0];
+        }
         OkHttpBaseAPI okHttpBaseAPI = new OkHttpBaseAPI();
         byte[] data = okHttpBaseAPI.httpGetFileDataTask(baseAddress + path, "song");
         FileUtilCommon.writeByte2File(getSdcardPath() + "/" +MultipleManager.getCurrAppId() + "/" +downPath , fileName, data, "");
