@@ -26,7 +26,7 @@ public class OkHttpBaseAPI {
     private final String TAG = OkHttpBaseAPI.class.getSimpleName();
     private  long requestEndTime;
     private long requestStartTime;
-    protected String getResponeStr(Response response, String url, String taskName) {
+    public String getResponeStr(Response response, String url, String taskName) {
         String result = "";
         try {
             if (response != null) {
@@ -52,7 +52,7 @@ public class OkHttpBaseAPI {
     }
 
 
-    protected String httpGetTask(String url, String taskName) {
+    public String httpGetTask(String url, String taskName) {
         String responeStr = "";
         String tokeType = null;
         String token = null;
@@ -100,7 +100,7 @@ public class OkHttpBaseAPI {
      * @return if return is "" means the task failed
      * @throws
      */
-    protected String httpPostTask(String url, String postDataString, String taskName) {
+    public String httpPostTask(String url, String postDataString, String taskName) {
         String responeStr = "";
         url = url.replaceAll(" ", "%20");
         String token = null;
@@ -134,7 +134,7 @@ public class OkHttpBaseAPI {
      * @param taskName
      * @return if return is "" means the task failed
      */
-    protected String httpPutTask(String url, String postDataString, String taskName) {
+    public String httpPutTask(String url, String postDataString, String taskName) {
         String responeStr = "";
         String token = null;
         try {
@@ -160,7 +160,7 @@ public class OkHttpBaseAPI {
         return responeStr;
     }
 
-    protected String httpDeleteTask(String url, String postDataString, String taskName) {
+    public String httpDeleteTask(String url, String postDataString, String taskName) {
         String responeStr = "";
         String token = null;
         try {
@@ -186,7 +186,7 @@ public class OkHttpBaseAPI {
         return responeStr;
     }
 
-    protected String httpPostImageTask(String postUrl, String taskName, String FilePath) {
+    public String httpPostImageTask(String postUrl, String taskName, String FilePath) {
         String responeStr = "";
 //        String fileName =  Environment.getExternalStorageDirectory().getAbsolutePath() + "/Small/song.exe";
         File uploadFile = new File(FilePath);
@@ -228,7 +228,7 @@ public class OkHttpBaseAPI {
     }
 
 
-    protected byte[] getInputStreamByHttpPostTask(String url, String postDataString, String taskName) {
+    public byte[] getInputStreamByHttpPostTask(String url, String postDataString, String taskName) {
 
         String token = null;
         Map<String, String> headers = new HashMap<>();

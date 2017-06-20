@@ -183,6 +183,8 @@ public class ResVersionManager {
         if (data == null) return null;
         in = new ByteArrayInputStream(data);
         MobileProperties pro = new MobileProperties(in);
+        data = null;
+        in = null;
         if(MultipleManager.isMultiple()) {
             Map subAppRemoteResVersionsMap = pro.getProMap();
             ResVersionManager.multipleRemoteResVersions.put(MultipleManager.getCurrAppId(), subAppRemoteResVersionsMap);
