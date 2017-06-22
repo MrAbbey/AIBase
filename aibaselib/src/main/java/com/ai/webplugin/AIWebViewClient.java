@@ -17,7 +17,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.ai.base.SourceManager.app.MobileAppInfo;
-import com.ai.base.SourceManager.common.MobileThread;
 import com.ai.base.util.LogUtil;
 
 import java.io.File;
@@ -137,41 +136,9 @@ public class AIWebViewClient extends WebViewClient {
     public WebResourceResponse shouldInterceptRequest(WebView view,String url) {
         final String tempUrl = url;
         final WebResourceResponse responseDefault = super.shouldInterceptRequest(view, url);
-        MobileThread updateThread = new MobileThread("Update") {
-            protected WebResourceResponse execute() throws Exception {
-                WebResourceResponse response = null;
-                if (hostName != null && appId != null && tempUrl.contains(hostName)) {
-                    if (tempUrl.endsWith(".png")) {
-                        response = getWebResourceResponse(tempUrl, "image/png", ".png");
-                    } else if (tempUrl.endsWith(".gif")) {
-                        response = getWebResourceResponse(tempUrl, "image/gif", ".gif");
-                    } else if (tempUrl.endsWith(".jpg")) {
-                        response = getWebResourceResponse(tempUrl, "image/jepg", ".jpg");
-                    } else if (tempUrl.endsWith(".jepg")) {
-                        response = getWebResourceResponse(tempUrl, "image/jepg", ".jepg");
-                    } else if (tempUrl.endsWith(".js") || tempUrl.contains(".js?v=") ) {
-                        response = getWebResourceResponse(tempUrl, "text/javascript", ".js");
-                    } else if (tempUrl.endsWith(".css") || tempUrl.contains(".css?v=") ) {
-                        response = getWebResourceResponse(tempUrl, "text/css", ".css");
-                    } else if (tempUrl.endsWith(".html") ) {
-                        response = getWebResourceResponse(tempUrl, "text/html", ".html");
-                    }else if (tempUrl.endsWith(".ttf") ) {
-                        response = getWebResourceResponse(tempUrl, "application/octet-stream", ".ttf");
-                    }
-                    if (response != null) {
-                        return response;
-                    }
-                }
-                LogUtil.d("webViewClient url --API21以下用----", tempUrl);
-                return responseDefault;
-            }
-
-            protected void error(Exception e) {
-                //
-            }
-        };
-        updateThread.start();
-        return null;
+        WebResourceResponse responseLocal = getWebLocalResourceResponseByUrl(tempUrl);
+        LogUtil.d("webViewClient url ----API21以下---", tempUrl);
+        return responseLocal == null ? responseDefault : responseLocal;
     }
 
 
@@ -179,49 +146,47 @@ public class AIWebViewClient extends WebViewClient {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-        final String tempUrl =  request.getUrl().toString();
-        final WebResourceResponse responseDefault = super.shouldInterceptRequest(view, request);
-        MobileThread updateThread = new MobileThread("Update") {
-            protected WebResourceResponse execute() throws Exception {
-                WebResourceResponse response = null;
-                if (hostName != null && appId != null && tempUrl.contains(hostName)) {
-                    if (tempUrl.endsWith(".png")) {
-                        response = getWebResourceResponse(tempUrl, "image/png", ".png");
-                    } else if (tempUrl.endsWith(".gif")) {
-                        response = getWebResourceResponse(tempUrl, "image/gif", ".gif");
-                    } else if (tempUrl.endsWith(".jpg")) {
-                        response = getWebResourceResponse(tempUrl, "image/jepg", ".jpg");
-                    } else if (tempUrl.endsWith(".jepg")) {
-                        response = getWebResourceResponse(tempUrl, "image/jepg", ".jepg");
-                    } else if (tempUrl.endsWith(".js") || tempUrl.contains(".js?v=") ) {
-                        response = getWebResourceResponse(tempUrl, "text/javascript", ".js");
-                    } else if (tempUrl.endsWith(".css") || tempUrl.contains(".css?v=") ) {
-                        response = getWebResourceResponse(tempUrl, "text/css", ".css");
-                    } else if (tempUrl.endsWith(".html") ) {
-                        response = getWebResourceResponse(tempUrl, "text/html", ".html");
-                    }else if (tempUrl.endsWith(".ttf") ) {
-                        response = getWebResourceResponse(tempUrl, "application/octet-stream", ".ttf");
-                    }
-                    if (response != null) {
-                        return response;
-                    }
-                }
-                LogUtil.d("webViewClient url ----API21以---", tempUrl);
-                return responseDefault;
-            }
-
-            protected void error(Exception e) {
-                //
-            }
-        };
-        updateThread.start();
-        return null;
+        WebResourceResponse responseDefault = super.shouldInterceptRequest(view, request);
+        String tempUrl =  request.getUrl().toString();
+        String method = request.getMethod();
+        if (!method.equals("GET")){
+            return responseDefault;
+        }
+        WebResourceResponse responseLocal = getWebLocalResourceResponseByUrl(tempUrl);
+        LogUtil.d("webViewClient url ----API21以上---", tempUrl);
+        return responseLocal == null ? responseDefault : responseLocal;
     }
 
 
 
+    private WebResourceResponse getWebLocalResourceResponseByUrl(String tempUrl) {
+        WebResourceResponse response = null;
+        if (hostName != null && appId != null && tempUrl.contains(hostName)) {
+            if (tempUrl.endsWith(".png")) {
+                response = getWebResourceResponse(tempUrl, "image/png", ".png");
+            } else if (tempUrl.endsWith(".gif")) {
+                response = getWebResourceResponse(tempUrl, "image/gif", ".gif");
+            } else if (tempUrl.endsWith(".jpg")) {
+                response = getWebResourceResponse(tempUrl, "image/jepg", ".jpg");
+            } else if (tempUrl.endsWith(".jepg")) {
+                response = getWebResourceResponse(tempUrl, "image/jepg", ".jepg");
+            } else if (tempUrl.endsWith(".js") || tempUrl.contains(".js?v=") ) {
+                response = getWebResourceResponse(tempUrl, "text/javascript", ".js");
+            } else if (tempUrl.endsWith(".css") || tempUrl.contains(".css?v=") ) {
+                response = getWebResourceResponse(tempUrl, "text/css", ".css");
+            } else if (tempUrl.endsWith(".html") ) {
+                response = getWebResourceResponse(tempUrl, "text/html", ".html");
+            }else if (tempUrl.endsWith(".ttf") ) {
+                response = getWebResourceResponse(tempUrl, "application/octet-stream", ".ttf");
+            }
+            if (response != null) {
+                return response;
+            }
+        }
+        return response;
+    }
 
-private WebResourceResponse getWebResourceResponse(String url, String mime, String style) {
+    private WebResourceResponse getWebResourceResponse(String url, String mime, String style) {
         WebResourceResponse response = null;
         String localSourceFileName = getLocalSoruceFileNameByUrl(url);
         if (localSourceFileName == null) {
@@ -235,6 +200,7 @@ private WebResourceResponse getWebResourceResponse(String url, String mime, Stri
                 LogUtil.d("LocalWebViewClient url ----", localSourceFileName);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
+                return null;
             }
         }
         return response;
@@ -248,24 +214,9 @@ private WebResourceResponse getWebResourceResponse(String url, String mime, Stri
         int ulrLength = url.length();
         String localPath = url.substring(cutLength, ulrLength);
         if (localPath.contains("?v=")) {
-            localPath = fileName.split("\\?v=")[0];
+            localPath = localPath.split("\\?v=")[0];
         }
         fileName =  MobileAppInfo.getSdcardPath()+"/" + appId + localPath;
         return fileName;
     }
-
-//    WebResourceResponse shouldInterceptRequestTest(WebView view, String url) {
-//        ParcelFileDescriptor[] pipe = new ParcelFileDescriptor[0]; // 创建一个管道，一个出口，一个入口
-//        try {
-//            pipe = ParcelFileDescriptor.createPipe();
-//            new TransferThread(context, uri, new ParcelFileDescriptor.AutoCloseOutputStream(pipe[1])).start();
-//            AssetFileDescriptor assetFileDescriptor = new AssetFileDescriptor(pipe[0], 0, AssetFileDescriptor.UNKNOWN_LENGTH);
-//            FileInputStream in = assetFileDescriptor.createInputStream();
-//            return new WebResourceResponse(type, "utf-8", in);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return new WebResourceResponse(type, "utf-8", in);
-//    }
 }

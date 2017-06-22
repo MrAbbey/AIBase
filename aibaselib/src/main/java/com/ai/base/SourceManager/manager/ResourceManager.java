@@ -19,6 +19,8 @@ import com.ailk.common.data.impl.DataMap;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.ai.base.SourceManager.app.MobileAppInfo.getSdcardPath;
 
@@ -38,15 +40,17 @@ public class ResourceManager {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0:
+                    updateResProgressDialog.setProgress(ResVersionManager.updateCount);
+                    updateResProgressDialog.dismiss();
                     break;
                 case 1:
                     updateResource();
                     break;
                 case 3:
-                    if (fileCount == filecount_Done) {
+                    updateResProgressDialog.setProgress(filecount_Done);
+                    if (ResVersionManager.updateCount <= filecount_Done) {
+                        updateResProgressDialog.setProgress(ResVersionManager.updateCount);
                         updateResProgressDialog.dismiss();
-                    }else {
-                        updateResProgressDialog.setProgress(filecount_Done);
                     }
                     break;
                 case 4:
@@ -122,6 +126,7 @@ public class ResourceManager {
         ConfirmDialog confirmDialog = new ConfirmDialog(mContext, "资源更新", "远端发现新资源,是否更新") {
             protected void okEvent() {
                 super.okEvent();
+                progressDialogShow();
                 updateRes();
             }
 
@@ -134,24 +139,15 @@ public class ResourceManager {
     }
 
     public void updateRes() {
-        MobileThread updateResourceThread = new MobileThread("updateResource") {
-            protected WebResourceResponse execute() throws Exception {
-                // TODO: 2017/6/12 根据解析出来的版本下载相应的文件
-                if (handler != null) {
-                    handler.sendEmptyMessage(4);
-                }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
                 downloadResource();
-                return null;
             }
-
-            protected void error(Exception e) {
-
-            }
-        };
-        updateResourceThread.start();
+        }).start();
     }
 
-    public void downloadResource() throws Exception {
+    public void downloadResource(){
         long start = System.currentTimeMillis();
         Map remoteResVersions = null;
         if (MultipleManager.isMultiple()) {
@@ -160,16 +156,25 @@ public class ResourceManager {
             remoteResVersions = ResVersionManager.remoteResVersions;
         }
 
-        Iterator it = remoteResVersions.keySet().iterator();
+        final Iterator it = remoteResVersions.keySet().iterator();
         fileCount = remoteResVersions.size();
-
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(40);
         while (it.hasNext()) {
             if (Thread.currentThread().isInterrupted()) {
                 return;
             }
+            final String path = it.next().toString();
+            fixedThreadPool.execute(new Runnable() {
+                public void run() {
+                    try {
+                        checkResource(path, mContextWapper, handler);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
 
-            String path = it.next().toString();
-            checkResource(path, mContextWapper, handler);
+            //checkResource(path, mContextWapper, handler);
         }
 
         ServerPageConfig.getInstance();
@@ -181,9 +186,9 @@ public class ResourceManager {
             //downPath = FileUtil.connectFilePath(GlobalString.baseResPath, path.substring(8));
             downloadFile(path);
             // TODO: 2017/6/13 发送http请求获取资源文件
-            if (handler != null) {
-                handler.sendEmptyMessage(3);
-            }
+//            if (handler != null) {
+//                handler.sendEmptyMessage(3);
+//            }
 
         }
     }
@@ -210,12 +215,18 @@ public class ResourceManager {
         OkHttpBaseAPI okHttpBaseAPI = new OkHttpBaseAPI();
         byte[] data = okHttpBaseAPI.httpGetFileDataTask(baseAddress + path, "song");
         FileUtilCommon.writeByte2File(getSdcardPath() + "/" +MultipleManager.getCurrAppId() + "/" +downPath , fileName, data, "");
-        handler.sendEmptyMessage(0);
+        fileCountDoneCount();
+    }
+
+    private synchronized void fileCountDoneCount() {
         filecount_Done++;
+        if (handler != null) {
+               handler.sendEmptyMessage(3);
+        }
     }
 
     private ProgressDialog createUpdateResProgressDialog() {
-        SimpleProgressDialog simpleProgressDialog = (SimpleProgressDialog) new SimpleProgressDialog(mContext).setMessage("资源更新中");
+        SimpleProgressDialog simpleProgressDialog = (SimpleProgressDialog) new SimpleProgressDialog(mContext).setMessage("资源更新中...");
         simpleProgressDialog.setProgressStyle(1);
         simpleProgressDialog.setCancelable(false);
         simpleProgressDialog.getProgressDialog().setMax(ResVersionManager.updateCount);
