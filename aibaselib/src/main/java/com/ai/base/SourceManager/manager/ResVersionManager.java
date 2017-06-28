@@ -21,11 +21,12 @@ import java.util.Map;
 public class ResVersionManager {
     private static final String LOCAL_RES_VERSION = "LOCAL_RES_VERSION";
     public static int updateCount = 0;
+    public static float filesSize = 0;//下载文件的总大小
     static Map<String, ?> remoteResVersions;
     static Map<String, Map<String, ?>> multipleRemoteResVersions = new HashMap();
     static Map<String, String> localResVersions;
     static Map<String, Map<String, String>> multipleLocalResVersions = new HashMap();
-
+    private static String subStr = "\\|";
     public ResVersionManager() {
     }
 
@@ -105,10 +106,16 @@ public class ResVersionManager {
 
             updateCount = 0;
             Iterator it1 = var10.keySet().iterator();
-
+            float fileSize;
+            String value;
             while(it1.hasNext()) {
                 var15 = it1.next();
                 if(!localResVersions.containsKey(var15)) {
+                    value = String.valueOf(remoteResVersions.get(var15));
+                    if (value.contains("|")){
+                        fileSize = Float.parseFloat(value.split(subStr)[1]);
+                        filesSize = filesSize + fileSize;
+                    }
                     ++updateCount;
                 } else {
                     Object var18 = var10.get(var15);
@@ -140,15 +147,21 @@ public class ResVersionManager {
 
             updateCount = 0;
             Iterator it = remoteResVersions.keySet().iterator();
-
+            float fileSize;
+            String value;
             while(it.hasNext()) {
                 Object var13 = it.next();
                 if(!localResVersions.containsKey(var13)) {
+                    value = String.valueOf(remoteResVersions.get(var13));
+                    if (value.contains("|")){
+                        fileSize = Float.parseFloat(value.split(subStr)[1]);
+                        filesSize = filesSize + fileSize;
+                    }
                     ++updateCount;
                 } else {
                     var15 = remoteResVersions.get(var13);
                     if(!var15.equals(localResVersions.get(var13))) {
-                        ++updateCount;
+                        ++ updateCount;
                     }
                 }
             }
@@ -179,7 +192,7 @@ public class ResVersionManager {
         // TODO: 2017/6/12 测试文件
         //in = context.getResources().getAssets().open("res.version.properties");
         OkHttpBaseAPI okHttpBaseAPI = new OkHttpBaseAPI();
-        byte[] data = okHttpBaseAPI.httpGetFileDataTask(baseAddress +"res.version.properties", "download web view resource");
+        byte[] data = okHttpBaseAPI.httpGetFileDataTask(baseAddress +"/res.version.properties", "download web view resource");
         if (data == null) return null;
         in = new ByteArrayInputStream(data);
         MobileProperties pro = new MobileProperties(in);

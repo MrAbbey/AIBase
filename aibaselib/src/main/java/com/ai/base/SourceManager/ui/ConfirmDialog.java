@@ -10,7 +10,7 @@ import android.content.DialogInterface;
 
 public class ConfirmDialog extends AlertDialog.Builder {
     public ConfirmDialog(Context context, String title, String message, String okLabel, String cancelLabel, String midLabel) {
-        super(context);
+        super(context,AlertDialog.THEME_HOLO_DARK);
         if(message != null) {
             this.setMessage(message);
         }
@@ -23,7 +23,6 @@ public class ConfirmDialog extends AlertDialog.Builder {
         if(okLabel == null) {
             okLabel ="确定";
         }
-
         this.setPositiveButton(okLabel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 ConfirmDialog.this.okEvent();

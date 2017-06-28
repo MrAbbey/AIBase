@@ -249,8 +249,9 @@ public class FileUtilCommon {
 			}
 			file.createNewFile();
 			FileOutputStream fos = new FileOutputStream(file);
-		    fos.write(data);  
-		    fos.close(); 
+		    fos.write(data);
+		    fos.close();
+			fos = null;
 		    return true;
 		} catch (IOException e) {
 			e.printStackTrace();

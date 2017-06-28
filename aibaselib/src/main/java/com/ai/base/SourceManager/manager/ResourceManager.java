@@ -6,6 +6,7 @@ import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.webkit.WebResourceResponse;
 
 import com.ai.base.SourceManager.common.MobileThread;
@@ -13,7 +14,13 @@ import com.ai.base.SourceManager.config.ServerPageConfig;
 import com.ai.base.SourceManager.ui.ConfirmDialog;
 import com.ai.base.SourceManager.ui.progressDialog.SimpleProgressDialog;
 import com.ai.base.okHttp.OkHttpBaseAPI;
+import com.ai.base.okHttp.OkHttpUtils;
+import com.ai.base.okHttp.cookie.CookieJarImpl;
+import com.ai.base.okHttp.cookie.store.PersistentCookieStore;
+import com.ai.base.okHttp.https.HttpsUtils;
+import com.ai.base.okHttp.log.LoggerInterceptor;
 import com.ai.base.util.FileUtilCommon;
+import com.ai.base.util.LogUtil;
 import com.ailk.common.data.IData;
 import com.ailk.common.data.impl.DataMap;
 
@@ -21,6 +28,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
+
+import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
 
 import static com.ai.base.SourceManager.app.MobileAppInfo.getSdcardPath;
 
@@ -64,7 +78,7 @@ public class ResourceManager {
     /**
      *
      * @param context
-     * @param baseAddress 远程资源文件的根目录
+     * @param baseAddress 远程资源文件的hostname
      * @param currAppid
      */
     public ResourceManager(Context context,String baseAddress,String currAppid) {
@@ -76,38 +90,22 @@ public class ResourceManager {
     }
 
     public void update() throws Exception {
-        MobileThread updateThread = new MobileThread("Update") {
-            protected WebResourceResponse execute() throws Exception {
-                long start = System.currentTimeMillis();
-                IData versions = getVersion();
-               /* if (AppRecord.isFirst(mContext)) {
-                    try {
-                        AssetsUtil.copyAssetsDir(mContext, MobileAppInfo.getInstance(mContext).getAppPath(), MobileAppInfo.getSdcardAppPath(mContext));
-                        AppRecord.dirtyFirst(mContext);
-                    } catch (Exception var9) {
-                        this.error(var9);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Map remoteResVersions = null;
+                try {
+                    remoteResVersions = ResVersionManager.getRemoteResVersions(mContext,baseAddress);
+                    if (remoteResVersions == null) return;
+                    if (ResVersionManager.isUpdateResource(mContextWapper, remoteResVersions)) {
+                        handler.sendEmptyMessage(1);
                     }
-                }*/
-
-                /*String resKey = getResKey();
-                if (resKey != null) {
-                    initResKey(resKey);
-                }*/
-
-                Map remoteResVersions = ResVersionManager.getRemoteResVersions(mContext,baseAddress);
-                if (remoteResVersions == null) return null;
-                if (ResVersionManager.isUpdateResource(mContextWapper, remoteResVersions)) {
-                    handler.sendEmptyMessage(1);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
-                return null;
             }
-
-            protected void error(Exception e) {
-                //
-            }
-        };
-        updateThread.start();
+        }).start();
     }
 
     protected IData getVersion() throws Exception {
@@ -123,14 +121,24 @@ public class ResourceManager {
     }
 
     protected void updateResource() {
-        ConfirmDialog confirmDialog = new ConfirmDialog(mContext, "资源更新", "远端发现新资源,是否更新") {
+        double fileSize = ResVersionManager.filesSize / 1048576;
+        String size = String.format("%.1f", fileSize);
+        String sizeMessage;
+        if (fileSize < 1){
+            sizeMessage = "文件小于1M";
+        }else {
+            sizeMessage = "文件大小为：" + size + "M";
+        }
+        ConfirmDialog confirmDialog = new ConfirmDialog(mContext, "资源更新", "远端发现新资源," + sizeMessage + "建议在WIFI环境下下载") {
             protected void okEvent() {
                 super.okEvent();
                 progressDialogShow();
                 updateRes();
+                ResVersionManager.filesSize = 0;
             }
 
             protected void cancelEvent() {
+                ResVersionManager.filesSize = 0;
                 super.cancelEvent();
             }
         };
@@ -158,11 +166,12 @@ public class ResourceManager {
 
         final Iterator it = remoteResVersions.keySet().iterator();
         fileCount = remoteResVersions.size();
-        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(40);
+        int threadNumber = 40;
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(threadNumber);
         while (it.hasNext()) {
-            if (Thread.currentThread().isInterrupted()) {
-                return;
-            }
+//            if (Thread.currentThread().isInterrupted()) {
+//                return;
+//            }
             final String path = it.next().toString();
             fixedThreadPool.execute(new Runnable() {
                 public void run() {
@@ -212,9 +221,9 @@ public class ResourceManager {
         if (fileName.contains("?v=")){
             fileName = fileName.split("\\?v=")[0];
         }
-        OkHttpBaseAPI okHttpBaseAPI = new OkHttpBaseAPI();
-        byte[] data = okHttpBaseAPI.httpGetFileDataTask(baseAddress + path, "song");
+        byte[] data = OkHttpBaseAPI.getInstance().httpGetFileDataTask(baseAddress + "/" + path, "song");
         FileUtilCommon.writeByte2File(getSdcardPath() + "/" +MultipleManager.getCurrAppId() + "/" +downPath , fileName, data, "");
+        data = null;
         fileCountDoneCount();
     }
 

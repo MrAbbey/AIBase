@@ -1,5 +1,6 @@
 package com.ai.base.okHttp;
 
+import android.content.ContextWrapper;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -22,10 +23,20 @@ import okio.Timeout;
  * Created by song
  */
 public class OkHttpBaseAPI {
-
+    public static OkHttpBaseAPI instance;
     private final String TAG = OkHttpBaseAPI.class.getSimpleName();
     private  long requestEndTime;
     private long requestStartTime;
+    public static OkHttpBaseAPI getInstance() {
+        if (instance == null) {
+            synchronized (OkHttpBaseAPI.class) {
+                if (instance == null) {
+                    instance = new OkHttpBaseAPI();
+                }
+            }
+        }
+        return instance;
+    }
     public String getResponeStr(Response response, String url, String taskName) {
         String result = "";
         try {
@@ -272,9 +283,52 @@ public class OkHttpBaseAPI {
         return null;
     }
 
+    public byte[] httpGetFileDataTaskNew(String url, String taskName) {
+
+        String token = null;
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", token);
+        headers.put("Accept", "application/json");
+        headers.put("ContentType", "application/json; charset=utf-8");
+        Response response = null;
+
+        try {
+            response = OkHttpUtils
+                    .postString()
+                    .url(url)
+                    .headers(headers)
+                    .build()
+                    .execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        long startTime = System.currentTimeMillis();
+        if (response == null) {
+        } else {
+            try {
+                InputStream is = response.body().byteStream();
+
+                ByteArrayOutputStream outSteam = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int len = -1;
+                while ((len = is.read(buffer)) != -1) {
+                    outSteam.write(buffer, 0, len);
+                }
+                outSteam.close();
+                is.close();
+                return outSteam.toByteArray();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return null;
+    }
+
     public byte[] httpGetFileDataTask(String url, String taskName) {
         String token = null;
-        OkHttpClient okHttpClient = new OkHttpClient();
+        OkHttpClient okHttpClient = OkHttpUtils.getInstance().getOkHttpClient();
         Request request = new Request.Builder()
                 .url(url)
                 //.header("Authorization", token)
@@ -312,6 +366,7 @@ public class OkHttpBaseAPI {
             try {
                 if (is != null) {
                     is.close();
+                    is = null;
                 }
             } catch (IOException e) {
                 e.printStackTrace();

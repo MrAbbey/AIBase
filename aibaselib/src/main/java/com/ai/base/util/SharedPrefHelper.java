@@ -18,8 +18,18 @@ import java.util.Map;
  */
 
 public class SharedPrefHelper {
+    private static SharedPrefHelper instance;
     private ContextWrapper context;
+    public static SharedPrefHelper getInstance(ContextWrapper context) {
+        if(instance == null) {
+            Class var0 = LocalStorageManager.class;
+            synchronized(LocalStorageManager.class) {
+                instance = new SharedPrefHelper(context);
+            }
+        }
 
+        return instance;
+    }
     public SharedPrefHelper(ContextWrapper context) {
         this.context = context;
     }
