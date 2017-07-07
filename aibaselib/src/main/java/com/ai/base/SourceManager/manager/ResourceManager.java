@@ -4,23 +4,18 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
-import android.webkit.WebResourceResponse;
 
-import com.ai.base.SourceManager.common.MobileThread;
+import com.ai.Interfaces.UploadSourceFileListener;
 import com.ai.base.SourceManager.config.ServerPageConfig;
 import com.ai.base.SourceManager.ui.ConfirmDialog;
 import com.ai.base.SourceManager.ui.progressDialog.SimpleProgressDialog;
 import com.ai.base.okHttp.OkHttpBaseAPI;
-import com.ai.base.okHttp.OkHttpUtils;
-import com.ai.base.okHttp.cookie.CookieJarImpl;
-import com.ai.base.okHttp.cookie.store.PersistentCookieStore;
-import com.ai.base.okHttp.https.HttpsUtils;
-import com.ai.base.okHttp.log.LoggerInterceptor;
 import com.ai.base.util.FileUtilCommon;
 import com.ai.base.util.LogUtil;
+import com.ai.base.util.SharedPrefHelper;
 import com.ailk.common.data.IData;
 import com.ailk.common.data.impl.DataMap;
 
@@ -28,13 +23,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
-
-import okhttp3.ConnectionPool;
-import okhttp3.OkHttpClient;
 
 import static com.ai.base.SourceManager.app.MobileAppInfo.getSdcardPath;
 
@@ -47,15 +35,18 @@ public class ResourceManager {
     private Context mContext;
     private String baseAddress;
     private ContextWrapper mContextWapper;
-    private static int fileCount = 0;//下载文件的总数
     private int filecount_Done = 0;//已经下载的文件总数
     private ProgressDialog updateResProgressDialog;
+    private UploadSourceFileListener uploadSourceFileListener;
     final Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0:
                     updateResProgressDialog.setProgress(ResVersionManager.updateCount);
                     updateResProgressDialog.dismiss();
+                    if (uploadSourceFileListener != null) {
+                        uploadSourceFileListener.uploadDone();
+                    }
                     break;
                 case 1:
                     updateResource();
@@ -65,6 +56,9 @@ public class ResourceManager {
                     if (ResVersionManager.updateCount <= filecount_Done) {
                         updateResProgressDialog.setProgress(ResVersionManager.updateCount);
                         updateResProgressDialog.dismiss();
+                        if (uploadSourceFileListener != null) {
+                            uploadSourceFileListener.uploadDone();
+                        }
                     }
                     break;
                 case 4:
@@ -90,16 +84,67 @@ public class ResourceManager {
     }
 
     public void update() throws Exception {
+        ResVersionManager.updateCount = 0;
+        filecount_Done = 0;
         new Thread(new Runnable() {
             @Override
             public void run() {
                 Map remoteResVersions = null;
                 try {
-                    remoteResVersions = ResVersionManager.getRemoteResVersions(mContext,baseAddress);
-                    if (remoteResVersions == null) return;
+                    remoteResVersions = ResVersionManager.getRemoteResVersions(mContext,baseAddress,true);
+                    if (remoteResVersions == null) {
+                        if (uploadSourceFileListener != null)
+                        uploadSourceFileListener.uploadDone();
+                        return;
+                    }
                     if (ResVersionManager.isUpdateResource(mContextWapper, remoteResVersions)) {
                         handler.sendEmptyMessage(1);
+                    }else {
+                        if (uploadSourceFileListener != null)
+                        uploadSourceFileListener.uploadDone();
                     }
+                } catch (Exception e) {
+                    if (uploadSourceFileListener != null)
+                        uploadSourceFileListener.uploadDone();
+                    e.printStackTrace();
+                }
+
+            }
+        }).start();
+    }
+
+    /**
+     * 从本地获取版本信息
+     * @throws Exception
+     */
+    public void updateFromLocalFile() throws Exception {
+        ResVersionManager.updateCount = 0;
+        filecount_Done = 0;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Map remoteResVersions = null;
+                try {
+                    float startTime = System.currentTimeMillis();
+                    remoteResVersions = ResVersionManager.getRemoteResVersions(mContext,null,false);
+                    if (remoteResVersions == null) return;
+                    final Iterator it = remoteResVersions.keySet().iterator();
+                    String sharedName;
+                    if(MultipleManager.isMultiple()) {
+                        sharedName = "LOCAL_RES_VERSION_" + MultipleManager.getCurrAppId();
+                    } else {
+                        sharedName = "LOCAL_RES_VERSION";
+                    }
+                    SharedPreferences.Editor shareEditor = mContextWapper.getSharedPreferences(sharedName, 0).edit();
+                    while (it.hasNext()) {
+                        String path = it.next().toString();
+                        String value = String.valueOf(remoteResVersions.get(path));
+                        ResVersionManager.getLocalResVersions(mContextWapper).put(path, value);
+                        shareEditor.putString(path, value);
+                    }
+                    shareEditor.commit();
+                    float endTime = System.currentTimeMillis();
+                    LogUtil.d("updateSource----------",(endTime-startTime)/1000 + "秒");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -165,7 +210,6 @@ public class ResourceManager {
         }
 
         final Iterator it = remoteResVersions.keySet().iterator();
-        fileCount = remoteResVersions.size();
         int threadNumber = 40;
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(threadNumber);
         while (it.hasNext()) {
@@ -191,9 +235,8 @@ public class ResourceManager {
 
     public void checkResource(String path, ContextWrapper context, Handler handler) throws Exception {
         {
-            ResVersionManager.setLocalResVersion(context, path, ResVersionManager.getRemoteResVersion(path));
             //downPath = FileUtil.connectFilePath(GlobalString.baseResPath, path.substring(8));
-            downloadFile(path);
+            downloadFile(context,path);
             // TODO: 2017/6/13 发送http请求获取资源文件
 //            if (handler != null) {
 //                handler.sendEmptyMessage(3);
@@ -212,7 +255,7 @@ public class ResourceManager {
         updateResProgressDialog.show();
     }
 
-    private void downloadFile(String path) {
+    private void downloadFile(ContextWrapper context,String path) {
         String [] temps = path.split("\\/");
         int length = temps.length;
         String fileName = temps[length-1];
@@ -224,10 +267,15 @@ public class ResourceManager {
         byte[] data = OkHttpBaseAPI.getInstance().httpGetFileDataTask(baseAddress + "/" + path, "song");
         FileUtilCommon.writeByte2File(getSdcardPath() + "/" +MultipleManager.getCurrAppId() + "/" +downPath , fileName, data, "");
         data = null;
-        fileCountDoneCount();
+        fileCountDoneCount(context,path);
     }
 
-    private synchronized void fileCountDoneCount() {
+    private synchronized void fileCountDoneCount(ContextWrapper context,String path) {
+        try {
+            ResVersionManager.setLocalResVersion(context, path, ResVersionManager.getRemoteResVersion(path));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         filecount_Done++;
         if (handler != null) {
                handler.sendEmptyMessage(3);
@@ -243,5 +291,9 @@ public class ResourceManager {
 
         ProgressDialog progressDialog = simpleProgressDialog.build();
         return progressDialog;
+    }
+
+    public void setUploadSourceFileListener(UploadSourceFileListener uploadSourceFileListener) {
+        this.uploadSourceFileListener = uploadSourceFileListener;
     }
 }

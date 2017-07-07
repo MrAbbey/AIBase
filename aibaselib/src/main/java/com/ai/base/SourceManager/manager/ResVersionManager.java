@@ -82,90 +82,65 @@ public class ResVersionManager {
     }
 
     public static boolean isUpdateResource(ContextWrapper context, Map<String, ?> remoteResVersions) throws Exception {
+        filesSize = 0;
+        updateCount = 0;
         Map localResVersions;
         Object var15;
         if(MultipleManager.isMultiple()) {
             localResVersions = getLocalResVersions(context);
-            Map var10 = getRemoteResVersions();
-            Iterator var12 = localResVersions.keySet().iterator();
-            HashSet var14 = new HashSet();
-
-            while(var12.hasNext()) {
-                String var11 = (String)var12.next();
-                if(!var10.containsKey(var11)) {
-                    var14.add(var11);
-                }
-            }
-
-            Iterator var16 = var14.iterator();
-
-            while(var16.hasNext()) {
-                String var17 = (String)var16.next();
-                removeLocalResVersion(context, var17);
-            }
-
-            updateCount = 0;
-            Iterator it1 = var10.keySet().iterator();
-            float fileSize;
-            String value;
-            while(it1.hasNext()) {
-                var15 = it1.next();
-                if(!localResVersions.containsKey(var15)) {
-                    value = String.valueOf(remoteResVersions.get(var15));
-                    if (value.contains("|")){
-                        fileSize = Float.parseFloat(value.split(subStr)[1]);
-                        filesSize = filesSize + fileSize;
-                    }
-                    ++updateCount;
-                } else {
-                    Object var18 = var10.get(var15);
-                    if(!var18.equals(localResVersions.get(var15))) {
-                        ++updateCount;
+            Map remoteResVersios = getRemoteResVersions();
+            HashSet tempSet = new HashSet();//需要充下载列表中剔除的列表
+            Iterator remoteIterator = remoteResVersios.keySet().iterator();
+            while(remoteIterator.hasNext()) {
+                String key = (String)remoteIterator.next();
+                if (localResVersions.containsKey(key)){
+                    if (remoteResVersions.get(key).equals(localResVersions.get(key))){
+                        tempSet.add(key);
                     }
                 }
             }
 
+            Iterator tempSetIterator = tempSet.iterator();
+
+            while(tempSetIterator.hasNext()) {
+                remoteResVersions.remove((String)tempSetIterator.next());
+            }
+            if (remoteResVersions != null && remoteResVersions.size() >0){
+                updateCount = remoteResVersions.size();
+            }
             return updateCount > 0;
         } else {
             localResVersions = getLocalResVersions(context);
-            Iterator itLocal = localResVersions.keySet().iterator();
-            HashSet itLocalDel = new HashSet();
-
-            while(itLocal.hasNext()) {
-                String keyLocal = (String)itLocal.next();
-                if(!remoteResVersions.containsKey(keyLocal)) {
-                    itLocalDel.add(keyLocal);
-                }
-            }
-
-            Iterator key = itLocalDel.iterator();
-
-            while(key.hasNext()) {
-                String value = (String)key.next();
-                removeLocalResVersion(context, value);
-            }
-
-            updateCount = 0;
-            Iterator it = remoteResVersions.keySet().iterator();
+            HashSet tempSet = new HashSet();//需要充下载列表中剔除的列表
+            Iterator remoteIterator = remoteResVersions.keySet().iterator();
             float fileSize;
-            String value;
-            while(it.hasNext()) {
-                Object var13 = it.next();
-                if(!localResVersions.containsKey(var13)) {
-                    value = String.valueOf(remoteResVersions.get(var13));
-                    if (value.contains("|")){
-                        fileSize = Float.parseFloat(value.split(subStr)[1]);
-                        filesSize = filesSize + fileSize;
-                    }
-                    ++updateCount;
-                } else {
-                    var15 = remoteResVersions.get(var13);
-                    if(!var15.equals(localResVersions.get(var13))) {
-                        ++ updateCount;
+            while(remoteIterator.hasNext()) {
+                String key = (String)remoteIterator.next();
+                String remoteValue = (String) remoteResVersions.get(key);
+                if (remoteValue.contains("|")){
+                    fileSize = Float.parseFloat(remoteValue.split(subStr)[1]);
+                    filesSize = filesSize + fileSize;
+                }
+                if (localResVersions.containsKey(key)){
+                    if (remoteValue.equals(localResVersions.get(key))){
+                        tempSet.add(key);
                     }
                 }
             }
-
+            //删除不需要更新的key
+            Iterator tempSetIterator = tempSet.iterator();
+            while(tempSetIterator.hasNext()) {
+                String key = (String)tempSetIterator.next();
+                String remoteValue = (String) remoteResVersions.get(key);
+                if (remoteValue.contains("|")){
+                    fileSize = Float.parseFloat(remoteValue.split(subStr)[1]);
+                    filesSize = filesSize - fileSize;
+                }
+                remoteResVersions.remove(key);
+            }
+            if (remoteResVersions != null && remoteResVersions.size() >0){
+                updateCount = remoteResVersions.size();
+            }
             return updateCount > 0;
         }
     }
@@ -185,19 +160,27 @@ public class ResVersionManager {
         return MultipleManager.isMultiple()?(Map)multipleRemoteResVersions.get(MultipleManager.getCurrAppId()):remoteResVersions;
     }
 
-    public static Map<String, ?> getRemoteResVersions(Context context,String baseAddress) throws Exception {
+    /**
+     *
+     * @param fromServer 版本文件是否来自服务器
+     * @param baseAddress 版本文件的服务器下载地址，如果是本地则设置为null
+     * @return
+     * @throws Exception
+     */
+    public static Map<String, ?> getRemoteResVersions(Context context,String baseAddress,boolean fromServer) throws Exception {
 
         // TODO: 2017/6/12  从服务器获取版本文件。并解析保存到map中
         InputStream in = null;
         // TODO: 2017/6/12 测试文件
-        //in = context.getResources().getAssets().open("res.version.properties");
-        OkHttpBaseAPI okHttpBaseAPI = new OkHttpBaseAPI();
-        byte[] data = okHttpBaseAPI.httpGetFileDataTask(baseAddress +"/res.version.properties", "download web view resource");
-        if (data == null) return null;
-        in = new ByteArrayInputStream(data);
+        if (fromServer){
+            OkHttpBaseAPI okHttpBaseAPI = new OkHttpBaseAPI();
+            byte[] data = okHttpBaseAPI.httpGetFileDataTask(baseAddress +"/res.version.properties", "download web view resource");
+            if (data == null) return null;
+            in = new ByteArrayInputStream(data);
+        }else {
+            in = context.getResources().getAssets().open("res.version.properties");
+        }
         MobileProperties pro = new MobileProperties(in);
-        data = null;
-        in = null;
         if(MultipleManager.isMultiple()) {
             Map subAppRemoteResVersionsMap = pro.getProMap();
             ResVersionManager.multipleRemoteResVersions.put(MultipleManager.getCurrAppId(), subAppRemoteResVersionsMap);
