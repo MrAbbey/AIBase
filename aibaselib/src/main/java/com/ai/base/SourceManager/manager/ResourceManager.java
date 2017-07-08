@@ -56,9 +56,6 @@ public class ResourceManager {
                     if (ResVersionManager.updateCount <= filecount_Done) {
                         updateResProgressDialog.setProgress(ResVersionManager.updateCount);
                         updateResProgressDialog.dismiss();
-                        if (uploadSourceFileListener != null) {
-                            uploadSourceFileListener.uploadDone();
-                        }
                     }
                     break;
                 case 4:
@@ -93,19 +90,12 @@ public class ResourceManager {
                 try {
                     remoteResVersions = ResVersionManager.getRemoteResVersions(mContext,baseAddress,true);
                     if (remoteResVersions == null) {
-                        if (uploadSourceFileListener != null)
-                        uploadSourceFileListener.uploadDone();
                         return;
                     }
                     if (ResVersionManager.isUpdateResource(mContextWapper, remoteResVersions)) {
                         handler.sendEmptyMessage(1);
-                    }else {
-                        if (uploadSourceFileListener != null)
-                        uploadSourceFileListener.uploadDone();
                     }
                 } catch (Exception e) {
-                    if (uploadSourceFileListener != null)
-                        uploadSourceFileListener.uploadDone();
                     e.printStackTrace();
                 }
 

@@ -7,7 +7,7 @@ package com.ai.base.util;
  *
  */
 public class LogUtil {
-	static boolean logEnabled = true;
+	public static boolean logEnabled = true;
 	
 	public static void v(String tag, String msg)
 	{

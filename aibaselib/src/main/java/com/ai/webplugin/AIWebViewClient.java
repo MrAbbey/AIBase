@@ -188,6 +188,11 @@ public class AIWebViewClient extends WebViewClient {
 
     private WebResourceResponse getWebResourceResponse(String url, String mime, String style) {
         WebResourceResponse response = null;
+//        if (url.contains("common.js") || url.contains("iscroll.js")
+//                || url.contains("plugin.js") || url.contains("cpaperlessWork.js")
+//                || url.contains("select.js")|| url.contains("table.js")) {
+//            return null;
+//        }
         String localSourceFileName = getLocalSoruceFileNameByUrl(url);
         if (localSourceFileName == null) {
             return null;
