@@ -48,7 +48,7 @@ task makeJar(type: Copy) {
     //删除存在的
     delete 'build/libs/aibase.jar'
     //设置拷贝的文件
-    from('build/intermediates/bundles/release/')
+    from('build/intermediates/bundles/debug/')
     //打进jar包后的文件目录
     into('build/libs/')
     //将classes.jar放入build/libs/目录下

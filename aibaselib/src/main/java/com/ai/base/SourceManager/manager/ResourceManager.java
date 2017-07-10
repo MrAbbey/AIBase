@@ -55,7 +55,14 @@ public class ResourceManager {
                     updateResProgressDialog.setProgress(filecount_Done);
                     if (ResVersionManager.updateCount <= filecount_Done) {
                         updateResProgressDialog.setProgress(ResVersionManager.updateCount);
-                        updateResProgressDialog.dismiss();
+
+                        if(updateResProgressDialog.isShowing()){
+                            if (uploadSourceFileListener != null) {
+                                uploadSourceFileListener.uploadDone();
+                            }
+                            updateResProgressDialog.dismiss();
+                        }
+
                     }
                     break;
                 case 4:
