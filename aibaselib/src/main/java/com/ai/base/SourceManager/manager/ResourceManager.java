@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
+import android.webkit.WebResourceResponse;
 
 import com.ai.Interfaces.UploadSourceFileListener;
 import com.ai.base.SourceManager.config.ServerPageConfig;
@@ -15,7 +16,7 @@ import com.ai.base.SourceManager.ui.progressDialog.SimpleProgressDialog;
 import com.ai.base.okHttp.OkHttpBaseAPI;
 import com.ai.base.util.FileUtilCommon;
 import com.ai.base.util.LogUtil;
-import com.ai.base.util.SharedPrefHelper;
+import com.ai.webplugin.WebViewManager;
 import com.ailk.common.data.IData;
 import com.ailk.common.data.impl.DataMap;
 
@@ -138,6 +139,18 @@ public class ResourceManager {
                         String value = String.valueOf(remoteResVersions.get(path));
                         ResVersionManager.getLocalResVersions(mContextWapper).put(path, value);
                         shareEditor.putString(path, value);
+                        try {
+                            String url = baseAddress + "/" + path;
+                            WebViewManager webViewManager = new WebViewManager(baseAddress, MultipleManager.getCurrAppId());
+                            WebResourceResponse webResourceResponse = webViewManager.getWebLocalResourceResponseByUrl(url);
+                            {
+                                if (webResourceResponse != null) {
+                                    webViewManager.saveResoponeByFileName(path, webResourceResponse);
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                     shareEditor.commit();
                     float endTime = System.currentTimeMillis();
@@ -261,10 +274,11 @@ public class ResourceManager {
         if (fileName.contains("?v=")){
             fileName = fileName.split("\\?v=")[0];
         }
-        byte[] data = OkHttpBaseAPI.getInstance().httpGetFileDataTask(baseAddress + "/" + path, "song");
+        String url = baseAddress + "/" + path;
+        byte[] data = OkHttpBaseAPI.getInstance().httpGetFileDataTask(url, "song");
         FileUtilCommon.writeByte2File(getSdcardPath() + "/" +MultipleManager.getCurrAppId() + "/" +downPath , fileName, data, "");
         data = null;
-        fileCountDoneCount(context,path);
+        fileCountDoneCount(context, path);
     }
 
     private synchronized void fileCountDoneCount(ContextWrapper context,String path) {

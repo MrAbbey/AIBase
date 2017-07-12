@@ -17,30 +17,30 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.ai.base.SourceManager.app.MobileAppInfo;
+import com.ai.base.SourceManager.common.LRUCache;
 import com.ai.base.util.LogUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * Created by wuyoujian on 17/4/5.
  */
 
 public class AIWebViewClient extends WebViewClient {
-    private String hostName;
-    private String appId;
+    private WebViewManager webViewManager;
+    private String filterList[] = {"211.137.132.89","http://www.wuyoujian.com"};
+
     public AIWebViewClient(String hostName,String appId) {
         //http://10.131.67.86:8080/mbosscentre
-        this.hostName = hostName;
-        this.appId = appId;
+        webViewManager = new WebViewManager(hostName,appId);
     }
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        if ( url.contains("http://www.wuyoujian.com")) {
-            return true;
-        }
+        if (IpAddressfilter(url)) return true;
         return super.shouldOverrideUrlLoading(view, url);
     }
 
@@ -49,9 +49,7 @@ public class AIWebViewClient extends WebViewClient {
     public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
 
         String url = request.getUrl().toString();
-        if ( url.contains("http://www.wuyoujian.com")) {
-            return true;
-        }
+        if (IpAddressfilter(url)) return true;
         return super.shouldOverrideUrlLoading(view,request);
     }
 
@@ -136,9 +134,13 @@ public class AIWebViewClient extends WebViewClient {
     public WebResourceResponse shouldInterceptRequest(WebView view,String url) {
         final String tempUrl = url;
         final WebResourceResponse responseDefault = super.shouldInterceptRequest(view, url);
-        WebResourceResponse responseLocal = getWebLocalResourceResponseByUrl(tempUrl);
+        WebResourceResponse responseLocal = webViewManager.getWebLocalResourceResponseByUrl(tempUrl);
         LogUtil.d("webViewClient url ----API21以下---", tempUrl);
-        return responseLocal == null ? responseDefault : responseLocal;
+        WebResourceResponse response = responseLocal == null ? responseDefault : responseLocal;
+        if(response != null){
+            webViewManager.saveResoponeByUrl(tempUrl,response);
+        }
+        return response;
     }
 
 
@@ -146,82 +148,30 @@ public class AIWebViewClient extends WebViewClient {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-        WebResourceResponse responseDefault = super.shouldInterceptRequest(view, request);
         String tempUrl =  request.getUrl().toString();
+        WebResourceResponse responseDefault = super.shouldInterceptRequest(view, request);
         String method = request.getMethod();
         if (!method.equals("GET")){
             return responseDefault;
         }
-        WebResourceResponse responseLocal = getWebLocalResourceResponseByUrl(tempUrl);
+        WebResourceResponse responseLocal = webViewManager.getWebLocalResourceResponseByUrl(tempUrl);
         LogUtil.d("webViewClient url ----API21以上---", tempUrl);
-        return responseLocal == null ? responseDefault : responseLocal;
-    }
-
-
-
-    private WebResourceResponse getWebLocalResourceResponseByUrl(String tempUrl) {
-        WebResourceResponse response = null;
-        if (hostName != null && appId != null && tempUrl.contains(hostName)) {
-            if (tempUrl.endsWith(".png")) {
-                response = getWebResourceResponse(tempUrl, "image/png", ".png");
-            } else if (tempUrl.endsWith(".gif")) {
-                response = getWebResourceResponse(tempUrl, "image/gif", ".gif");
-            } else if (tempUrl.endsWith(".jpg")) {
-                response = getWebResourceResponse(tempUrl, "image/jepg", ".jpg");
-            } else if (tempUrl.endsWith(".jepg")) {
-                response = getWebResourceResponse(tempUrl, "image/jepg", ".jepg");
-            } else if (tempUrl.endsWith(".js") || tempUrl.contains(".js?v=") ) {
-                response = getWebResourceResponse(tempUrl, "text/javascript", ".js");
-            } else if (tempUrl.endsWith(".css") || tempUrl.contains(".css?v=") ) {
-                response = getWebResourceResponse(tempUrl, "text/css", ".css");
-            } else if (tempUrl.endsWith(".html") ) {
-                response = getWebResourceResponse(tempUrl, "text/html", ".html");
-            }else if (tempUrl.endsWith(".ttf") ) {
-                response = getWebResourceResponse(tempUrl, "application/octet-stream", ".ttf");
-            }
-            if (response != null) {
-                return response;
-            }
+        WebResourceResponse response = responseLocal == null ? responseDefault : responseLocal;
+        if(response != null){
+            webViewManager.saveResoponeByUrl(tempUrl,response);
         }
         return response;
     }
 
-    private WebResourceResponse getWebResourceResponse(String url, String mime, String style) {
-        WebResourceResponse response = null;
-//        if (url.contains("common.js") || url.contains("iscroll.js")
-//                || url.contains("plugin.js") || url.contains("cpaperlessWork.js")
-//                || url.contains("select.js")|| url.contains("table.js")) {
-//            return null;
-//        }
-        String localSourceFileName = getLocalSoruceFileNameByUrl(url);
-        if (localSourceFileName == null) {
-            return null;
-        }
-        File file = new File(localSourceFileName);
-        if (file.exists()){
-            try {
-                InputStream is = new FileInputStream(file);
-                response = new WebResourceResponse(mime, "UTF-8", is);
-                LogUtil.d("LocalWebViewClient url ----", localSourceFileName);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                return null;
+    //犀利了。被攻击了。
+    private boolean IpAddressfilter(String url) {
+        boolean needFilter = false;
+        for (String filterUrl : filterList){
+            if(url.contains(filterUrl)){
+                return true;
             }
         }
-        return response;
+        return needFilter;
     }
 
-    private String getLocalSoruceFileNameByUrl(String url) {
-        //http://211.137.133.80:8010/mbosscentre/v5/jcl/i18n/code.zh_CN.js?v=1
-        //hostName = http://211.137.133.80:8010/mbosscentre;
-        String fileName = null;
-        int cutLength = hostName.length();
-        int ulrLength = url.length();
-        String localPath = url.substring(cutLength, ulrLength);
-        if (localPath.contains("?v=")) {
-            localPath = localPath.split("\\?v=")[0];
-        }
-        fileName =  MobileAppInfo.getSdcardPath()+"/" + appId + localPath;
-        return fileName;
-    }
 }
