@@ -139,18 +139,18 @@ public class ResourceManager {
                         String value = String.valueOf(remoteResVersions.get(path));
                         ResVersionManager.getLocalResVersions(mContextWapper).put(path, value);
                         shareEditor.putString(path, value);
-                        try {
-                            String url = baseAddress + "/" + path;
-                            WebViewManager webViewManager = new WebViewManager(baseAddress, MultipleManager.getCurrAppId());
-                            WebResourceResponse webResourceResponse = webViewManager.getWebLocalResourceResponseByUrl(url);
-                            {
-                                if (webResourceResponse != null) {
-                                    webViewManager.saveResoponeByFileName(path, webResourceResponse);
-                                }
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+//                        try {
+//                            String url = baseAddress + "/" + path;
+//                            WebViewManager webViewManager = new WebViewManager(baseAddress, MultipleManager.getCurrAppId());
+//                            WebResourceResponse webResourceResponse = webViewManager.getWebLocalResourceResponseByUrl(url);
+//                            {
+//                                if (webResourceResponse != null) {
+//                                    webViewManager.saveResoponeByFileName(path, webResourceResponse);
+//                                }
+//                            }
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
                     }
                     shareEditor.commit();
                     float endTime = System.currentTimeMillis();
