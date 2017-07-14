@@ -1,5 +1,6 @@
 package com.ai.base.SourceManager.manager;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -7,16 +8,13 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
-import android.webkit.WebResourceResponse;
 
 import com.ai.Interfaces.UploadSourceFileListener;
 import com.ai.base.SourceManager.config.ServerPageConfig;
-import com.ai.base.SourceManager.ui.ConfirmDialog;
 import com.ai.base.SourceManager.ui.progressDialog.SimpleProgressDialog;
 import com.ai.base.okHttp.OkHttpBaseAPI;
 import com.ai.base.util.FileUtilCommon;
 import com.ai.base.util.LogUtil;
-import com.ai.webplugin.WebViewManager;
 import com.ailk.common.data.IData;
 import com.ailk.common.data.impl.DataMap;
 
@@ -111,6 +109,30 @@ public class ResourceManager {
         }).start();
     }
 
+    public void updateDelay(final long delayTime) throws Exception {
+        ResVersionManager.updateCount = 0;
+        filecount_Done = 0;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Map remoteResVersions = null;
+                try {
+                    Thread.sleep(delayTime);
+                    remoteResVersions = ResVersionManager.getRemoteResVersions(mContext,baseAddress,true);
+                    if (remoteResVersions == null) {
+                        return;
+                    }
+                    if (ResVersionManager.isUpdateResource(mContextWapper, remoteResVersions)) {
+                        handler.sendEmptyMessage(1);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }).start();
+    }
+
     /**
      * 从本地获取版本信息
      * @throws Exception
@@ -184,20 +206,39 @@ public class ResourceManager {
         }else {
             sizeMessage = "文件大小为：" + size + "M";
         }
-        ConfirmDialog confirmDialog = new ConfirmDialog(mContext, "资源更新", "远端发现新资源," + sizeMessage + "建议在WIFI环境下下载") {
-            protected void okEvent() {
-                super.okEvent();
-                progressDialogShow();
-                updateRes();
-                ResVersionManager.filesSize = 0;
-            }
 
-            protected void cancelEvent() {
-                ResVersionManager.filesSize = 0;
-                super.cancelEvent();
-            }
-        };
-        confirmDialog.show();
+        // 创建构建器
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        // 设置参数
+        String message = "远端发现新资源," + sizeMessage + "建议在WIFI环境下下载";
+        builder.setTitle("资源更新")
+                .setMessage(message)
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        progressDialogShow();
+                        updateRes();
+                        ResVersionManager.filesSize = 0;
+                        dialog.dismiss();
+                    }
+                })
+               ;
+        builder.create().show();
+//        ConfirmDialog confirmDialog = new ConfirmDialog(mContext, "资源更新", "远端发现新资源," + sizeMessage + "建议在WIFI环境下下载") {
+//            protected void okEvent() {
+//                super.okEvent();
+//                progressDialogShow();
+//                updateRes();
+//                ResVersionManager.filesSize = 0;
+//            }
+//
+//            protected void cancelEvent() {
+//                ResVersionManager.filesSize = 0;
+//                super.cancelEvent();
+//            }
+//        };
+//        confirmDialog.show();
 
     }
 
