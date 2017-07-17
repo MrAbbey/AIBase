@@ -16,15 +16,7 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.ai.base.SourceManager.app.MobileAppInfo;
-import com.ai.base.SourceManager.common.LRUCache;
 import com.ai.base.util.LogUtil;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.List;
 
 /**
  * Created by wuyoujian on 17/4/5.
