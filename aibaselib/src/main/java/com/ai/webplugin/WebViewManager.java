@@ -60,7 +60,7 @@ public class WebViewManager {
          * 如果内存里没有则取本的，取到之后继续保存到内存中下次使用。
          */
 
-        response = (WebResourceResponse) LRUCache.getInstance(8).get(localSourceFileName);
+        //response = (WebResourceResponse) LRUCache.getInstance(8).get(localSourceFileName);
         if (response == null){
             response = getWebResourceResponseFromLocalFile(mime,localSourceFileName);
         }else {

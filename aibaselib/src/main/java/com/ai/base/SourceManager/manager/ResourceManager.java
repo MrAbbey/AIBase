@@ -224,6 +224,7 @@ public class ResourceManager {
                     }
                 })
                ;
+        builder.setCancelable(false);
         builder.create().show();
 //        ConfirmDialog confirmDialog = new ConfirmDialog(mContext, "资源更新", "远端发现新资源," + sizeMessage + "建议在WIFI环境下下载") {
 //            protected void okEvent() {

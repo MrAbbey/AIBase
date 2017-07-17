@@ -137,9 +137,9 @@ public class AIWebViewClient extends WebViewClient {
         WebResourceResponse responseLocal = webViewManager.getWebLocalResourceResponseByUrl(tempUrl);
         LogUtil.d("webViewClient url ----API21以下---", tempUrl);
         WebResourceResponse response = responseLocal == null ? responseDefault : responseLocal;
-        if(response != null){
-            webViewManager.saveResoponeByUrl(tempUrl,response);
-        }
+//        if(response != null){
+//            webViewManager.saveResoponeByUrl(tempUrl,response);
+//        }
         return response;
     }
 
@@ -157,9 +157,9 @@ public class AIWebViewClient extends WebViewClient {
         WebResourceResponse responseLocal = webViewManager.getWebLocalResourceResponseByUrl(tempUrl);
         LogUtil.d("webViewClient url ----API21以上---", tempUrl);
         WebResourceResponse response = responseLocal == null ? responseDefault : responseLocal;
-        if(response != null){
-            webViewManager.saveResoponeByUrl(tempUrl,response);
-        }
+//        if(response != null){
+//            webViewManager.saveResoponeByUrl(tempUrl,response);
+//        }
         return response;
     }
 
