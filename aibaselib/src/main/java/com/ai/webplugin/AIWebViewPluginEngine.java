@@ -4,17 +4,11 @@ import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
-
 import com.ai.base.AIBaseActivity;
 import com.ai.webplugin.config.WebViewPluginCfg;
 import com.ai.base.util.BeanInvoker;
-import com.ryg.dynamicload.DLBasePluginActivity;
-
-import java.io.File;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
 
-import dalvik.system.DexClassLoader;
 
 /**
  * Created by wuyoujian on 17/3/30.

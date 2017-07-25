@@ -9,8 +9,8 @@ import android.content.SharedPreferences;
 
 public class LocalStorageManager {
 
-    private final static String sharedPreferencesName = "LocalStorageManager";
-    private String mEncryptKey = "www.asiainfo.com";
+    public final static String sharedPreferencesName = "LocalStorageManager";
+    private String mEncryptKey = "";
     private Context mContext;
     private static LocalStorageManager instance;
     public static LocalStorageManager getInstance() {
@@ -20,6 +20,16 @@ public class LocalStorageManager {
             }
         }
         return instance;
+    }
+
+    private static LocalStorageManager pluginInstance;
+    public static LocalStorageManager getPluginInstance() {
+        if (pluginInstance == null) {
+            synchronized (LocalStorageManager.class) {
+                pluginInstance = new LocalStorageManager();
+            }
+        }
+        return pluginInstance;
     }
 
     public void setContext(Context context){
