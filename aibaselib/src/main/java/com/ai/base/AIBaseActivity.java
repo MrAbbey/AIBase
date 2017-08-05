@@ -2,13 +2,13 @@ package com.ai.base;
 
 
 import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.ai.Interfaces.AIGesturePasswordListener;
-import com.ai.base.gesture.AILocGesturePasswordActivity;
+import com.ai.Interfaces.ActivityJumpListener;
 import com.ai.base.util.LogUtil;
 import com.ai.base.util.PermissionUitls;
 
@@ -56,9 +56,17 @@ public abstract class AIBaseActivity extends AppCompatActivity {
         super.onStart();
         if (!isCurrentRunningForeground) {
             if (ActivityConfig.getInstance().isShowGesturePasswordActivity()
-                    &&!(this instanceof AILocGesturePasswordActivity)
+                    &&!(getClassName().equals("com.ai.aiportal.gesture.AIGesturePasswordActivity"))
                     &&mEnbleGesturePwd) {
-                ActivityConfig.getInstance().getActivityJumpListener().jumpToAILocGesturePasswordActivity();
+                ActivityJumpListener activityJumpListener =  ActivityConfig.getInstance().getActivityJumpListener();
+                if (activityJumpListener != null) //宿主app进入
+                {
+                    activityJumpListener.jumpToAILocGesturePasswordActivity();
+                }else{
+                    Intent intent = new Intent();
+                    intent.setComponent(new ComponentName("com.ai.aiportal", "com.ai.aiportal.gesture.AIGesturePasswordActivity"));
+                    startActivity(intent);
+                }
             }
             LogUtil.d("song", ">>>>>>>>>>>>>>>>>>>切到前台 activity process");
         }
@@ -87,5 +95,14 @@ public abstract class AIBaseActivity extends AppCompatActivity {
         }
         LogUtil.d("song", "EntryActivity isRunningBackGround");
         return false;
+    }
+
+    private String getClassName(){
+        ActivityManager manager = (ActivityManager)   getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> runningTasks = manager .getRunningTasks(1);
+        ActivityManager.RunningTaskInfo cinfo = runningTasks.get(0);
+        ComponentName component = cinfo.topActivity;
+        String className = component.getClassName();
+        return className;
     }
 }
