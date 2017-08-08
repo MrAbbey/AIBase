@@ -4,6 +4,8 @@ import android.content.ContextWrapper;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.ai.base.okHttp.callback.OnDownloadListener;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -375,4 +377,65 @@ public class OkHttpBaseAPI {
         }
         return data;
     }
+
+    public byte[] httpGetFileDataTask(String url, String taskName, OnDownloadListener downloadListener) {
+        String token = null;
+        OkHttpClient okHttpClient = OkHttpUtils.getInstance().getOkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                //.header("Authorization", token)
+                .header("Accept", "application/json")
+                .header("ContentType", "application/json")
+                .build();
+        InputStream is = null;
+
+        byte[] data = null;
+
+        long startTime = System.currentTimeMillis();
+        try {
+            Response response = okHttpClient.newCall(request).execute();
+            if (response != null) {
+                is = response.body().byteStream();
+                //整个文件的长度
+                int length = (int) response.body().contentLength();
+                if (length > 0) {
+                    data = new byte[length];
+                    byte[] buffer = new byte[4098];
+                    int readLen = 0;
+                    int destPos = 0;
+                    while ((readLen = is.read(buffer)) >= 0) {
+                        if (readLen > 0) {
+                            System.arraycopy(buffer, 0, data, destPos, readLen);
+
+                            destPos += readLen;
+                            int progress = (int) (destPos * 1.0f / length * 100f);
+                            downloadListener.onDownloading(progress);
+                        } else {
+                            Log.w(TAG, "");
+                            downloadListener.onDownloadFailed();
+                        }
+                    }
+                    //下载完成
+                    downloadListener.onDownloadSucceed();
+                }
+            } else {
+            }
+        } catch (IOException e) {
+            downloadListener.onDownloadFailed();
+            e.printStackTrace();
+        } finally {
+            try {
+                if (is != null) {
+                    is.close();
+                    is = null;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return data;
+    }
+
+
 }
