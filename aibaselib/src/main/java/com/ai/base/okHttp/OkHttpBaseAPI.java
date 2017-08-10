@@ -396,7 +396,7 @@ public class OkHttpBaseAPI {
             Response response = okHttpClient.newCall(request).execute();
             if (response != null) {
                 is = response.body().byteStream();
-                //Õû¸öÎÄ¼şµÄ³¤¶È
+                //è·å–æ–‡ä»¶çš„æ€»é•¿åº¦
                 int length = (int) response.body().contentLength();
                 if (length > 0) {
                     data = new byte[length];
@@ -415,7 +415,7 @@ public class OkHttpBaseAPI {
                             downloadListener.onDownloadFailed();
                         }
                     }
-                    //ÏÂÔØÍê³É
+                    //ä¸‹è½½æˆåŠŸç›‘å¬
                     downloadListener.onDownloadSucceed();
                 }
             } else {
