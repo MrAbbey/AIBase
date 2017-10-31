@@ -1,6 +1,7 @@
 package com.ai.base;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.ai.Interfaces.AIGesturePasswordListener;
@@ -11,9 +12,10 @@ import com.ai.Interfaces.ActivityJumpListener;
  */
 
 public class ActivityConfig {
-
+    private Context mContext;
     private String kSharedPreferencesKey_AlreadyGesturePWD = "kSharedPreferencesKey_DeviceId";
-    private long kDurTime = 60*1000;
+    //private long kDurTime = 1*1000;
+    private long kDurTime = 3*60*1000;
     private static ActivityConfig instance;
     // 保存最后一次调用onPause()的系统时间戳
     private long lockTime = 0;
@@ -61,9 +63,13 @@ public class ActivityConfig {
         return lockTime;
     }
 
+    public void setmContext(Context mContext) {
+        this.mContext = mContext;
+    }
+
     public void setAlreadyGesturePassword() {
         // 从本地读取
-        SharedPreferences sharedPreferences= AIActivityCollector.getInstance().rootActivity().getSharedPreferences("ActivityConfig",
+        SharedPreferences sharedPreferences= mContext.getSharedPreferences("ActivityConfig",
                 Activity.MODE_PRIVATE);
         //实例化SharedPreferences.Editor对象
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -74,7 +80,7 @@ public class ActivityConfig {
     }
 
     public boolean isAlreadyGesturePassword() {
-        SharedPreferences sharedPreferences= AIActivityCollector.getInstance().rootActivity().getSharedPreferences("ActivityConfig",
+        SharedPreferences sharedPreferences= mContext.getSharedPreferences("ActivityConfig",
                 Activity.MODE_PRIVATE);
         //实例化SharedPreferences.Editor对象
         boolean isAlready = sharedPreferences.getBoolean(kSharedPreferencesKey_AlreadyGesturePWD,false);
@@ -83,7 +89,7 @@ public class ActivityConfig {
     }
 
     public void clearAlreadyGesturePassword() {
-        SharedPreferences sharedPreferences= AIActivityCollector.getInstance().rootActivity().getSharedPreferences("ActivityConfig",
+        SharedPreferences sharedPreferences= mContext.getSharedPreferences("ActivityConfig",
                 Activity.MODE_PRIVATE);
         //实例化SharedPreferences.Editor对象
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -113,7 +119,6 @@ public class ActivityConfig {
         if (durTime <= kDurTime || !isAlreadyGesturePassword()) {
             return false;
         }
-
         return true;
     }
 }
