@@ -13,7 +13,7 @@ public class L
     {
         if (debug)
         {
-            Log.e("OkHttp", msg);
+            //Log.e("OkHttp", msg);
         }
     }
 

@@ -137,13 +137,13 @@ public class FileUtilCommon {
 
             read.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         } finally {
             if (read != null) {
                 try {
                     read.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
             }
         }
@@ -168,13 +168,13 @@ public class FileUtilCommon {
                read.close();  
             }  
         } catch (IOException e) {
-            e.printStackTrace();  
+            //e.printStackTrace();
         } finally {
         	if (read != null) {
         		try {
 					read.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
         	}
         }
@@ -193,13 +193,13 @@ public class FileUtilCommon {
 			fw.write(txt,0,txt.length());    
 			fw.flush(); 
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		} finally {
 			if (fw != null) {
 				try {
 					fw.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}
 		}
@@ -254,9 +254,9 @@ public class FileUtilCommon {
 			fos = null;
 		    return true;
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		} catch (NullPointerException e){
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return false;
 	}
@@ -278,7 +278,7 @@ public class FileUtilCommon {
 				try {
 					return new File(path).getCanonicalPath();
 				} catch (IOException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}
 		}
@@ -369,7 +369,7 @@ public class FileUtilCommon {
 				fis.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 		}
 		return true;

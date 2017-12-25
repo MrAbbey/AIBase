@@ -72,7 +72,7 @@ public abstract class MobileThread  extends Thread {
     }
 
     protected void error(Exception e) {
-        e.printStackTrace();
+        //e.printStackTrace();
     }
 
     public static void main(String[] args) {

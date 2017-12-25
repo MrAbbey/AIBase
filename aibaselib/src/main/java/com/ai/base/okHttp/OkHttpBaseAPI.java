@@ -55,11 +55,11 @@ public class OkHttpBaseAPI {
             } else {
             }
         } catch (SocketTimeoutException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return result;
     }
@@ -79,7 +79,7 @@ public class OkHttpBaseAPI {
             headers.put("ContentType", "application/json; charset=utf-8");
             //headers.put("If-None-Match", "{E6AF2E17-2B74-4A2C-B874-10620B3730C3}&2015-02-13T06:17:10.7429968Z");
             requestStartTime = System.currentTimeMillis();
-            Log.e("request-----start---" , requestStartTime + "");
+            //Log.e("request-----start---" , requestStartTime + "");
             Response response = OkHttpUtils
                     .get()
                     .url(url)
@@ -93,15 +93,15 @@ public class OkHttpBaseAPI {
                 timeout.deadline(200, TimeUnit.MILLISECONDS);
             }
             long requestEndTime = System.currentTimeMillis();
-            Log.e("request--------time---" , (requestEndTime - requestStartTime)/1000+"");
+            //Log.e("request--------time---" , (requestEndTime - requestStartTime)/1000+"");
 
             responeStr = getResponeStr(response, url, taskName);
             long responseEndTime = System.currentTimeMillis();
-            Log.e("response--------time---" , (responseEndTime - requestStartTime)/1000+responeStr);
+            //Log.e("response--------time---" , (responseEndTime - requestStartTime)/1000+responeStr);
         } catch (IOException e) {
             long timeout = System.currentTimeMillis();
-            Log.e("timeout-----------" , (timeout - requestStartTime)/1000+"");
-            e.printStackTrace();
+            //Log.e("timeout-----------" , (timeout - requestStartTime)/1000+"");
+            //e.printStackTrace();
         }
         return responeStr;
     }
@@ -135,7 +135,7 @@ public class OkHttpBaseAPI {
 
             responeStr = getResponeStr(response, url, taskName);
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return responeStr;
     }
@@ -168,7 +168,7 @@ public class OkHttpBaseAPI {
 
             responeStr = getResponeStr(response, url, taskName);
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return responeStr;
     }
@@ -194,7 +194,7 @@ public class OkHttpBaseAPI {
 
             responeStr = getResponeStr(response, url, taskName);
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return responeStr;
     }
@@ -213,7 +213,7 @@ public class OkHttpBaseAPI {
             headers.put("ContentType", "image/jpeg");
             Response response;
             requestStartTime = System.currentTimeMillis();
-            Log.e("request-----start---" , requestStartTime + "");
+            //Log.e("request-----start---" , requestStartTime + "");
             response = OkHttpUtils
                     .postFile()
                     .url(postUrl)
@@ -228,14 +228,14 @@ public class OkHttpBaseAPI {
                // timeout.deadline(50, TimeUnit.MILLISECONDS);
             //}
             requestEndTime = System.currentTimeMillis();
-            Log.e("request--------time---" , (requestEndTime - requestStartTime)/1000+"");
+            //Log.e("request--------time---" , (requestEndTime - requestStartTime)/1000+"");
             responeStr = getResponeStr(response, postUrl, taskName);
             long responseEndTime = System.currentTimeMillis();
-            Log.e("response--------time---" , (responseEndTime - requestStartTime)/1000+"");
+            //Log.e("response--------time---" , (responseEndTime - requestStartTime)/1000+"");
         } catch (IOException e) {
             long timeout = System.currentTimeMillis();
-            Log.e("timeout-----------" , (timeout - requestStartTime)/1000+"");
-            e.printStackTrace();
+            //Log.e("timeout-----------" , (timeout - requestStartTime)/1000+"");
+            //e.printStackTrace();
         }
         return responeStr;
     }
@@ -259,7 +259,7 @@ public class OkHttpBaseAPI {
                     .build()
                     .execute();
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
 
         long startTime = System.currentTimeMillis();
@@ -278,7 +278,7 @@ public class OkHttpBaseAPI {
                 is.close();
                 return outSteam.toByteArray();
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
 
         }
@@ -302,7 +302,7 @@ public class OkHttpBaseAPI {
                     .build()
                     .execute();
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
 
         long startTime = System.currentTimeMillis();
@@ -321,7 +321,7 @@ public class OkHttpBaseAPI {
                 is.close();
                 return outSteam.toByteArray();
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
 
         }
@@ -356,14 +356,14 @@ public class OkHttpBaseAPI {
                             System.arraycopy(buffer, 0, data, destPos, readLen);
                             destPos += readLen;
                         } else {
-                            Log.w(TAG, "");
+                            //Log.w(TAG, "");
                         }
                     }
                 }
             } else {
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         } finally {
             try {
                 if (is != null) {
@@ -371,7 +371,7 @@ public class OkHttpBaseAPI {
                     is = null;
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
 
         }
@@ -411,7 +411,7 @@ public class OkHttpBaseAPI {
                             int progress = (int) (destPos * 1.0f / length * 100f);
                             downloadListener.onDownloading(progress);
                         } else {
-                            Log.w(TAG, "");
+                            //Log.w(TAG, "");
                             downloadListener.onDownloadFailed();
                         }
                     }
@@ -422,7 +422,7 @@ public class OkHttpBaseAPI {
             }
         } catch (IOException e) {
             downloadListener.onDownloadFailed();
-            e.printStackTrace();
+            //e.printStackTrace();
         } finally {
             try {
                 if (is != null) {
@@ -430,7 +430,7 @@ public class OkHttpBaseAPI {
                     is = null;
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
 
         }

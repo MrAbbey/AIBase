@@ -165,7 +165,7 @@ public class Utility {
 				bos.flush();
 				bos.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 		}
 	}
@@ -193,7 +193,7 @@ public class Utility {
 			}
 			return result;
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return "";
 	}

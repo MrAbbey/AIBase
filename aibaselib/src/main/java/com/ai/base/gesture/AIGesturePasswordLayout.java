@@ -197,9 +197,9 @@ public class AIGesturePasswordLayout extends RelativeLayout {
                 addView(mGesturePasswordViews[i], lockerParams);
             }
 
-            Log.e(PWDLAYOUT_LOG_TAG, "mWidth = " + mWidth + " ,  mGestureViewWidth = "
-                    + mGesturePasswordViewWidth + " , mMarginBetweenPasswordView = "
-                    + mMarginBetweenPasswordView);
+//            Log.e(PWDLAYOUT_LOG_TAG, "mWidth = " + mWidth + " ,  mGestureViewWidth = "
+//                    + mGesturePasswordViewWidth + " , mMarginBetweenPasswordView = "
+//                    + mMarginBetweenPasswordView);
 
         }
     }
@@ -227,7 +227,7 @@ public class AIGesturePasswordLayout extends RelativeLayout {
                     {
                         // 循环加入中间点
                         int subId = checkChoose(cId);
-                        Log.e(PWDLAYOUT_LOG_TAG, "SubId:" +subId);
+                        //Log.e(PWDLAYOUT_LOG_TAG, "SubId:" +subId);
                         while (subId != -1) {
                             // 1、这部分代码和以下 2 部分基本一样，可以抽离出一个方法
                             mChoose.add(subId);
@@ -269,7 +269,7 @@ public class AIGesturePasswordLayout extends RelativeLayout {
                     mOnGesturePasswordViewListener.onGestureEvent(answer);
                 }
 
-                Log.e(PWDLAYOUT_LOG_TAG, "mChoose = " + mChoose);
+                //Log.e(PWDLAYOUT_LOG_TAG, "mChoose = " + mChoose);
                 // 将终点设置位置为起点，即取消指引线
                 mTmpTarget.x = mLastPathX;
                 mTmpTarget.y = mLastPathY;

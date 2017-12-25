@@ -95,7 +95,7 @@ public class PostFormRequest extends OkHttpRequest
             contentTypeFor = fileNameMap.getContentTypeFor(URLEncoder.encode(path, "UTF-8"));
         } catch (UnsupportedEncodingException e)
         {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         if (contentTypeFor == null)
         {

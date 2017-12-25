@@ -1,18 +1,14 @@
 package com.ai.base;
 
 
-import android.app.ActivityManager;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-
 import com.ai.Interfaces.ActivityJumpListener;
 import com.ai.base.util.LogUtil;
 import com.ai.base.util.PermissionUitls;
-
-import java.util.List;
 
 /**
  * Created by wuyoujian on 17/3/29.
@@ -82,27 +78,40 @@ public abstract class AIBaseActivity extends AppCompatActivity {
     }
 
     public boolean isRunningForeground() {
-        ActivityManager activityManager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> appProcessInfos = activityManager.getRunningAppProcesses();
-        // 枚举进程
-        for (ActivityManager.RunningAppProcessInfo appProcessInfo : appProcessInfos) {
-            if (appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
-                if (appProcessInfo.processName.equals(this.getApplicationInfo().processName)) {
-                    LogUtil.d("song","EntryActivity isRunningForeGround");
-                    return true;
-                }
-            }
+
+        if (AIActivityLifecycleListener.getInstance().getRefCount() == 0) {
+            return true;
         }
-        LogUtil.d("song", "EntryActivity isRunningBackGround");
+
         return false;
+
+//        ActivityManager activityManager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
+//        List<ActivityManager.RunningAppProcessInfo> appProcessInfos = activityManager.getRunningAppProcesses();
+//        // 枚举进程
+//        for (ActivityManager.RunningAppProcessInfo appProcessInfo : appProcessInfos) {
+//            if (appProcessInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+//                if (appProcessInfo.processName.equals(this.getApplicationInfo().processName)) {
+//                    LogUtil.d("song","EntryActivity isRunningForeGround");
+//                    return true;
+//                }
+//            }
+//        }
+//        LogUtil.d("song", "EntryActivity isRunningBackGround");
+//        return false;
     }
 
-    private String getClassName(){
-        ActivityManager manager = (ActivityManager)   getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningTaskInfo> runningTasks = manager .getRunningTasks(1);
-        ActivityManager.RunningTaskInfo cinfo = runningTasks.get(0);
-        ComponentName component = cinfo.topActivity;
-        String className = component.getClassName();
-        return className;
+    @NonNull
+    private String getClassName() {
+        String contextString = this.toString();
+        return contextString.substring(0, contextString.indexOf("@"));
     }
+
+//    private String getClassName(){
+//        ActivityManager manager = (ActivityManager)   getSystemService(Context.ACTIVITY_SERVICE);
+//        List<ActivityManager.RunningTaskInfo> runningTasks = manager .getRunningTasks(1);
+//        ActivityManager.RunningTaskInfo cinfo = runningTasks.get(0);
+//        ComponentName component = cinfo.topActivity;
+//        String className = component.getClassName();
+//        return className;
+//    }
 }

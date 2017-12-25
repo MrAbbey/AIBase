@@ -79,7 +79,7 @@ public class WebViewManager {
                 response = new WebResourceResponse(mime, "UTF-8", is);
                 LogUtil.d("LocalWebViewClient url ----", localSourceFileName);
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
                 return null;
             }
         }

@@ -45,7 +45,7 @@ public class CountingRequestBody extends RequestBody
             return delegate.contentLength();
         } catch (IOException e)
         {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return -1;
     }

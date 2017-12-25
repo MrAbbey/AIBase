@@ -102,7 +102,7 @@ public class ResourceManager {
                         handler.sendEmptyMessage(1);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
 
             }
@@ -126,7 +126,7 @@ public class ResourceManager {
                         handler.sendEmptyMessage(1);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
 
             }
@@ -178,7 +178,7 @@ public class ResourceManager {
                     float endTime = System.currentTimeMillis();
                     LogUtil.d("updateSource----------",(endTime-startTime)/1000 + "秒");
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
 
             }
@@ -274,7 +274,7 @@ public class ResourceManager {
                     try {
                         checkResource(path, mContextWapper, handler);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        //e.printStackTrace();
                     }
                 }
             });
@@ -327,7 +327,7 @@ public class ResourceManager {
         try {
             ResVersionManager.setLocalResVersion(context, path, ResVersionManager.getRemoteResVersion(path));
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         filecount_Done++;
         if (handler != null) {

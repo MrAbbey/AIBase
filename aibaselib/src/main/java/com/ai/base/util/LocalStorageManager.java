@@ -52,7 +52,7 @@ public class LocalStorageManager {
             editor.putString(key,encryptValue);
             editor.commit();
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
@@ -67,7 +67,7 @@ public class LocalStorageManager {
                 return value;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
 
         return null;

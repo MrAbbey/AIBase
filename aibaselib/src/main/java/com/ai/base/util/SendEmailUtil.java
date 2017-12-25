@@ -110,9 +110,9 @@ class SendEmailUtil {
     public void sendEmailWithAttachment(Context context, String[] toAddrs, String subject, String text, String filePath) {
         //附件路径
         String path = Environment.getExternalStorageDirectory().getPath() + File.separator + filePath;
-        Log.e(TAG, "sendEmailWithAttachment: path" + path);
+        //Log.e(TAG, "sendEmailWithAttachment: path" + path);
         File file = new File(path);
-        Log.e(TAG, "sendEmailWithAttachment: file" + file);
+        //Log.e(TAG, "sendEmailWithAttachment: file" + file);
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("application/octet-stream");
         intent.putExtra(Intent.EXTRA_EMAIL, toAddrs);

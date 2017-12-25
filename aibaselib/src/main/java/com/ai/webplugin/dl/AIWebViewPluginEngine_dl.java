@@ -41,6 +41,8 @@ public class AIWebViewPluginEngine_dl {
 
         this.mActivity = activity;
         this.mWebView = webView;
+        webView.getSettings().setSavePassword(false);
+        this.mWebView.getSettings().setSavePassword(false);
         this.mPluginCfgFile = configFileName;
         try {
             InputStream is = mActivity.getResources().getAssets().open(mPluginCfgFile);
@@ -55,7 +57,7 @@ public class AIWebViewPluginEngine_dl {
                 mWebView.addJavascriptInterface(plugin, name);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 

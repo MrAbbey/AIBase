@@ -2,7 +2,7 @@ package com.ai.base.util;
 
 import android.app.Activity;
 import android.content.Context;
-import android.telephony.TelephonyManager;
+//import android.telephony.TelephonyManager;
 
 import java.util.Locale;
 
@@ -57,18 +57,18 @@ public class SystemUtil {
         return android.os.Build.BRAND;
     }
 
-    /**
-     * 获取手机IMEI
-     * 需要“android.permission.READ_PHONE_STATE”权限
-     *
-     * @return  手机IMEI
-     */
-    public static String getIMEI(Context ctx) {
-        TelephonyManager tm = (TelephonyManager) ctx.getSystemService(Activity.TELEPHONY_SERVICE);
-        if (tm != null) {
-            return tm.getDeviceId();
-        }
-        return null;
-    }
+//    /**
+//     * 获取手机IMEI
+//     * 需要“android.permission.READ_PHONE_STATE”权限
+//     *
+//     * @return  手机IMEI
+//     */
+//    public static String getIMEI(Context ctx) {
+//        TelephonyManager tm = (TelephonyManager) ctx.getSystemService(Activity.TELEPHONY_SERVICE);
+//        if (tm != null) {
+//            return tm.getDeviceId();
+//        }
+//        return null;
+//    }
 
 }
