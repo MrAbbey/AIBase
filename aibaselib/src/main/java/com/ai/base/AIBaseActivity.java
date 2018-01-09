@@ -80,10 +80,10 @@ public abstract class AIBaseActivity extends AppCompatActivity {
     public boolean isRunningForeground() {
 
         if (AIActivityLifecycleListener.getInstance().getRefCount() == 0) {
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
 
 //        ActivityManager activityManager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
 //        List<ActivityManager.RunningAppProcessInfo> appProcessInfos = activityManager.getRunningAppProcesses();
