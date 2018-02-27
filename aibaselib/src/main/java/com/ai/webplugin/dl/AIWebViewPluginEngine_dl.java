@@ -79,4 +79,22 @@ public class AIWebViewPluginEngine_dl {
             }
         }
     }
+
+    public void excutePluginCallback(String pluginAPIName, String param, final ValueCallback<String> callback) {
+        if (mWebView != null) {
+            int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+            final String javascript = String.format("%s(%s)",pluginAPIName,param);
+            if (currentapiVersion < android.os.Build.VERSION_CODES.LOLLIPOP) {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mWebView.loadUrl("javascript:" + javascript);
+                        callback.onReceiveValue("success");
+                    }
+                });
+            } else {
+                mWebView.evaluateJavascript(javascript,callback);
+            }
+        }
+    }
 }
