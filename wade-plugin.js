@@ -5,6 +5,8 @@ window.WadeNAObj = (function() {
 	// 扩展区域
 	WadeNAObj = (function(){
 		return {
+
+		    // 这个key生成的规则是：原生对象名_原生方法名
 			//测试函数，后面的方法，请按照这个方法扩展自己的自定义的方法
 			JN_Test:function(string,callback) {
 				// 这个key生成的规则是：原生对象名_原生方法名
