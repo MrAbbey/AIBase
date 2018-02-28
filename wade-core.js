@@ -1,26 +1,25 @@
-
-
 window.WadeNAObj = (function() {
 
 	// 扩展区域
-	WadeNAObj = (function(){
+	var WadeNAObj = (function(){
 		return {
 
 		    // 这个key生成的规则是：原生对象名_原生方法名
-			//测试函数，后面的方法，请按照这个方法扩展自己的自定义的方法
+			// 测试函数，后面的方法，请按照这个方法扩展自己的自定义的方法
 			JN_Test:function(string,callback) {
 				// 这个key生成的规则是：原生对象名_原生方法名
 				var callbackKey = 'PortalScriptPlugin_JN_Test';
 				WadeNAObj.storageCallback(callbackKey,callback);
 
 				// 原生对象和原生方法调用：原生穿梭过来的对象PortalScriptPlugin,调用的方法名：JN_Test
-				top.PortalScriptPlugin.JN_Test(string);
+				top.AIWebViewBasePlugin.JN_Test(string);
 			},
 		};
 	})();
 
 
-	//全局变量
+    // 下面部分不需要修改！！！！！！
+	// 全局变量
 	var callbackMap = {};
 	top.callbackMap = top.callbackMap||{};
 	WadeNAObj.storageCallback=function(callbackKey,callback){

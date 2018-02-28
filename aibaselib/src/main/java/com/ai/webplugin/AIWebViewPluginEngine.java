@@ -5,9 +5,11 @@ import android.os.Handler;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import com.ai.base.AIBaseActivity;
+import com.ai.base.util.Utility;
 import com.ai.webplugin.config.WebViewPluginCfg;
 import com.ai.base.util.BeanInvoker;
 import java.io.InputStream;
+
 
 
 /**
@@ -36,6 +38,7 @@ public class AIWebViewPluginEngine {
         //
     }
 
+
     @SuppressLint("SetJavaScriptEnabled")
     public void registerPlugins(AIBaseActivity activity, WebView webView,String configFileName) {
 
@@ -44,6 +47,8 @@ public class AIWebViewPluginEngine {
         webView.getSettings().setSavePassword(false);
         this.mWebView.getSettings().setSavePassword(false);
         this.mPluginCfgFile = configFileName;
+
+        if (!Utility.isFileExists(mActivity,mPluginCfgFile)) return;
         try {
             InputStream is = mActivity.getResources().getAssets().open(mPluginCfgFile);
             WebViewPluginCfg plugincfg = WebViewPluginCfg.getInstance();

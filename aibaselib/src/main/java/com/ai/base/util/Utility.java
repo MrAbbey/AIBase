@@ -1,6 +1,7 @@
 package com.ai.base.util;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Point;
@@ -217,5 +218,26 @@ public class Utility {
 		UUID uuid = UUID.randomUUID();
 		String uuidString = uuid.toString();
 		return uuidString;
+	}
+
+	/**
+	 * 判断assets文件夹下的文件是否存在
+	 *
+	 * @return false 不存在    true 存在
+	 */
+	public static boolean isFileExists(Context context,String filename) {
+		AssetManager assetManager = context.getResources().getAssets();
+		try {
+			String[] names = assetManager.list("");
+			for (int i = 0; i < names.length; i++) {
+				if (names[i].equals(filename.trim())) {
+					return true;
+				}
+			}
+		} catch (IOException e) {
+			//e.printStackTrace();
+			return false;
+		}
+		return false;
 	}
 }

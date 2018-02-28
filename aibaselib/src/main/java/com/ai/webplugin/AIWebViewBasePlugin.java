@@ -21,7 +21,7 @@ public class AIWebViewBasePlugin {
     }
 
     @JavascriptInterface
-    public void test(){
+    public void JN_Test(String str){
     }
 }
 
