@@ -28,24 +28,41 @@ public class WebViewKitActivity extends AIBaseActivity {
     private int backgroudColor = 0x000000;
 
     public static String backgroundColorKey = "backgroundColor";
+    public static String webViewURLKey = "webViewURL";
+    public static String globalConfigKey = "globalConfig";
+    public static String pluginConfigKey = "pluginConfig";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent intent = getIntent();
-        backgroudColor = intent.getIntExtra(backgroundColorKey,0x000000);
         initParam();
         initWebView();
     }
 
     private void initParam () {
         try {
-            // 解析全局配置
-            InputStream is = this.getResources().getAssets().open(mGlabalCfgFile);
-            GlobalCfg globalCfg = GlobalCfg.getInstance();
-            globalCfg.parseConfig(is);
+            Intent intent = getIntent();
+            backgroudColor = intent.getIntExtra(backgroundColorKey,0x000000);
+            mWebUrl = intent.getStringExtra(webViewURLKey);
 
-            mWebUrl = GlobalCfg.getInstance().attr(GlobalCfg.CONFIG_FIELD_ONLINEADDR);
+            mPluginCfgFile = intent.getStringExtra(pluginConfigKey);
+            if (mPluginCfgFile == null || mPluginCfgFile.length() == 0) {
+                mPluginCfgFile = "h5Plugin.xml";
+            }
+
+            if (mWebUrl == null || mWebUrl.length() == 0) {
+                // 解析全局配置
+                mGlabalCfgFile = intent.getStringExtra(globalConfigKey);
+                if (mGlabalCfgFile == null || mGlabalCfgFile.length() == 0 ) {
+                    mGlabalCfgFile = "global.properties";
+                }
+                InputStream is = this.getResources().getAssets().open(mGlabalCfgFile);
+                GlobalCfg globalCfg = GlobalCfg.getInstance();
+                globalCfg.parseConfig(is);
+
+                mWebUrl = GlobalCfg.getInstance().attr(GlobalCfg.CONFIG_FIELD_ONLINEADDR);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -81,6 +98,7 @@ public class WebViewKitActivity extends AIBaseActivity {
 
     private void setH5PluginEngine(WebView webView) {
         AIWebViewPluginEngine engine = AIWebViewPluginEngine.getInstance();
+
         engine.registerPlugins(this, webView,mPluginCfgFile);
     }
 
