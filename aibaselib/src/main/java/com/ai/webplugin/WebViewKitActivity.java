@@ -79,7 +79,7 @@ public class WebViewKitActivity extends AIBaseActivity {
         mWebView = new WebView(this);
         mWebView.setBackgroundColor(backgroudColor);
         mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.getSettings().setCacheMode(mWebView.getSettings().LOAD_CACHE_ELSE_NETWORK);
+        mWebView.getSettings().setCacheMode(mWebView.getSettings().LOAD_NO_CACHE);
         mWebView.getSettings().setDomStorageEnabled(true);
         mWebView.getSettings().setDefaultTextEncodingName("utf-8");
         mWebView.setWebViewClient(new WebViewClient());
@@ -114,6 +114,10 @@ public class WebViewKitActivity extends AIBaseActivity {
 
     @Override
     public void onBackPressed() {
-        moveTaskToBack(true);
+        if (mWebView.canGoBack()){
+            mWebView.goBack();
+        } else {
+            moveTaskToBack(true);
+        }
     }
 }
