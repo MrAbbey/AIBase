@@ -67,39 +67,72 @@ public class AIWebViewPluginEngine {
     }
 
     public void excuteJavascript(String js, final ValueCallback<String> callback) {
-        if (mWebView != null) {
-
-            int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-            if (currentapiVersion < android.os.Build.VERSION_CODES.LOLLIPOP) {
-                final String javascript = js;
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mWebView.loadUrl("javascript:" + javascript);
-                        callback.onReceiveValue("success");
-                    }
-                });
-            } else {
-                mWebView.evaluateJavascript(js,callback);
-            }
-        }
+        js = encodeForJs(js);
+        final String javascript = "javascript:" + js;
+        excuteJSInWebView(javascript,callback);
     }
 
     public void excutePluginCallback(String pluginAPIName, String param, final ValueCallback<String> callback) {
+        param = encodeForJs(param);
+        final String javascript = "javascript:window.WadeNAObj.callback(\'"+pluginAPIName+"\',\'"+param+"\')";
+        excuteJSInWebView(javascript,callback);
+    }
+
+    private void excuteJSInWebView(final String javascript, final ValueCallback<String> callback){
         if (mWebView != null) {
+
             int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-            final String javascript = String.format("WadeNAObj.callback('%s','%s')",pluginAPIName,param);
             if (currentapiVersion < android.os.Build.VERSION_CODES.LOLLIPOP) {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        mWebView.loadUrl("javascript:" + javascript);
+                        mWebView.loadUrl(javascript);
                         callback.onReceiveValue("success");
                     }
                 });
             } else {
                 mWebView.evaluateJavascript(javascript,callback);
             }
+        }
+    }
+
+    private String encodeForJs(String data) {
+        if(data != null && data.length() > 0) {
+            int length = data.length();
+            StringBuilder temp = new StringBuilder();
+
+            for(int i = 0; i < length; ++i) {
+                char c = data.charAt(i);
+                switch(c) {
+                    case '\b':
+                        temp.append("\\b");
+                        break;
+                    case '\t':
+                        temp.append("\\t");
+                        break;
+                    case '\n':
+                        temp.append("\\n");
+                        break;
+                    case '\f':
+                        temp.append("\\f");
+                        break;
+                    case '\r':
+                        temp.append("\\r");
+                        break;
+                    case '\'':
+                        temp.append("\\\'");
+                        break;
+                    case '\\':
+                        temp.append("\\\\");
+                        break;
+                    default:
+                        temp.append(c);
+                }
+            }
+
+            return temp.toString();
+        } else {
+            return "";
         }
     }
 }

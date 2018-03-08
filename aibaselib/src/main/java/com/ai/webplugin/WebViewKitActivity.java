@@ -78,7 +78,6 @@ public class WebViewKitActivity extends AIBaseActivity {
 
         mWebView = new WebView(this);
         mWebView.setBackgroundColor(backgroudColor);
-
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.getSettings().setCacheMode(mWebView.getSettings().LOAD_CACHE_ELSE_NETWORK);
         mWebView.getSettings().setDomStorageEnabled(true);
@@ -98,7 +97,6 @@ public class WebViewKitActivity extends AIBaseActivity {
 
     private void setH5PluginEngine(WebView webView) {
         AIWebViewPluginEngine engine = AIWebViewPluginEngine.getInstance();
-
         engine.registerPlugins(this, webView,mPluginCfgFile);
     }
 
