@@ -8,15 +8,13 @@ import com.ailk.common.data.impl.DataMap;
 
 public class WebViewPluginCfg extends AbstractCfg {
 
-	public static final String CONFIG_FIND_PATH = "plugin";
+	public static final String CONFIG_FIND_PATH = "action";
 	public static final String CONFIG_ATTR_NAME = "name";
 	public static final String CONFIG_ATTR_CLASS = "class";
+	public static final String CONFIG_ATTR_METHODNAME = "methodName";
 
-	// 主要给宿主app使用,默认情况
 	private static WebViewPluginCfg instance;
 
-	// 主要给插件app使用
-	private static WebViewPluginCfg instance_dl;
 
 	/**
 	 * get instance 主要给宿主app使用,默认情况
@@ -30,20 +28,6 @@ public class WebViewPluginCfg extends AbstractCfg {
 			}
 		}
 		return instance;
-	}
-
-	/**
-	 * get instance 主要给插件app使用
-	 * @return DataCfg
-	 * @throws Exception
-	 */
-	public static WebViewPluginCfg getInstance_dl() {
-		if (instance_dl == null) {
-			synchronized (WebViewPluginCfg.class) {
-				instance_dl = new WebViewPluginCfg();
-			}
-		}
-		return instance_dl;
 	}
 	
 	/**

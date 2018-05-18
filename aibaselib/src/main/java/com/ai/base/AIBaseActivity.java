@@ -52,13 +52,13 @@ public abstract class AIBaseActivity extends AppCompatActivity {
         super.onStart();
         if (!isCurrentRunningForeground) {
             if (ActivityConfig.getInstance().isShowGesturePasswordActivity()
-                    &&!(getClassName().equals("com.ai.aiportal.gesture.AIGesturePasswordActivity"))
-                    &&mEnbleGesturePwd) {
-                ActivityJumpListener activityJumpListener =  ActivityConfig.getInstance().getActivityJumpListener();
+                    && !(getClassName().equals("com.ai.aiportal.gesture.AIGesturePasswordActivity"))
+                    && mEnbleGesturePwd) {
+                ActivityJumpListener activityJumpListener = ActivityConfig.getInstance().getActivityJumpListener();
                 if (activityJumpListener != null) //宿主app进入
                 {
                     activityJumpListener.jumpToAILocGesturePasswordActivity();
-                }else{
+                } else {
                     Intent intent = new Intent();
                     intent.setComponent(new ComponentName("com.ai.aiportal", "com.ai.aiportal.gesture.AIGesturePasswordActivity"));
                     startActivity(intent);

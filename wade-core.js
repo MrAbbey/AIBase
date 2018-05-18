@@ -3,17 +3,16 @@ window.WadeNAObj = (function() {
 	// 扩展区域
 	var WadeNAObj = (function(){
 		return {
-
 		    // 这个key生成的规则是：原生对象名_原生方法名
 			// 测试函数，后面的方法，请按照这个方法扩展自己的自定义的方法
 			JN_Test:function(string,callback) {
-				// 这个key生成的规则是：原生对象名_原生方法名
-				var callbackKey = 'PortalScriptPlugin_JN_Test';
+				// actionName=methodName
+				var callbackKey = 'JN_Test';
 				WadeNAObj.storageCallback(callbackKey,callback);
-
-				// 原生对象和原生方法调用：原生穿梭过来的对象PortalScriptPlugin,调用的方法名：JN_Test
-				top.AIWebViewBasePlugin.JN_Test(string);
+                WadeNAObj.execute(callbackKey,string);
 			},
+
+            // 扩展自己的接口
 		};
 	})();
 
@@ -54,5 +53,30 @@ window.WadeNAObj = (function() {
 		}
 	}
 
-	return WadeNAObj;
+   WadeNAObj.osName=function() {
+        var u = window.navigator.userAgent;
+        var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //g
+        var isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+        if (isAndroid) {
+            //android操作系统
+            return 'a';
+        }
+        if (isIOS) {
+            //iOS操作系统
+            return 'i';
+        }
+   }
+
+   WadeNAObj.execute=function(methodName,param) {
+         var paramString = '{"methodName":"'+methodName+'","params":'+param+'}';
+         if (WadeNAObj.osName() =='a'){
+             // android
+             top.WadeNAObjHander.JN_EXECUTE(paramString);
+         } else if (WadeNAObj.osName() == 'i') {
+             // iOS
+             window.webkit.messageHandlers.WadeNAObjHander.postMessage(paramString);
+         }
+   }
+
+   return WadeNAObj;
 })();

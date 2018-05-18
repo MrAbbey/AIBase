@@ -1,6 +1,9 @@
 package com.ai.base.util;
 
+import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -11,8 +14,10 @@ import android.util.DisplayMetrics;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
 
@@ -239,5 +244,90 @@ public class Utility {
 			return false;
 		}
 		return false;
+	}
+
+	public static boolean openApp(final Activity activity, final String packageName, final String activityName,final Intent param) {
+		if ((packageName != null && packageName.length() > 0) &&
+				(activityName != null && activityName.length() > 0)) {
+
+			String tempActivityName = activityName;
+			if (!tempActivityName.contains(".")) {
+				tempActivityName = packageName + "." + activityName;
+			}
+
+			final String name = tempActivityName;
+			activity.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					ComponentName componetName = new ComponentName(
+							//这个是另外一个应用程序的包名
+							packageName,
+							//这个参数是要启动的Activity
+							name);
+
+					Intent intent= new Intent();
+					if (param != null) {
+						intent.putExtras(param);
+					}
+					intent.setComponent(componetName);
+					activity.startActivity(intent);
+				}
+			});
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public static Properties getPropertiesInAssets(Context context, String propertiesFileName){
+		Properties props = new Properties();
+		try {
+			InputStream in = context.getAssets().open(propertiesFileName);
+			props.load(in);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		return props;
+	}
+
+	public static String encodeForJs(String data) {
+		if(data != null && data.length() > 0) {
+			int length = data.length();
+			StringBuilder temp = new StringBuilder();
+
+			for(int i = 0; i < length; ++i) {
+				char c = data.charAt(i);
+				switch(c) {
+					case '\b':
+						temp.append("\\b");
+						break;
+					case '\t':
+						temp.append("\\t");
+						break;
+					case '\n':
+						temp.append("\\n");
+						break;
+					case '\f':
+						temp.append("\\f");
+						break;
+					case '\r':
+						temp.append("\\r");
+						break;
+					case '\'':
+						temp.append("\\\'");
+						break;
+					case '\\':
+						temp.append("\\\\");
+						break;
+					default:
+						temp.append(c);
+				}
+			}
+
+			return temp.toString();
+		} else {
+			return "";
+		}
 	}
 }

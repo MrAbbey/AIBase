@@ -14,12 +14,9 @@ public class GlobalCfg extends AbstractCfg {
 	public static final String CONFIG_FIELD_VERSION = "version";
 	public static final String CONFIG_FIELD_PUBLICKEY = "publicKey";
 
-	// 主要给宿主app使用,默认情况
+	//
 	private static GlobalCfg instance;
 
-	// 主要给插件app使用
-	private static GlobalCfg instance_dl;
-	
 	/**
 	 * get instance 主要是给宿主app使用
 	 * @return GlobalCfg
@@ -32,21 +29,6 @@ public class GlobalCfg extends AbstractCfg {
 		}
 		return instance;
 	}
-
-	/**
-	 * get instance 主要给插件app使用
-	 * @return GlobalCfg
-	 */
-	public static GlobalCfg getInstance_dl() {
-		if (instance_dl == null) {
-			synchronized (GlobalCfg.class) {
-				instance_dl = new GlobalCfg();
-			}
-		}
-		return instance_dl;
-	}
-
-
 
 	/**
 	 * load config

@@ -15,7 +15,7 @@ public class BeanInvoker {
 	 * @return Object
 	 */
 	public static Object instance(String className, boolean singleton) {
-		return instance(className,null,null,singleton);
+		return instance(className,null,null,null,singleton);
 	}
 	
 	/**
@@ -26,7 +26,7 @@ public class BeanInvoker {
 	 * @param singleton
 	 * @return Object
 	 */
-	public static Object instance(String className, Class<?> constrCls, Object constrObj, boolean singleton) {
+	public static Object instance(String className, Class<?> constrCls, Object constrObj1,Object constrObj2, boolean singleton) {
 		if (singleton && beans.containsKey(className)) {
 			return beans.get(className);
 		}
@@ -34,7 +34,7 @@ public class BeanInvoker {
 		try {
 			Constructor<?> constructor = constrCls == null? Class.forName(className).getConstructor() :
 					Class.forName(className).getConstructor(constrCls);
-			Object bean = constrObj == null? constructor.newInstance() : constructor.newInstance(constrObj);
+			Object bean = (constrObj1 == null && constrObj2 == null)? constructor.newInstance() : constructor.newInstance(constrObj1,constrObj2);
 			if (singleton) beans.put(className, bean);
 			return bean;
 		} catch (ClassNotFoundException e) {

@@ -2,14 +2,18 @@ package com.ai.webplugin;
 
 import android.annotation.SuppressLint;
 import android.os.Handler;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import com.ai.base.AIBaseActivity;
 import com.ai.base.util.Utility;
 import com.ai.webplugin.config.WebViewPluginCfg;
 import com.ai.base.util.BeanInvoker;
+import org.json.JSONObject;
 import java.io.InputStream;
-
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -20,8 +24,9 @@ public class AIWebViewPluginEngine {
 
     private WebView mWebView;
     private AIBaseActivity mActivity;
-    private String  mPluginCfgFile = "h5Plugin.xml";
-
+    private String  mPluginCfgFile = "wade-plugin.xml";
+    private Map<String, AIWebViewBasePlugin> mPlugins = new HashMap<>();
+    private Map<String, Method> mMethods = new HashMap<>();
     private Handler mHandler = new Handler();
 
     private static AIWebViewPluginEngine instance;
@@ -34,8 +39,54 @@ public class AIWebViewPluginEngine {
         return instance;
     }
 
-    public AIWebViewPluginEngine() {
-        //
+    public AIWebViewPluginEngine() {}
+
+    public static Method getMethod(Class<?> clazz, String methodName, Class<?>[] classes) {
+        Method method = null;
+
+        try {
+            method = clazz.getDeclaredMethod(methodName, classes);
+        } catch (NoSuchMethodException var5) {
+            if(clazz.getSuperclass() == null) {
+                return null;
+            }
+            method = getMethod(clazz.getSuperclass(), methodName, classes);
+        }
+
+        if(method != null) {
+            method.setAccessible(true);
+        }
+
+        return method;
+    }
+
+
+    @JavascriptInterface
+    public void JN_EXECUTE(String paramJSON) {
+
+        try {
+            JSONObject jsonObject = new JSONObject(paramJSON);
+            String methodName = jsonObject.optString("methodName");
+            JSONObject paramObject = jsonObject.optJSONObject("params");
+            AIWebViewBasePlugin pluginObj = mPlugins.get(methodName);
+
+            Class<?> clazz = pluginObj.getClass();
+            Method method = mMethods.get(methodName);
+            if (method == null) {
+                method = getMethod(clazz,methodName,new Class[]{JSONObject.class});
+                if(method == null) {
+                    return;
+                } else {
+                    mMethods.put(methodName,method);
+                }
+            }
+
+            synchronized(method) {
+                method.invoke(pluginObj, new Object[]{paramObject});
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -50,6 +101,11 @@ public class AIWebViewPluginEngine {
 
         if (!Utility.isFileExists(mActivity,mPluginCfgFile)) return;
         try {
+            // 向webView中注入原生对象
+            String handerName = "WadeNAObjHander";
+            mWebView.addJavascriptInterface(this, handerName);
+
+            // 存储系统中插件对象
             InputStream is = mActivity.getResources().getAssets().open(mPluginCfgFile);
             WebViewPluginCfg plugincfg = WebViewPluginCfg.getInstance();
             plugincfg.parseConfig(is);
@@ -58,8 +114,9 @@ public class AIWebViewPluginEngine {
             if (names.length > 0) mWebView.getSettings().setJavaScriptEnabled(true);
             for (String name : names) {
                 String className = plugincfg.attr(name, WebViewPluginCfg.CONFIG_ATTR_CLASS);
-                AIWebViewBasePlugin plugin = (AIWebViewBasePlugin) BeanInvoker.instance(className,AIBaseActivity.class, mActivity,false);
-                mWebView.addJavascriptInterface(plugin, name);
+                String methodName = plugincfg.attr(name, WebViewPluginCfg.CONFIG_ATTR_CLASS);
+                AIWebViewBasePlugin plugin = (AIWebViewBasePlugin) BeanInvoker.instance(className,AIBaseActivity.class, mActivity,mWebView,false);
+                mPlugins.put(className,plugin);
             }
         } catch (Exception e) {
             //e.printStackTrace();
@@ -67,14 +124,7 @@ public class AIWebViewPluginEngine {
     }
 
     public void excuteJavascript(String js, final ValueCallback<String> callback) {
-        js = encodeForJs(js);
         final String javascript = "javascript:" + js;
-        excuteJSInWebView(javascript,callback);
-    }
-
-    public void excutePluginCallback(String pluginAPIName, String param, final ValueCallback<String> callback) {
-        param = encodeForJs(param);
-        final String javascript = "javascript:window.WadeNAObj.callback(\'"+pluginAPIName+"\',\'"+param+"\')";
         excuteJSInWebView(javascript,callback);
     }
 
@@ -93,46 +143,6 @@ public class AIWebViewPluginEngine {
             } else {
                 mWebView.evaluateJavascript(javascript,callback);
             }
-        }
-    }
-
-    private String encodeForJs(String data) {
-        if(data != null && data.length() > 0) {
-            int length = data.length();
-            StringBuilder temp = new StringBuilder();
-
-            for(int i = 0; i < length; ++i) {
-                char c = data.charAt(i);
-                switch(c) {
-                    case '\b':
-                        temp.append("\\b");
-                        break;
-                    case '\t':
-                        temp.append("\\t");
-                        break;
-                    case '\n':
-                        temp.append("\\n");
-                        break;
-                    case '\f':
-                        temp.append("\\f");
-                        break;
-                    case '\r':
-                        temp.append("\\r");
-                        break;
-                    case '\'':
-                        temp.append("\\\'");
-                        break;
-                    case '\\':
-                        temp.append("\\\\");
-                        break;
-                    default:
-                        temp.append(c);
-                }
-            }
-
-            return temp.toString();
-        } else {
-            return "";
         }
     }
 }
