@@ -67,13 +67,14 @@ public class AIWebViewPluginEngine {
         try {
             JSONObject jsonObject = new JSONObject(paramJSON);
             String methodName = jsonObject.optString("methodName");
-            JSONObject paramObject = jsonObject.optJSONObject("params");
+            Object paramObject = jsonObject.opt("params");
+
             AIWebViewBasePlugin pluginObj = mPlugins.get(methodName);
 
             Class<?> clazz = pluginObj.getClass();
             Method method = mMethods.get(methodName);
             if (method == null) {
-                method = getMethod(clazz,methodName,new Class[]{JSONObject.class});
+                method = getMethod(clazz,methodName,new Class[]{paramObject.getClass()});
                 if(method == null) {
                     return;
                 } else {
@@ -115,8 +116,8 @@ public class AIWebViewPluginEngine {
             for (String name : names) {
                 String className = plugincfg.attr(name, WebViewPluginCfg.CONFIG_ATTR_CLASS);
                 String methodName = plugincfg.attr(name, WebViewPluginCfg.CONFIG_ATTR_CLASS);
-                AIWebViewBasePlugin plugin = (AIWebViewBasePlugin) BeanInvoker.instance(className,AIBaseActivity.class, mActivity,mWebView,false);
-                mPlugins.put(className,plugin);
+                AIWebViewBasePlugin plugin = (AIWebViewBasePlugin) BeanInvoker.instance(className,AIBaseActivity.class, mActivity,WebView.class,mWebView,false);
+                mPlugins.put(name,plugin);
             }
         } catch (Exception e) {
             //e.printStackTrace();

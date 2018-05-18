@@ -67,8 +67,15 @@ public class AIWebViewBasePlugin {
     }
 
     // 扩展原生能力接口
-    public void JN_Test(JSONObject obj){
+    public void JN_Test(final JSONObject obj){
         Log.d("JSONObject",obj.toString());
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                callback("JN_Test",obj.toString(),null);
+            }
+        });
+
     }
 }
 
