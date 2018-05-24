@@ -1,64 +1,129 @@
 package com.ai.webplugin;
 
-
-import android.content.Context;
+import android.Manifest;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.IntRange;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
+import android.os.CountDownTimer;
 import android.support.v4.content.FileProvider;
-import android.util.TypedValue;
 import android.view.View;
 import android.webkit.ValueCallback;
-import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
-import com.R;
 import com.ai.base.AIBaseActivity;
+import com.ai.base.SourceManager.app.MobileAppInfo;
+import com.ai.base.okHttp.OkHttpBaseAPI;
+import com.ai.base.util.FileUtilCommon;
+import com.ai.base.util.PermissionUitls;
 import com.ai.webplugin.config.GlobalCfg;
-
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.util.Properties;
 
 
 public class AIWebViewActivity extends AIBaseActivity {
 
     private WebView mWebView;
+    private ImageView mWelcomeImage;
     private LinearLayout mLinearLayout;
     private String mWebUrl;
     private static String mGlabalCfgFile = "global.properties";
     private static String mPluginCfgFile = "wade-plugin.xml";
-    private int backgroudColor = 0x000000;
+    private int mBackgroudColor = 0x000000;
+    private int mBackgroundResId = -1;
+    private int mWelcomeImageResId = -1;
+
+    // intent的参数key
     public static String backgroundColorKey = "backgroundColor";
-    public static String backgroundIdKey = "backgroundID";
+    public static String backgroundResIdKey = "backgroundResID";
+    public static String welcomeImageResId = "welcomeImageResId";
     public static String webViewURLKey = "webViewURL";
     public static String globalConfigKey = "globalConfig";
     public static String pluginConfigKey = "pluginConfig";
-    private int backgroundId;
+
+
+    public interface  ConnectTimeoutListener {
+        public void connectTimeout();
+    }
+
+    ConnectTimeoutListener timeoutListener;
+
+    private long myCountDownTime = 0;
+    private static final long LONGMAX = 300000L;
+    private static final long INTERVAL = 1000L;
+    private CountDownTimer mTimer = new CountDownTimer(LONGMAX, INTERVAL) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            myCountDownTime = millisUntilFinished;
+        }
+
+        @Override
+        public void onFinish() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (myCountDownTime <= 2*INTERVAL) {
+                        if (timeoutListener != null) {
+                            timeoutListener.connectTimeout();
+                        }
+                        return;
+                    }
+
+                    mWelcomeImage.setVisibility(View.GONE);
+                    mWebView.setVisibility(View.VISIBLE);
+                }
+            });
+        }
+    };
+
+    private void startAlphaAnimationJavaCode() {
+//        //渐变动画    从显示（1.0）到隐藏（0.0）
+//        AlphaAnimation alphaAnim = new AlphaAnimation(1.0f, 0.0f);
+//        //执行三秒
+//        alphaAnim.setDuration(1000);
+//        alphaAnim.setAnimationListener(new Animation.AnimationListener() {
+//            @Override
+//            public void onAnimationStart(Animation animation) {
+//
+//            }
+//
+//            @Override
+//            public void onAnimationEnd(Animation animation) {
+//
+//            }
+//
+//            @Override
+//            public void onAnimationRepeat(Animation animation) {
+//
+//            }
+//        });
+//        mWelcomeImage.startAnimation(alphaAnim);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initParam();
         initWebView();
+        checkVersion();
     }
 
     private void initParam () {
         try {
             Intent intent = getIntent();
-            backgroudColor = intent.getIntExtra(backgroundColorKey,0x000000);
+            mBackgroudColor = intent.getIntExtra(backgroundColorKey,0x000000);
             mWebUrl = intent.getStringExtra(webViewURLKey);
-            backgroundId = intent.getIntExtra(backgroundIdKey,0);
+            mBackgroundResId = intent.getIntExtra(backgroundResIdKey,0);
+            mWelcomeImageResId = intent.getIntExtra(welcomeImageResId,0);
 
             mPluginCfgFile = intent.getStringExtra(pluginConfigKey);
             if (mPluginCfgFile == null || mPluginCfgFile.length() == 0) {
@@ -85,18 +150,43 @@ public class AIWebViewActivity extends AIBaseActivity {
 
     private void initWebView() {
         mLinearLayout = new LinearLayout(this);
-        mLinearLayout.setBackgroundColor(backgroudColor);
+        mLinearLayout.setBackgroundColor(mBackgroudColor);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
         mLinearLayout.setLayoutParams(params);
         mLinearLayout.setOrientation(LinearLayout.VERTICAL);
 
+        initWelcomeView();
+        initContentWebView();
+
+        setContentView(mLinearLayout);
+    }
+
+    // 初始化主webview
+    private void initWelcomeView () {
+        if (mWelcomeImageResId != -1) {
+            mWelcomeImage = new ImageView(this);
+            mWelcomeImage.setImageResource(mWelcomeImageResId);
+            mWelcomeImage.setAdjustViewBounds(true);
+            mWelcomeImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+            LinearLayout.LayoutParams tvParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            mLinearLayout.addView(mWelcomeImage,tvParams);
+        }
+    }
+
+    // 初始化主webview
+    private void initContentWebView () {
+
         mWebView = new WebView(this);
-        mWebView.setBackgroundColor(backgroudColor);
+        mWebView.setBackgroundColor(mBackgroudColor);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-            mWebView.setBackground(getDrawable(backgroundId));
-            mWebView.getBackground().setAlpha(0);
+            if (mBackgroundResId != - 1) {
+                mWebView.setBackground(getDrawable(mBackgroundResId));
+                mWebView.getBackground().setAlpha(0);
+            }
         }
 
         mWebView.getSettings().setJavaScriptEnabled(true);
@@ -114,9 +204,10 @@ public class AIWebViewActivity extends AIBaseActivity {
                     @Override
                     public void onReceiveValue(String value) {}
                 });
+
+                mTimer.onFinish();
             }
         });
-        mWebView.setWebChromeClient(new WebChromeClient());
 
         // 修改ua使得web端正确判断
         GlobalCfg globalCfg = GlobalCfg.getInstance();
@@ -129,13 +220,11 @@ public class AIWebViewActivity extends AIBaseActivity {
         LinearLayout.LayoutParams tvParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
         mLinearLayout.addView(mWebView,tvParams);
-        setContentView(mLinearLayout);
 
         // 设置H5插件引擎
         setH5PluginEngine(mWebView);
-        //mWebView.loadDataWithBaseURL(null, "加载中。。", "text/html", "utf-8",null);
         mWebView.loadUrl(mWebUrl);
-        mWebView.setVisibility(View.VISIBLE);
+        mTimer.start();
     }
 
     private void setH5PluginEngine(WebView webView) {
@@ -167,4 +256,161 @@ public class AIWebViewActivity extends AIBaseActivity {
             moveTaskToBack(true);
         }
     }
+
+    // 权限控制
+    private void checkPermission() {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final int permissionCode = PermissionUitls.PERMISSION_STORAGE_CODE;
+                PermissionUitls.mContext = AIWebViewActivity.this;
+                final String checkPermissinos [] = {Manifest.permission.INTERNET,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+                PermissionUitls.PermissionListener permissionListener = new PermissionUitls.PermissionListener() {
+                    @Override
+                    public void permissionAgree() {
+                        switch (permissionCode) {
+                            case PermissionUitls.PERMISSION_STORAGE_CODE :
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void permissionReject() {
+
+                    }
+                };
+                PermissionUitls permissionUitls = PermissionUitls.getInstance(null, permissionListener);
+                permissionUitls.permssionCheck(permissionCode,checkPermissinos);
+            }
+        });
+    }
+
+
+    // 自动更新
+    private void checkVersion() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                GlobalCfg globalCfg = GlobalCfg.getInstance();
+                String url = globalCfg.attr(GlobalCfg.CONFIG_FIELD_VESSIONURL);
+                if (url == null || url.length() == 0) {
+                    return;
+                }
+                String locationVersion = globalCfg.attr(GlobalCfg.CONFIG_FIELD_VERSION);
+
+                OkHttpBaseAPI okHttpBaseAPI = new OkHttpBaseAPI();
+                String data = okHttpBaseAPI.httpGetTask(url, "getVersion");
+                try{
+                    if (data == null || data.length() <=0) {
+                        checkPermission();
+                    }
+
+                    Properties versionInfo = new Properties();
+                    InputStream inputStream = new ByteArrayInputStream(data.getBytes("UTF-8"));
+                    versionInfo.load(inputStream);
+                    final String versionURL = versionInfo.getProperty("android.versionURL");
+                    String versionNumber = versionInfo.getProperty("android.version");
+                    if (versionNumber.compareToIgnoreCase(locationVersion)>0 ) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                checkUpdate(versionURL);
+                            }
+                        });
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                checkPermission();
+                            }
+                        });
+                    }
+                } catch (Exception e){
+                    checkPermission();
+                }
+            }
+        }).start();
+    }
+
+    private void checkUpdate(final String apkURL) {
+        // 创建构建器
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // 设置参数
+        builder.setTitle("提示")
+                .setMessage("远端发现新版本请更新后重新启动应用")
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        checkPermission();
+                        updateApk(apkURL);
+                        dialog.dismiss();
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.show();
+    }
+
+    private ProgressDialog dialog;
+    private void updateApk(final String apkURL) {
+        dialog = ProgressDialog.show(this, "", "新版本下载中……", true, false, null);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OkHttpBaseAPI okHttpBaseAPI = new OkHttpBaseAPI();
+                byte[] data = okHttpBaseAPI.httpGetFileDataTask(apkURL, "apkDonwload");
+
+                String filePath = MobileAppInfo.getSdcardPath() + "/" + "apk";
+                final String apkPath = filePath + "/temp.apk";
+                FileUtilCommon.writeByte2File(filePath, "temp.apk", data, "");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.dismiss();
+                        if (isExist(apkPath)){
+                            installApkarchive(apkPath);
+                        }
+                    }
+                });
+            }
+        }).start();
+    }
+
+    public void installApkarchive(String apkFilePath) {
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        Uri uriPath = Uri.fromFile(new File(apkFilePath));
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            //7.0+版本手机
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            GlobalCfg globalCfg = GlobalCfg.getInstance();
+            String fileprovider = globalCfg.attr(GlobalCfg.CONFIG_FIELD_FILEPROVIDER);
+            if (fileprovider == null) {
+                Toast.makeText(AIWebViewActivity.this,"请在manifest中配置FileProvider",Toast.LENGTH_LONG).show();
+                return;
+            }
+            uriPath = FileProvider.getUriForFile(this,fileprovider,new File(apkFilePath));
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setDataAndType(uriPath, "application/vnd.android.package-archive");
+        startActivity(intent);
+        finish();
+        Runtime.getRuntime().exit(0);
+    }
+
+    private boolean isExist(String apkFilePath) {
+        File file = new File(apkFilePath);
+        if (file.exists()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

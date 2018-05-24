@@ -12,7 +12,21 @@ window.WadeNAObj = (function() {
                 WadeNAObj.execute(callbackKey,string);
 			},
 
-            // 扩展自己的接口
+            // 扩展自己的接口、
+
+            // 退出应用
+            JN_Quit:function(appName,callback) {
+                var callbackKey = 'JN_Quit';
+                WadeNAObj.storageCallback(callbackKey,callback);
+                WadeNAObj.execute(callbackKey,string);
+            }
+
+            // 分享应用
+            JN_Sharing:function(appName,callback) {
+                var callbackKey = 'JN_Sharing';
+                WadeNAObj.storageCallback(callbackKey,callback);
+                WadeNAObj.execute(callbackKey,string);
+            }
 		};
 	})();
 
