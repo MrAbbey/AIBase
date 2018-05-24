@@ -10,11 +10,8 @@ import android.util.Log;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.widget.Toast;
-
 import com.ai.base.AIBaseActivity;
-import com.ai.base.util.SystemUtil;
 import com.ai.base.util.Utility;
-
 import org.json.JSONObject;
 
 /**
@@ -80,7 +77,19 @@ public class AIWebViewBasePlugin {
     }
 
     // 扩展原生能力接口
-    public void JN_Test(final JSONObject obj){
+    public void JN_Test(final String obj){
+        Log.d("JSONObject",obj);
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                callback("JN_Test",obj,null);
+            }
+        });
+
+    }
+
+    // 扩展原生能力接口
+    public void JN_Test1(final JSONObject obj){
         Log.d("JSONObject",obj.toString());
         mActivity.runOnUiThread(new Runnable() {
             @Override
@@ -98,11 +107,11 @@ public class AIWebViewBasePlugin {
         // 设置参数
         builder.setTitle("提示")
                 .setMessage(msg)
-                .setPositiveButton("取消", new DialogInterface.OnClickListener() {
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //
-                        callback("JN_Quit","0",null);
+                        //callback("JN_Quit","0",null);
                     }
                 })
                 .setPositiveButton("确定", new DialogInterface.OnClickListener() {
