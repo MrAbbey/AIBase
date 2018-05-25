@@ -142,7 +142,7 @@ public class AIWebViewBasePlugin {
                     cm.setPrimaryClip(data);
                 }
 
-                Toast.makeText(mActivity,"已给你复制分享内容到剪切板中",Toast.LENGTH_LONG).show();
+                Toast.makeText(mActivity,"已帮您复制分享内容到剪切板中",Toast.LENGTH_LONG).show();
             }
         });
 
