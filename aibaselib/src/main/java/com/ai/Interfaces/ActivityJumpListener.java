@@ -7,4 +7,5 @@ package com.ai.Interfaces;
 
 public interface ActivityJumpListener {
     public void jumpToAILocGesturePasswordActivity();//跳转到手势密码输入页面。
+    public void jumpToAILocFingerprintActivity();//跳转到指纹验证页面。
 }

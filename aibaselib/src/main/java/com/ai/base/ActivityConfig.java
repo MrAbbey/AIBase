@@ -14,6 +14,7 @@ import com.ai.Interfaces.ActivityJumpListener;
 public class ActivityConfig {
     private Context mContext;
     private String kSharedPreferencesKey_AlreadyGesturePWD = "kSharedPreferencesKey_DeviceId";
+    private String kSharedPreferencesKey_AlreadyFingerprint = "alreadyFingerprint";
     //private long kDurTime = 1*1000;
     private long kDurTime = 3*60*1000;
     private static ActivityConfig instance;
@@ -117,6 +118,65 @@ public class ActivityConfig {
 
         // 需要结合是否有设置手势密码
         if (durTime <= kDurTime || !isAlreadyGesturePassword()) {
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * 设置指纹快捷登录
+     */
+    public void setAlreadyFingeprint() {
+        SharedPreferences sharedPreferences = mContext.getSharedPreferences("ActivityConfig", 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        String key = this.kSharedPreferencesKey_AlreadyFingerprint;
+        editor.putBoolean(key, true);
+        editor.commit();
+    }
+
+    /**
+     * 判断是否已经设置了指纹快捷登录
+     * @return
+     */
+    public boolean isAlreadyFingeprint() {
+        SharedPreferences sharedPreferences = mContext.getSharedPreferences("ActivityConfig", 0);
+        boolean isAlready = sharedPreferences.getBoolean(this.kSharedPreferencesKey_AlreadyFingerprint, false);
+        return isAlready;
+    }
+
+    /**
+     * 清除已经设置的指纹登录开关
+     */
+    public void clearAlreadyFingeprint() {
+        SharedPreferences sharedPreferences = mContext.getSharedPreferences("ActivityConfig", 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        String key = this.kSharedPreferencesKey_AlreadyFingerprint;
+        editor.putBoolean(key, false);
+        editor.commit();
+    }
+
+    /**
+     * APP打开后是否已经用指纹登录过
+     */
+    private boolean isAlreadyLogin = false;
+
+    public boolean isAlreadyLogin() {
+        return isAlreadyLogin;
+    }
+
+    public void setAlreadyLogin(boolean alreadyLogin) {
+        isAlreadyLogin = alreadyLogin;
+    }
+    /**
+     * 判断是否显示指纹验证页
+     * @return
+     */
+    public boolean isShowFingerprintActivity() {
+        long durTime = System.currentTimeMillis() - lockTime;
+
+        // 需要结合是否有设置手势密码
+        if (durTime <= kDurTime || !isAlreadyFingeprint()) {
             return false;
         }
         return true;
