@@ -11,7 +11,9 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.content.FileProvider;
 import android.view.View;
+import android.webkit.JsResult;
 import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
@@ -208,6 +210,51 @@ public class AIWebViewActivity extends AIBaseActivity {
                 mTimer.onFinish();
             }
         });
+
+        //可以采用默认的方式
+        mWebView.setWebChromeClient(new WebChromeClient());
+
+        //设置响应js 的Alert(); Confirm()函数
+        /*
+        mWebView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onJsAlert(WebView view, String url, String message, final JsResult result) {
+                AlertDialog.Builder b = new AlertDialog.Builder(AIWebViewActivity.this);
+                b.setTitle("提示");
+                b.setMessage(message);
+                b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        result.confirm();
+                    }
+                });
+                b.setCancelable(false);
+                b.create().show();
+                return true;
+            }
+            //设置响应js 的Confirm()函数
+            @Override
+            public boolean onJsConfirm(WebView view, String url, String message, final JsResult result) {
+                AlertDialog.Builder b = new AlertDialog.Builder(AIWebViewActivity.this);
+                b.setTitle("提示");
+                b.setMessage(message);
+                b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        result.confirm();
+                    }
+                });
+                b.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        result.cancel();
+                    }
+                });
+                b.create().show();
+                return true;
+            }
+        });
+        */
 
         // 修改ua使得web端正确判断
         GlobalCfg globalCfg = GlobalCfg.getInstance();
