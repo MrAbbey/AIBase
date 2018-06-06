@@ -1,1 +1,1 @@
-include ':aibaselib'
+include ':aibaselib', ':TestApp'

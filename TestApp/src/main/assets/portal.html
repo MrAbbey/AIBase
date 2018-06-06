@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html size="s">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
+        <title>NGBOSS</title>
+        <script type="text/javascript" src="wade-core.js"></script>
+        <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=mruDuDKc7GUWG9wtaH3rd5Sk"></script>
+        
+        <script type="text/javascript">
+            
+            function test1() {
+                var param = '{"methodName":"JN_Test","params":"伍友健，你好！"}';
+                window.WadeNAObj.JN_Test(param,function(str){
+                                         addElementNode(str);
+                                         });
+            }
+        
+        function test2() {
+            var param = "{\"methodName\":\"JN_Test\",\"params\":\"伍友健，你好！\"}";
+            addElementNode(param);
+        }
+            
+            function test5() {
+                var version =  window.PortalScriptPlugin.JN_AppVersion();
+                addElementNode(version);
+                
+                window.WadeNAObj.JN_Test("wuyoujian",function(str){
+                                         addElementNode(str);
+                                         });
+            }
+        
+        function test12() {
+            window.WadeNAObj.JN_Location(function(str){
+                                         addElementNode(str);
+                                         var obj = JSON.parse(str);
+                                         locationTest(obj.longitude,obj.latitude);
+                                         });
+        }
+        
+        function locationTest(longitude,latitude){
+            // 百度地图API功能
+            var ggPoint = new BMap.Point(longitude,latitude);
+            var convertor = new BMap.Convertor();
+            var pointArr = [];
+            pointArr.push(ggPoint);
+            convertor.translate(pointArr, 1, 5, function(data) {
+                                if(data.status === 0) {
+                                var bdPoint = data.points[0];
+                                var geoc = new BMap.Geocoder();
+                                geoc.getLocation(bdPoint, function(rs){
+                                                 var addComp = rs.addressComponents;
+                                                 addElementNode(addComp.city);
+                                                 });
+                                }
+                                });
+                                
+                                
+        }
+        
+        function addElementNode(text) {
+            var para=document.createElement("p");
+            var node=document.createTextNode(text);
+            para.appendChild(node);
+            
+            var element=document.getElementById("div");
+            element.appendChild(para);
+        }
+        
+        test12();
+            </script>
+        
+    </head>
+    <body>
+        <input type="text" id="myInput" />
+        <button type="button" onclick="document.getElementById('myInput').value = ''; document.getElementById('myInput').focus();">清除</button>
+        
+        <div id="div">
+            <p><a>下面是你所在的城市名称：</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test5();">回调函数</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test12();">定位</a></p>
+            
+            <p><a href="http://www.wuyoujian.com" onclick="test1();">调用</a></p>
+        </div>
+        
+        
+    </body>
+</html>
+
