@@ -113,11 +113,21 @@ public class AIWebViewPluginEngine {
 
             String[] names = plugincfg.getNames();
             if (names.length > 0) mWebView.getSettings().setJavaScriptEnabled(true);
+
+            Map<String,String> allClass = new HashMap<>();
             for (String name : names) {
                 String className = plugincfg.attr(name, WebViewPluginCfg.CONFIG_ATTR_CLASS);
-                String methodName = plugincfg.attr(name, WebViewPluginCfg.CONFIG_ATTR_CLASS);
+
+                if (allClass.containsKey(className)) {
+                    String pluginName = allClass.get(className);
+                    AIWebViewBasePlugin readyObj = mPlugins.get(pluginName);
+                    mPlugins.put(name,readyObj);
+                    continue;
+                }
+
                 AIWebViewBasePlugin plugin = (AIWebViewBasePlugin) BeanInvoker.instance(className,AIBaseActivity.class, mActivity,WebView.class,mWebView,false);
                 mPlugins.put(name,plugin);
+                allClass.put(className,name);
             }
         } catch (Exception e) {
             //e.printStackTrace();

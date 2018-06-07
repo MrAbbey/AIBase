@@ -3,7 +3,8 @@ window.WadeNAObj = (function() {
 	// 扩展区域
 	var WadeNAObj = (function(){
 		return {
-		    // 这个key生成的规则是：原生对象名_原生方法名
+		    // 这个key生成的规则是：方法名称，即wade-plugin.xml里的name字段
+            // 注意不要重复
 			// 测试函数，后面的方法，请按照这个方法扩展自己的自定义的方法
 			JN_Test:function(string,callback) {
 				// actionName=methodName
@@ -86,9 +87,11 @@ window.WadeNAObj = (function() {
          var paramString = JSON.stringify(paramObj);
          if (WadeNAObj.osName() =='a'){
              // android
+             // android都调用JN_EXECUTE由这个函数进行方法的转发
              top.WadeNAObjHander.JN_EXECUTE(paramString);
          } else if (WadeNAObj.osName() == 'i') {
              // iOS
+             // iOS都在WKWebview的WKScriptMessageHandler中进行转发
              window.webkit.messageHandlers.WadeNAObjHander.postMessage(paramString);
          }
    }

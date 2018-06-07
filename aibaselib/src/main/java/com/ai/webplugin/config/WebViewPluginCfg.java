@@ -11,7 +11,6 @@ public class WebViewPluginCfg extends AbstractCfg {
 	public static final String CONFIG_FIND_PATH = "action";
 	public static final String CONFIG_ATTR_NAME = "name";
 	public static final String CONFIG_ATTR_CLASS = "class";
-	public static final String CONFIG_ATTR_METHODNAME = "methodName";
 
 	private static WebViewPluginCfg instance;
 

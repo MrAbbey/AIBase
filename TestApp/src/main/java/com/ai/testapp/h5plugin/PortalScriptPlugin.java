@@ -75,6 +75,10 @@ public class PortalScriptPlugin extends AIWebViewBasePlugin {
         });
     }
 
+    public void JN_ShowMessage(String object) {
+        Toast.makeText(getActivity(),"JN_ShowMessage",Toast.LENGTH_LONG).show();
+    }
+
 //    public void JN_Test(JSONObject object) {
 //        Log.d("JN_Array",object.toString());
 //

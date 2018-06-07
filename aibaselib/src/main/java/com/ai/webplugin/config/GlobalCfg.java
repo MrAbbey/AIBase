@@ -15,6 +15,7 @@ public class GlobalCfg extends AbstractCfg {
 	public static final String CONFIG_FIELD_USERAGENT = "userAgent";
 	public static final String CONFIG_FIELD_VESSIONURL = "version.url";
 	public static final String CONFIG_FIELD_FILEPROVIDER = "fileprovider";
+	public static final String CONFIG_FIELD_APPNAME = "app.name";
 
 	//
 	private static GlobalCfg instance;

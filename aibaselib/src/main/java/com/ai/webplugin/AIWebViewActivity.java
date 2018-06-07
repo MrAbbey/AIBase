@@ -114,12 +114,12 @@ public class AIWebViewActivity extends AIBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initParam();
+        initConfigParam();
         initWebView();
         checkVersion();
     }
 
-    private void initParam () {
+    private void initConfigParam () {
         try {
             Intent intent = getIntent();
             mBackgroudColor = intent.getIntExtra(backgroundColorKey,0x000000);

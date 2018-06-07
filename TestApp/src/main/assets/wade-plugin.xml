@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
-    <action name="JN_Test" class="com.ai.testapp.h5plugin.PortalScriptPlugin" methodName="JN_Test"></action>
+    <action name="JN_Test" class="com.ai.testapp.h5plugin.PortalScriptPlugin"></action>
+    <action name="JN_ShowMessage" class="com.ai.testapp.h5plugin.PortalScriptPlugin"></action>
 </plugins>
