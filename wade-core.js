@@ -7,7 +7,6 @@ window.WadeNAObj = (function() {
             // 注意不要重复
 			// 测试函数，后面的方法，请按照这个方法扩展自己的自定义的方法
 			JN_Test:function(string,callback) {
-				// actionName=methodName
 				var callbackKey = 'JN_Test';
 				WadeNAObj.storageCallback(callbackKey,callback);
                 WadeNAObj.execute(callbackKey,string);
@@ -81,9 +80,9 @@ window.WadeNAObj = (function() {
         }
    }
 
-   WadeNAObj.execute=function(methodName,param) {
-         //var paramString = '{"methodName":"'+methodName+'","params":'+param+'}';
-         var paramObj = {"methodName":methodName,"params":param};
+   WadeNAObj.execute=function(pluginName,param) {
+         //var paramString = '{"pluginName":"'+pluginName+'","params":'+param+'}';
+         var paramObj = {"pluginName":pluginName,"params":param};
          var paramString = JSON.stringify(paramObj);
          if (WadeNAObj.osName() =='a'){
              // android

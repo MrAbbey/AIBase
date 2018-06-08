@@ -2,6 +2,7 @@ package com.ai.webplugin;
 
 import android.annotation.SuppressLint;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
@@ -41,6 +42,7 @@ public class AIWebViewPluginEngine {
 
     public AIWebViewPluginEngine() {}
 
+    @Nullable
     public static Method getMethod(Class<?> clazz, String methodName, Class<?>[] classes) {
         Method method = null;
 
@@ -66,19 +68,19 @@ public class AIWebViewPluginEngine {
 
         try {
             JSONObject jsonObject = new JSONObject(paramJSON);
-            String methodName = jsonObject.optString("methodName");
+            String pluginName = jsonObject.optString("pluginName");
             Object paramObject = jsonObject.opt("params");
 
-            AIWebViewBasePlugin pluginObj = mPlugins.get(methodName);
+            AIWebViewBasePlugin pluginObj = mPlugins.get(pluginName);
 
             Class<?> clazz = pluginObj.getClass();
-            Method method = mMethods.get(methodName);
+            Method method = mMethods.get(pluginName);
             if (method == null) {
-                method = getMethod(clazz,methodName,new Class[]{paramObject.getClass()});
+                method = getMethod(clazz,pluginName,new Class[]{paramObject.getClass()});
                 if(method == null) {
                     return;
                 } else {
-                    mMethods.put(methodName,method);
+                    mMethods.put(pluginName,method);
                 }
             }
 
