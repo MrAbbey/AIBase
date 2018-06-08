@@ -98,7 +98,6 @@ public class AIWebViewPluginEngine {
 
         this.mActivity = activity;
         this.mWebView = webView;
-        webView.getSettings().setSavePassword(false);
         this.mWebView.getSettings().setSavePassword(false);
         this.mPluginCfgFile = configFileName;
 
