@@ -118,9 +118,21 @@ public class AIOpenDocumentController {
                 @Override
                 public void run() {
                     try {
+                        context.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(context,"正在下载文件...",Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
                         downLoadFromUrl(url,fileName,savePath);
                     } catch (IOException e) {
-                        Toast.makeText(context,"下载文件失败，请重试！",Toast.LENGTH_SHORT).show();
+                        context.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(context,"下载文件失败，请重试！",Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
 
                     context.runOnUiThread(new Runnable() {
