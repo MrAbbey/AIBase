@@ -13,6 +13,13 @@ window.ExtendNAObj = (function() {
     				WadeNAObj.storageCallback(callbackKey,callback);
                     WadeNAObj.execute(callbackKey,string);
     			},
+
+    			// 分享应用
+                JN_OpenDocument:function(callback) {
+                    var callbackKey = 'JN_OpenDocument';
+                    WadeNAObj.storageCallback(callbackKey,callback);
+                    WadeNAObj.execute(callbackKey);
+                },
     		};
     	})();
 

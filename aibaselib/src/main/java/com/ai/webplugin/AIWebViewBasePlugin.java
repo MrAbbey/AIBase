@@ -11,7 +11,10 @@ import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.widget.Toast;
 import com.ai.base.AIBaseActivity;
+import com.ai.base.document.AIOpenDocumentController;
 import com.ai.base.util.Utility;
+import com.ai.webplugin.config.GlobalCfg;
+
 import org.json.JSONObject;
 
 /**
@@ -147,6 +150,18 @@ public class AIWebViewBasePlugin {
         });
 
         callback("JN_Sharing","0",null);
+    }
+
+    public void JN_OpenDocument(final String url) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                GlobalCfg globalCfg = GlobalCfg.getInstance();
+                String fileProvider = globalCfg.attr(GlobalCfg.CONFIG_FIELD_FILEPROVIDER);
+                AIOpenDocumentController.getInstance().openOnlineFileInContext(getActivity(),url,fileProvider);
+                Toast.makeText(getActivity(),"正在下载文件...",Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
 

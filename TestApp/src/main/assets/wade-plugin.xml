@@ -2,4 +2,5 @@
 <plugins>
     <action name="JN_Test" class="com.ai.testapp.h5plugin.PortalScriptPlugin"></action>
     <action name="JN_ShowMessage" class="com.ai.testapp.h5plugin.PortalScriptPlugin"></action>
+    <action name="JN_OpenDocument" class="com.ai.testapp.h5plugin.PortalScriptPlugin"></action>
 </plugins>

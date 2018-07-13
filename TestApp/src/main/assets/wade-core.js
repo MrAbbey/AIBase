@@ -25,7 +25,13 @@ window.WadeNAObj = (function() {
                 var callbackKey = 'JN_Sharing';
                 WadeNAObj.storageCallback(callbackKey,callback);
                 WadeNAObj.execute(callbackKey,url);
-            }
+            },
+
+            JN_OpenDocument:function(url,callback) {
+                var callbackKey = 'JN_OpenDocument';
+                WadeNAObj.storageCallback(callbackKey,callback);
+                WadeNAObj.execute(callbackKey,url);
+            },
 		};
 	})();
 
@@ -82,7 +88,14 @@ window.WadeNAObj = (function() {
 
    WadeNAObj.execute=function(pluginName,param) {
          //var paramString = '{"pluginName":"'+pluginName+'","params":'+param+'}';
-         var paramObj = {"pluginName":pluginName,"params":param};
+         var paramObj = null;
+         if(param == null) {
+            paramObj = {"pluginName":pluginName};
+         } else {
+            paramObj = {"pluginName":pluginName,"params":param};
+         }
+
+         if (paramObj == null) return;
          var paramString = JSON.stringify(paramObj);
          if (WadeNAObj.osName() =='a'){
              // android

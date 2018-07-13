@@ -76,7 +76,12 @@ public class AIWebViewPluginEngine {
             Class<?> clazz = pluginObj.getClass();
             Method method = mMethods.get(pluginName);
             if (method == null) {
-                method = getMethod(clazz,pluginName,new Class[]{paramObject.getClass()});
+                if (paramObject == null) {
+                    method = getMethod(clazz,pluginName,null);
+                } else {
+                    method = getMethod(clazz,pluginName,new Class[]{paramObject.getClass()});
+                }
+
                 if(method == null) {
                     return;
                 } else {
@@ -85,7 +90,12 @@ public class AIWebViewPluginEngine {
             }
 
             synchronized(method) {
-                method.invoke(pluginObj, new Object[]{paramObject});
+                if (paramObject == null) {
+                    method.invoke(pluginObj);
+                } else {
+                    method.invoke(pluginObj, new Object[]{paramObject});
+                }
+
             }
         } catch (Exception e) {
             e.printStackTrace();

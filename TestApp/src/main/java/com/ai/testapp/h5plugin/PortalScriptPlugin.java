@@ -13,6 +13,7 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.ai.base.AIBaseActivity;
+import com.ai.base.document.AIOpenDocumentController;
 import com.ai.base.util.AESEncrypt;
 import com.ai.webplugin.AIWebViewBasePlugin;
 import com.qihoo360.replugin.RePlugin;
@@ -54,6 +55,24 @@ public class PortalScriptPlugin extends AIWebViewBasePlugin {
         return method;
     }
 
+
+    public void JN_OpenDocument() {
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //String filePath  = getActivity().getFilesDir().getAbsolutePath() + File.separator + "记录.doc";
+                //AIOpenDocumentController.getInstance().openInContext(getActivity(),filePath,"com.ai.testapp.provider");
+
+                String url = "http://115.28.232.97:8010/excel/2018-7阅兵报表_2.xls";
+                String fileProvider = "com.ai.testapp.provider";
+                AIOpenDocumentController.getInstance().openOnlineFileInContext(getActivity(),url,fileProvider);
+
+            }
+        });
+
+    }
+
     public void JN_Test(String object) {
         Log.d("JN_Array",object);
 
@@ -79,18 +98,6 @@ public class PortalScriptPlugin extends AIWebViewBasePlugin {
         Toast.makeText(getActivity(),"JN_ShowMessage",Toast.LENGTH_LONG).show();
     }
 
-//    public void JN_Test(JSONObject object) {
-//        Log.d("JN_Array",object.toString());
-//
-//        Toast.makeText(getActivity(),object.toString(),Toast.LENGTH_LONG).show();
-//
-//        getActivity().runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                callback("JN_Test","回调'\'数据",null);
-//            }
-//        });
-//    }
 
     public boolean openApp(final Activity activity, final String packageName, final String activityName, final Intent param) {
         if ((packageName != null && packageName.length() > 0) &&
