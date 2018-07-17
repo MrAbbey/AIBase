@@ -20,15 +20,23 @@ window.WadeNAObj = (function() {
                 WadeNAObj.execute(callbackKey,appName);
             },
 
-            // 分享应用
+            // 分享应用链接到系统剪切板
             JN_Sharing:function(url,callback) {
                 var callbackKey = 'JN_Sharing';
                 WadeNAObj.storageCallback(callbackKey,callback);
                 WadeNAObj.execute(callbackKey,url);
             },
 
+            // 打开文档
             JN_OpenDocument:function(url,callback) {
                 var callbackKey = 'JN_OpenDocument';
+                WadeNAObj.storageCallback(callbackKey,callback);
+                WadeNAObj.execute(callbackKey,url);
+            },
+
+            // 检查版本自动更新
+            JN_CheckVersion:function(url,callback) {
+                var callbackKey = 'JN_CheckVersion';
                 WadeNAObj.storageCallback(callbackKey,callback);
                 WadeNAObj.execute(callbackKey,url);
             },

@@ -3,4 +3,8 @@
     <action name="JN_Test" class="com.ai.testapp.h5plugin.PortalScriptPlugin"></action>
     <action name="JN_ShowMessage" class="com.ai.testapp.h5plugin.PortalScriptPlugin"></action>
     <action name="JN_OpenDocument" class="com.ai.testapp.h5plugin.PortalScriptPlugin"></action>
+    <action name="JN_Quit" class="com.ai.webplugin.AIWebViewBasePlugin" ></action>
+    <action name="JN_Sharing" class="com.ai.webplugin.AIWebViewBasePlugin" ></action>
+    <action name="JN_OpenDocument" class="com.ai.webplugin.AIWebViewBasePlugin" ></action>
+    <action name="JN_CheckVersion" class="com.ai.webplugin.AIWebViewBasePlugin" ></action>
 </plugins>

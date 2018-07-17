@@ -1,20 +1,39 @@
 package com.ai.webplugin;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
+import android.widget.Toast;
+
 import com.ai.base.AIBaseActivity;
+import com.ai.base.SourceManager.app.MobileAppInfo;
+import com.ai.base.okHttp.OkHttpBaseAPI;
+import com.ai.base.util.FileUtilCommon;
+import com.ai.base.util.PermissionUitls;
 import com.ai.base.util.Utility;
+import com.ai.webplugin.config.GlobalCfg;
 import com.ai.webplugin.config.WebViewPluginCfg;
 import com.ai.base.util.BeanInvoker;
 import org.json.JSONObject;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 
 /**
@@ -167,4 +186,163 @@ public class AIWebViewPluginEngine {
             }
         }
     }
+
+    /*
+     check 版本 helper API begin
+     */
+    public void checkUpdate(final String versionConfigUrl) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                GlobalCfg globalCfg = GlobalCfg.getInstance();
+                String url = globalCfg.attr(GlobalCfg.CONFIG_FIELD_VESSIONURL);
+
+                // 如果接口传入了URL就这个URL生效
+                if (versionConfigUrl != null && versionConfigUrl.length() > 0) {
+                    url = versionConfigUrl;
+                }
+
+                if (url == null || url.length() == 0) {
+                    return;
+                }
+
+                String locationVersion = globalCfg.attr(GlobalCfg.CONFIG_FIELD_VERSION);
+
+                OkHttpBaseAPI okHttpBaseAPI = new OkHttpBaseAPI();
+                String data = okHttpBaseAPI.httpGetTask(url, "getVersion");
+                try{
+
+                    Properties versionInfo = new Properties();
+                    InputStream inputStream = new ByteArrayInputStream(data.getBytes("UTF-8"));
+                    versionInfo.load(inputStream);
+                    final String versionURL = versionInfo.getProperty("android.versionURL");
+                    String versionNumber = versionInfo.getProperty("android.version");
+                    if (versionNumber.compareToIgnoreCase(locationVersion)>0 ) {
+                        mActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // 创建构建器
+                                AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                                // 设置参数
+                                builder.setTitle("提示")
+                                        .setMessage("远端发现新版本请更新后重新启动应用")
+                                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                checkPermission();
+                                                updateApk(versionURL);
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                AlertDialog dialog = builder.create();
+                                dialog.setCancelable(false);
+                                dialog.show();
+                            }
+                        });
+                    } else {
+                        mActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                checkPermission();
+                            }
+                        });
+                    }
+                } catch (Exception e){
+                    checkPermission();
+                }
+            }
+        }).start();
+    }
+
+    private ProgressDialog dialog;
+    private void updateApk(final String apkURL) {
+        dialog = ProgressDialog.show(mActivity, "", "新版本下载中……", true, false, null);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OkHttpBaseAPI okHttpBaseAPI = new OkHttpBaseAPI();
+                byte[] data = okHttpBaseAPI.httpGetFileDataTask(apkURL, "apkDonwload");
+
+                String filePath = MobileAppInfo.getSdcardPath() + "/" + "apk";
+                final String apkPath = filePath + "/temp.apk";
+                FileUtilCommon.writeByte2File(filePath, "temp.apk", data, "");
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.dismiss();
+                        if (isExist(apkPath)){
+                            installApkarchive(apkPath);
+                        }
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void installApkarchive(String apkFilePath) {
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        Uri uriPath = Uri.fromFile(new File(apkFilePath));
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            //7.0+版本手机
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            GlobalCfg globalCfg = GlobalCfg.getInstance();
+            String fileprovider = globalCfg.attr(GlobalCfg.CONFIG_FIELD_FILEPROVIDER);
+            if (fileprovider == null) {
+                Toast.makeText(mActivity,"请在manifest中配置FileProvider",Toast.LENGTH_LONG).show();
+                return;
+            }
+            uriPath = FileProvider.getUriForFile(mActivity,fileprovider,new File(apkFilePath));
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setDataAndType(uriPath, "application/vnd.android.package-archive");
+        mActivity.startActivity(intent);
+        Runtime.getRuntime().exit(0);
+    }
+
+    private boolean isExist(String apkFilePath) {
+        File file = new File(apkFilePath);
+        if (file.exists()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // 权限控制
+    private void checkPermission() {
+
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final int permissionCode = PermissionUitls.PERMISSION_STORAGE_CODE;
+                PermissionUitls.mContext = mActivity;
+                final String checkPermissinos [] = {Manifest.permission.INTERNET,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+                PermissionUitls.PermissionListener permissionListener = new PermissionUitls.PermissionListener() {
+                    @Override
+                    public void permissionAgree() {
+                        switch (permissionCode) {
+                            case PermissionUitls.PERMISSION_STORAGE_CODE :
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void permissionReject() {
+
+                    }
+                };
+                PermissionUitls permissionUitls = PermissionUitls.getInstance(null, permissionListener);
+                permissionUitls.permssionCheck(permissionCode,checkPermissinos);
+            }
+        });
+    }
+
+    /*
+     check 版本 helper API end
+     */
 }

@@ -14,8 +14,8 @@ import com.ai.base.AIBaseActivity;
 import com.ai.base.document.AIOpenDocumentController;
 import com.ai.base.util.Utility;
 import com.ai.webplugin.config.GlobalCfg;
-
 import org.json.JSONObject;
+
 
 /**
  * Created by wuyoujian on 17/3/30.
@@ -103,6 +103,7 @@ public class AIWebViewBasePlugin {
 
     }
 
+    // 退出程序
     public void JN_Quit(final String param) {
         // 创建构建器
         String msg = String.format("您确定要退出%s",param);
@@ -130,6 +131,7 @@ public class AIWebViewBasePlugin {
         dialog.show();
     }
 
+    // 分享链接到系统剪切板
     public void JN_Sharing(final String url) {
         mActivity.runOnUiThread(new Runnable() {
             @Override
@@ -152,6 +154,7 @@ public class AIWebViewBasePlugin {
         callback("JN_Sharing","0",null);
     }
 
+    // 调用系统中可以打开对应文档的应用
     public void JN_OpenDocument(final String url) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -162,6 +165,11 @@ public class AIWebViewBasePlugin {
                 Toast.makeText(getActivity(),"正在下载文件...",Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    // 自动更新
+    public void JN_CheckVersion(final String versionConfigUrl) {
+        AIWebViewPluginEngine.getInstance().checkUpdate(versionConfigUrl);
     }
 }
 
