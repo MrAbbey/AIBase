@@ -40,6 +40,13 @@ window.WadeNAObj = (function() {
                 WadeNAObj.storageCallback(callbackKey,callback);
                 WadeNAObj.execute(callbackKey,url);
             },
+
+            // 检查版本自动更新
+            JN_VersionNumber:function(callback) {
+                var callbackKey = 'JN_VersionNumber';
+                WadeNAObj.storageCallback(callbackKey,callback);
+                WadeNAObj.execute(callbackKey);
+            },
 		};
 	})();
 

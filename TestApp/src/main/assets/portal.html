@@ -11,7 +11,7 @@
         <script type="text/javascript">
             
             function test1() {
-                var param = '{"methodName":"JN_Test","params":"伍友健，你好！"}';
+                var param = '{"pluginName":"JN_Test","params":"伍友健，你好！"}';
                 window.WadeNAObj.JN_Test(param,function(str){
                                          addElementNode(str);
                                          });
@@ -20,6 +20,12 @@
             function test2() {
                 window.WadeNAObj.JN_OpenDocument(function(str){
                                          addElementNode(str);
+                                         });
+            }
+
+            function test3() {
+                window.WadeNAObj.JN_VersionNumber(function(str){
+                                         addElementNode("版本号："+str);
                                          });
             }
         

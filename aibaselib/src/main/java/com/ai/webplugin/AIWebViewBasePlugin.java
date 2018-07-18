@@ -16,6 +16,8 @@ import com.ai.base.util.Utility;
 import com.ai.webplugin.config.GlobalCfg;
 import org.json.JSONObject;
 
+import java.io.InputStream;
+
 
 /**
  * Created by wuyoujian on 17/3/30.
@@ -27,13 +29,15 @@ public class AIWebViewBasePlugin {
     private WebView mWebView;
     private Handler mHandler = new Handler();
 
-    public AIWebViewBasePlugin(AIBaseActivity activity,WebView webView) {
+    public AIWebViewBasePlugin(AIBaseActivity activity, WebView webView) {
         this.mActivity = activity;
         this.mWebView = webView;
     }
+
     public AIBaseActivity getActivity() {
         return mActivity;
     }
+
     public void setActivity(AIBaseActivity activity) {
         this.mActivity = activity;
     }
@@ -41,6 +45,7 @@ public class AIWebViewBasePlugin {
     public WebView getWebView() {
         return mWebView;
     }
+
     public void setWebView(WebView webView) {
         mWebView = webView;
     }
@@ -51,18 +56,18 @@ public class AIWebViewBasePlugin {
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                excuteJSInWebView(javascript,callback);
+                excuteJSInWebView(javascript, callback);
             }
         });
     }
 
     public void callback(String actionName, String param, final ValueCallback<String> callback) {
         param = Utility.encodeForJs(param);
-        final String javascript = "javascript:window.WadeNAObj.callback(\'"+actionName+"\',\'"+param+"\')";
-        excuteJSInWebView(javascript,callback);
+        final String javascript = "window.WadeNAObj.callback(\'" + actionName + "\',\'" + param + "\')";
+        excuteJavascript(javascript,callback);
     }
 
-    private void excuteJSInWebView(final String javascript, final ValueCallback<String> callback){
+    private void excuteJSInWebView(final String javascript, final ValueCallback<String> callback) {
         if (mWebView != null) {
             int currentapiVersion = android.os.Build.VERSION.SDK_INT;
             if (currentapiVersion < android.os.Build.VERSION_CODES.LOLLIPOP) {
@@ -74,30 +79,30 @@ public class AIWebViewBasePlugin {
                     }
                 });
             } else {
-                mWebView.evaluateJavascript(javascript,callback);
+                mWebView.evaluateJavascript(javascript, callback);
             }
         }
     }
 
     // 扩展原生能力接口
-    public void JN_Test(final String obj){
-        Log.d("JSONObject",obj);
+    public void JN_Test(final String obj) {
+        Log.d("JSONObject", obj);
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                callback("JN_Test",obj,null);
+                callback("JN_Test", obj, null);
             }
         });
 
     }
 
     // 扩展原生能力接口
-    public void JN_Test1(final JSONObject obj){
-        Log.d("JSONObject",obj.toString());
+    public void JN_Test1(final JSONObject obj) {
+        Log.d("JSONObject", obj.toString());
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                callback("JN_Test",obj.toString(),null);
+                callback("JN_Test", obj.toString(), null);
             }
         });
 
@@ -106,7 +111,7 @@ public class AIWebViewBasePlugin {
     // 退出程序
     public void JN_Quit(final String param) {
         // 创建构建器
-        String msg = String.format("您确定要退出%s",param);
+        String msg = String.format("您确定要退出%s", param);
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
         // 设置参数
         builder.setTitle("提示")
@@ -122,7 +127,7 @@ public class AIWebViewBasePlugin {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        callback("JN_Quit","1",null);
+                        callback("JN_Quit", "1", null);
                         System.exit(0);
                     }
                 });
@@ -143,15 +148,15 @@ public class AIWebViewBasePlugin {
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB) {
                     cm.setText(url);
                 } else {
-                    ClipData data = ClipData.newPlainText("JN_Sharing",url);
+                    ClipData data = ClipData.newPlainText("JN_Sharing", url);
                     cm.setPrimaryClip(data);
                 }
 
-                Toast.makeText(mActivity,"已帮您复制分享内容到剪切板中",Toast.LENGTH_LONG).show();
+                Toast.makeText(mActivity, "已帮您复制分享内容到剪切板中", Toast.LENGTH_LONG).show();
             }
         });
 
-        callback("JN_Sharing","0",null);
+        callback("JN_Sharing", "0", null);
     }
 
     // 调用系统中可以打开对应文档的应用
@@ -161,8 +166,18 @@ public class AIWebViewBasePlugin {
             public void run() {
                 GlobalCfg globalCfg = GlobalCfg.getInstance();
                 String fileProvider = globalCfg.attr(GlobalCfg.CONFIG_FIELD_FILEPROVIDER);
-                AIOpenDocumentController.getInstance().openOnlineFileInContext(getActivity(),url,fileProvider);
-                Toast.makeText(getActivity(),"正在下载文件...",Toast.LENGTH_LONG).show();
+                if (fileProvider == null || fileProvider.length()== 0) {
+                    try {
+                        InputStream is = getActivity().getResources().getAssets().open("global.properties");
+                        globalCfg.parseConfig(is);
+                    } catch (Exception e) {
+
+                    }
+
+                    fileProvider = globalCfg.attr(GlobalCfg.CONFIG_FIELD_FILEPROVIDER);
+                }
+                AIOpenDocumentController.getInstance().openOnlineFileInContext(getActivity(), url, fileProvider);
+                Toast.makeText(getActivity(), "正在下载文件...", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -170,6 +185,24 @@ public class AIWebViewBasePlugin {
     // 自动更新
     public void JN_CheckVersion(final String versionConfigUrl) {
         AIWebViewPluginEngine.getInstance().checkUpdate(versionConfigUrl);
+    }
+
+    // 自动更新
+    public void JN_VersionNumber() {
+        GlobalCfg globalCfg = GlobalCfg.getInstance();
+        String versionNumber = globalCfg.attr(GlobalCfg.CONFIG_FIELD_VERSION);
+        if (versionNumber == null || versionNumber.length()== 0) {
+            try {
+                InputStream is = getActivity().getResources().getAssets().open("global.properties");
+                globalCfg.parseConfig(is);
+            } catch (Exception e) {
+
+            }
+
+            versionNumber = globalCfg.attr(GlobalCfg.CONFIG_FIELD_VERSION);
+        }
+
+        callback("JN_VersionNumber",versionNumber,null);
     }
 }
 

@@ -28,7 +28,7 @@ public class SplashActivity extends AIBaseActivity {
             public void run() {
                 enterHomeActivity();
             }
-        }, 4000);
+        }, 10000);
     }
 
     private void enterHomeActivity() {
