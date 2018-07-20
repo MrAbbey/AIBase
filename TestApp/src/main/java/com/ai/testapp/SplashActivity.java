@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.webkit.WebView;
 
+import com.ai.testapp.common.MainActivity;
 import com.ai.testapp.h5plugin.PortalActivity;
 import com.ai.base.AIBaseActivity;
 
@@ -28,7 +29,7 @@ public class SplashActivity extends AIBaseActivity {
             public void run() {
                 enterHomeActivity();
             }
-        }, 10000);
+        }, 1000);
     }
 
     private void enterHomeActivity() {

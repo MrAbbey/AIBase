@@ -1,5 +1,6 @@
 package com.ai.base.document;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -13,6 +14,8 @@ import android.widget.Toast;
 import com.ai.base.SourceManager.app.MobileAppInfo;
 import com.ai.base.okHttp.OkHttpBaseAPI;
 import com.ai.base.util.FileUtilCommon;
+import com.ai.base.util.PermissionUitls;
+import com.ai.webplugin.AIWebViewPluginEngine;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -109,44 +112,66 @@ public class AIOpenDocumentController {
 
     public void openOnlineFileInContext(final Activity context, final String url, final String fileProvider) {
 
-        try {
-            // 下载文件到本地
-            String tempName = url.substring(url.lastIndexOf(File.separatorChar) + 1);
-            final String fileName = URLDecoder.decode(tempName,"utf-8");
-            final String savePath = Environment.getExternalStorageDirectory().getAbsolutePath();
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        context.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(context,"正在下载文件...",Toast.LENGTH_SHORT).show();
-                            }
-                        });
+        final int permissionCode = PermissionUitls.PERMISSION_STORAGE_CODE;
+        PermissionUitls.mContext = context ;
+        final String checkPermissinos [] = {
+                Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
-                        downLoadFromUrl(url,fileName,savePath);
-                    } catch (IOException e) {
-                        context.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(context,"下载文件失败，请重试！",Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
+        PermissionUitls.PermissionListener permissionListener = new PermissionUitls.PermissionListener() {
+            @Override
+            public void permissionAgree() {
+                switch (permissionCode) {
+                    case PermissionUitls.PERMISSION_STORAGE_CODE : {
+                        try {
+                            // 下载文件到本地
+                            String tempName = url.substring(url.lastIndexOf(File.separatorChar) + 1);
+                            final String fileName = URLDecoder.decode(tempName,"utf-8");
+                            final String savePath = Environment.getExternalStorageDirectory().getAbsolutePath();
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        context.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(context,"正在下载文件...",Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
 
-                    context.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            openInContext(context,savePath+File.separator + fileName,fileProvider);
+                                        downLoadFromUrl(url,fileName,savePath);
+                                    } catch (IOException e) {
+                                        context.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(context,"下载文件失败，请重试！",Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+
+                                    context.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            openInContext(context,savePath+File.separator + fileName,fileProvider);
+                                        }
+                                    });
+
+                                }
+                            }).start();
+                        } catch (Exception e) {
+
                         }
-                    });
-
+                        break;
+                    }
                 }
-            }).start();
-        } catch (Exception e) {
+            }
 
-        }
+            @Override
+            public void permissionReject() {
 
+                Toast.makeText(context,"请授予操作手机内存的权限！",Toast.LENGTH_SHORT).show();
+            }
+        };
+        PermissionUitls permissionUitls = PermissionUitls.getInstance(null, permissionListener);
+        permissionUitls.permssionCheck(permissionCode,checkPermissinos);
     }
 }

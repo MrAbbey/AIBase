@@ -15,10 +15,10 @@ window.ExtendNAObj = (function() {
     			},
 
     			// 分享应用
-                JN_OpenDocument:function(callback) {
+                JN_OpenDocument:function(url,callback) {
                     var callbackKey = 'JN_OpenDocument';
                     WadeNAObj.storageCallback(callbackKey,callback);
-                    WadeNAObj.execute(callbackKey);
+                    WadeNAObj.execute(callbackKey,url);
                 },
     		};
     	})();
@@ -37,10 +37,10 @@ window.ExtendNAObj = (function() {
             }
             for(name in obj){
                 var src = target[name], copy = obj[name];
-                if(target === copy){
+                if(src === copy){
                     continue;
                 }
-                if(obj.hasOwnProperty(name) === true){
+                if(target.hasOwnProperty(name) === false){
                     target[name] = copy;
                 }
             }

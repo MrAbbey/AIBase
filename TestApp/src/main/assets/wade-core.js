@@ -41,11 +41,47 @@ window.WadeNAObj = (function() {
                 WadeNAObj.execute(callbackKey,url);
             },
 
-            // 检查版本自动更新
+            // 获取版本号
             JN_VersionNumber:function(callback) {
                 var callbackKey = 'JN_VersionNumber';
                 WadeNAObj.storageCallback(callbackKey,callback);
                 WadeNAObj.execute(callbackKey);
+            },
+
+            // 启动loading
+            JN_ShowLoading:function(text,callback) {
+                var callbackKey = 'JN_ShowLoading';
+                WadeNAObj.storageCallback(callbackKey,callback);
+                WadeNAObj.execute(callbackKey,text);
+            },
+
+            // 启动loading
+            JN_DismissLoading:function(callback) {
+                var callbackKey = 'JN_DismissLoading';
+                WadeNAObj.storageCallback(callbackKey,callback);
+                WadeNAObj.execute(callbackKey);
+            },
+
+            // 提示语
+            JN_ShowMessage:function(string) {
+                // 方法名，即配置中的name
+                var callbackKey = 'JN_ShowMessage';
+                WadeNAObj.execute(callbackKey,string);
+            },
+
+            // 存储数据
+            JN_SetValueWithKey:function(value,key) {
+                // 方法名，即配置中的name
+                var callbackKey = 'JN_SetValueWithKey';
+                WadeNAObj.execute(callbackKey,[key,value]);
+            },
+
+            // 获取数据,通过回调返回数据
+            JN_GetValueWithKey:function(key,callback) {
+                // 方法名，即配置中的name
+                var callbackKey = 'JN_GetValueWithKey';
+                WadeNAObj.storageCallback(callbackKey,callback);
+                WadeNAObj.execute(callbackKey,key);
             },
 		};
 	})();

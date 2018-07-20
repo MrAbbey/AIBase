@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.ai.base.loading.AILoadingViewBuilder;
 import com.ai.testapp.R;
 import com.ai.base.util.HttpUtil;
 import com.qihoo360.replugin.RePlugin;
@@ -34,53 +35,58 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String pluginName = "plugin.apk";
-                String url = "http://10.174.61.149/" + pluginName;
-                Toast.makeText(MainActivity.this,"开始下载插件...",Toast.LENGTH_SHORT).show();
-                HttpUtil.sendOkHttpRequest(url,new okhttp3.Callback(){
-                    @Override
-                    public void onFailure(Call call, IOException e) {}
+                //AILoadingViewBuilder.getInstance().show(MainActivity.this,"加载中...");
+                loadApk();
+            }
+        });
+    }
 
+
+    private void loadApk(){
+        final String pluginName = "plugin.apk";
+        String url = "http://10.174.61.149/" + pluginName;
+        Toast.makeText(MainActivity.this,"开始下载插件...",Toast.LENGTH_SHORT).show();
+        HttpUtil.sendOkHttpRequest(url,new okhttp3.Callback(){
+            @Override
+            public void onFailure(Call call, IOException e) {}
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                File file = new File(pluginPath);
+                if (!file.exists()) {
+                    file.mkdir();
+                }
+
+
+                final String pluginFile = pluginPath + File.separator  + "plugin.apk";
+                File filePlugin = new File(pluginFile);
+                if (filePlugin.exists()) {
+                    RePlugin.uninstall(pluginFile);
+                    filePlugin.delete();
+                }
+                byte[] data = response.body().bytes();
+
+                final RandomAccessFile savedFile = new RandomAccessFile(filePlugin,"rw");
+                savedFile.write(data);
+                response.body().close();
+                savedFile.close();
+
+                runOnUiThread(new Runnable() {
                     @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        File file = new File(pluginPath);
-                        if (!file.exists()) {
-                            file.mkdir();
+                    public void run() {
+
+                        Toast.makeText(MainActivity.this,"开始加载插件...",Toast.LENGTH_SHORT).show();
+                        PluginInfo inf =  RePlugin.install(pluginFile);
+                        if (inf != null ) {
+                            RePlugin.preload(inf);
                         }
 
-
-                        final String pluginFile = pluginPath + File.separator  + "plugin.apk";
-                        File filePlugin = new File(pluginFile);
-                        if (filePlugin.exists()) {
-                            RePlugin.uninstall(pluginFile);
-                            filePlugin.delete();
-                        }
-                        byte[] data = response.body().bytes();
-
-                        final RandomAccessFile savedFile = new RandomAccessFile(filePlugin,"rw");
-                        savedFile.write(data);
-                        response.body().close();
-                        savedFile.close();
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                Toast.makeText(MainActivity.this,"开始加载插件...",Toast.LENGTH_SHORT).show();
-                                PluginInfo inf =  RePlugin.install(pluginFile);
-                                if (inf != null ) {
-                                    RePlugin.preload(inf);
-                                }
-
-                                String activityName = "com.ai.aibasetest.MainActivity";
-                                RePlugin.startActivity(MainActivity.this, RePlugin.createIntent("crmapp",
-                                        activityName));
-                            }
-                        });
+                        String activityName = "com.ai.aibasetest.MainActivity";
+                        RePlugin.startActivity(MainActivity.this, RePlugin.createIntent("crmapp",
+                                activityName));
                     }
                 });
             }
         });
     }
-
 }

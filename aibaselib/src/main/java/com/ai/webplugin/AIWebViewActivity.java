@@ -185,6 +185,10 @@ public class AIWebViewActivity extends AIBaseActivity {
 
                 mTimer.onFinish();
             }
+
+
+
+
         });
 
         //可以采用默认的方式
@@ -268,6 +272,7 @@ public class AIWebViewActivity extends AIBaseActivity {
 
     @Override
     public void onBackPressed() {
+
         if (mWebView.canGoBack()){
             //http://plan.wadecn.com/#/home
             if (mWebView.getUrl().endsWith("/#/home")){

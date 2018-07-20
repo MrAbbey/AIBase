@@ -10,7 +10,7 @@ import android.content.SharedPreferences;
 public class LocalStorageManager {
 
     public final static String sharedPreferencesName = "LocalStorageManager";
-    private String mEncryptKey = "";
+    private String mEncryptKey = "www.asiainfo.com";
     private Context mContext;
     private static LocalStorageManager instance;
     public static LocalStorageManager getInstance() {

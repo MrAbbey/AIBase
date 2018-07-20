@@ -7,13 +7,19 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.widget.Toast;
 import com.ai.base.AIBaseActivity;
 import com.ai.base.document.AIOpenDocumentController;
+import com.ai.base.loading.AILoadingViewBuilder;
+import com.ai.base.util.LocalStorageManager;
 import com.ai.base.util.Utility;
 import com.ai.webplugin.config.GlobalCfg;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -96,18 +102,6 @@ public class AIWebViewBasePlugin {
 
     }
 
-    // 扩展原生能力接口
-    public void JN_Test1(final JSONObject obj) {
-        Log.d("JSONObject", obj.toString());
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                callback("JN_Test", obj.toString(), null);
-            }
-        });
-
-    }
-
     // 退出程序
     public void JN_Quit(final String param) {
         // 创建构建器
@@ -177,7 +171,6 @@ public class AIWebViewBasePlugin {
                     fileProvider = globalCfg.attr(GlobalCfg.CONFIG_FIELD_FILEPROVIDER);
                 }
                 AIOpenDocumentController.getInstance().openOnlineFileInContext(getActivity(), url, fileProvider);
-                Toast.makeText(getActivity(), "正在下载文件...", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -187,7 +180,7 @@ public class AIWebViewBasePlugin {
         AIWebViewPluginEngine.getInstance().checkUpdate(versionConfigUrl);
     }
 
-    // 自动更新
+    // 获取版本号
     public void JN_VersionNumber() {
         GlobalCfg globalCfg = GlobalCfg.getInstance();
         String versionNumber = globalCfg.attr(GlobalCfg.CONFIG_FIELD_VERSION);
@@ -203,6 +196,55 @@ public class AIWebViewBasePlugin {
         }
 
         callback("JN_VersionNumber",versionNumber,null);
+    }
+
+    // 启动loading
+    public void JN_ShowLoading(final String text) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AILoadingViewBuilder.getInstance().show(getActivity(),text);
+            }
+        });
+    }
+
+    // 退出loading
+    public void JN_DismissLoading() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AILoadingViewBuilder.getInstance().dismiss();
+            }
+        });
+    }
+
+    // 提示语
+    public void JN_ShowMessage(final String message) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getActivity(),message,Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+
+    public void JN_SetValueWithKey(JSONArray array) {
+        LocalStorageManager.getInstance().setContext(getActivity());
+        if (array != null && array.length() >= 2) {
+            try {
+                LocalStorageManager.getInstance().setString(array.getString(0),array.getString(1));
+            } catch (JSONException e) {
+
+            }
+        }
+    }
+
+
+    public void JN_GetValueWithKey(String key) {
+        LocalStorageManager.getInstance().setContext(getActivity());
+        String value = LocalStorageManager.getInstance().getString(key);
+        callback("JN_GetValueWithKey",value,null);
     }
 }
 
