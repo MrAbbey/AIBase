@@ -16,7 +16,6 @@ import com.ai.base.AIBaseActivity;
 import com.ai.base.document.AIOpenDocumentController;
 import com.ai.base.loading.AILoadingViewBuilder;
 import com.ai.base.util.AESEncrypt;
-import com.ai.testapp.kyloading.KyLoadingBuilder;
 import com.ai.webplugin.AIWebViewBasePlugin;
 import com.qihoo360.replugin.RePlugin;
 
@@ -77,25 +76,24 @@ public class PortalScriptPlugin extends AIWebViewBasePlugin {
 
     public void JN_Test(String object) {
 
-        AILoadingViewBuilder.getInstance().show(getActivity(),"加载中...");
-//        Log.d("JN_Array",object);
-//
-//        ClipboardManager cm = (ClipboardManager)getActivity().getSystemService(getActivity().CLIPBOARD_SERVICE);
-//        if(Build.VERSION.SDK_INT <= 11) {
-//            cm.setText(object);
-//        } else {
-//            ClipData data = ClipData.newPlainText("JN_Test", object);
-//            cm.setPrimaryClip(data);
-//        }
-//
-//        Toast.makeText(getActivity(),object,Toast.LENGTH_LONG).show();
-//
-//        getActivity().runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                callback("JN_Test","我就是我，不一样的我",null);
-//            }
-//        });
+        Log.d("JN_Array",object);
+
+        ClipboardManager cm = (ClipboardManager)getActivity().getSystemService(getActivity().CLIPBOARD_SERVICE);
+        if(Build.VERSION.SDK_INT <= 11) {
+            cm.setText(object);
+        } else {
+            ClipData data = ClipData.newPlainText("JN_Test", object);
+            cm.setPrimaryClip(data);
+        }
+
+        Toast.makeText(getActivity(),object,Toast.LENGTH_LONG).show();
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                callback("JN_Test","我就是我，不一样的我",null);
+            }
+        });
     }
 
     public void JN_ShowMessage(String object) {
