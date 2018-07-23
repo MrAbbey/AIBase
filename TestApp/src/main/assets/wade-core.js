@@ -83,6 +83,14 @@ window.WadeNAObj = (function() {
                 WadeNAObj.storageCallback(callbackKey,callback);
                 WadeNAObj.execute(callbackKey,key);
             },
+
+            // 获取数据,通过回调返回数据
+            JN_Fingerprint:function(callback) {
+                // 方法名，即配置中的name
+                var callbackKey = 'JN_Fingerprint';
+                WadeNAObj.storageCallback(callbackKey,callback);
+                WadeNAObj.execute(callbackKey);
+            },
 		};
 	})();
 

@@ -54,6 +54,7 @@ public class PermissionUitls {
     public static final int PERMISSION_SENSORS_CODE = 7;
     public static final int PERMISSION_SMS_CODE = 8;
     public static final int PERMISSION_STORAGE_CODE = 9;
+    public static final int PERMISSION_FINGERPRINT_CODE = 10;
     private static PermissionListener mPermissionListener;
     private static int permissionCodeCheck = 0;
     public PermissionUitls() {

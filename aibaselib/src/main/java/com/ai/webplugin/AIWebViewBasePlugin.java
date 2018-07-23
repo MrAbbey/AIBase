@@ -6,6 +6,7 @@ import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Handler;
+import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
@@ -13,6 +14,7 @@ import android.webkit.WebView;
 import android.widget.Toast;
 import com.ai.base.AIBaseActivity;
 import com.ai.base.document.AIOpenDocumentController;
+import com.ai.base.fingerprint.FingerprintUtil;
 import com.ai.base.loading.AILoadingViewBuilder;
 import com.ai.base.util.LocalStorageManager;
 import com.ai.base.util.Utility;
@@ -245,6 +247,62 @@ public class AIWebViewBasePlugin {
         LocalStorageManager.getInstance().setContext(getActivity());
         String value = LocalStorageManager.getInstance().getString(key);
         callback("JN_GetValueWithKey",value,null);
+    }
+
+    public void JN_Fingerprint() {
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                FingerprintUtil.callFingerPrint(getActivity(), new FingerprintUtil.OnCallBackListenr() {
+                    @Override
+                    public void onHardwareUnSupport() {
+                        callback("JN_Fingerprint","手机不支持指纹",null);
+                    }
+
+                    @Override
+                    public void onInsecurity() {
+                        callback("JN_Fingerprint","未给应用开放指纹",null);
+                    }
+
+                    @Override
+                    public void onEnrollFailed() {
+                        callback("JN_Fingerprint","手机未录制指纹",null);
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        callback("JN_Fingerprint","cancel",null);
+                    }
+
+                    @Override
+                    public void onAuthenticationStart() {
+
+                    }
+
+                    @Override
+                    public void onAuthenticationError(int errMsgId, CharSequence errString) {
+                        callback("JN_Fingerprint","failed",null);
+                    }
+
+                    @Override
+                    public void onAuthenticationFailed() {
+                        callback("JN_Fingerprint","failed",null);
+                    }
+
+                    @Override
+                    public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
+
+                    }
+
+                    @Override
+                    public void onAuthenticationSucceeded(FingerprintManagerCompat.AuthenticationResult result) {
+                        callback("JN_Fingerprint","success",null);
+                    }
+                });
+            }
+        });
+
     }
 }
 
