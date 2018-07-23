@@ -45,6 +45,36 @@
             }
         
 
+            function test7() {
+                window.WadeNAObj.JN_SetValueWithKey('你好，伍友健！','message');
+            }
+
+            function test8() {
+                window.WadeNAObj.JN_GetValueWithKey('message',function(str) {
+                    addElementNode('message:'+str);
+                });
+            }
+
+            function test9() {
+                window.WadeNAObj.JN_Fingerprint(function(str) {
+                    addElementNode('message:'+str);
+                });
+            }
+
+            function test10() {
+                window.WadeNAObj.JN_Sharing("wuyoujian",function(str) {
+                
+                });
+                
+            }
+
+            function test11() {
+                window.WadeNAObj.JN_Quit("测试app",function(str) {
+                
+                });
+            }
+
+
 
         
         function locationTest(longitude,latitude){
@@ -84,12 +114,17 @@
         <button type="button" onclick="document.getElementById('myInput').value = ''; document.getElementById('myInput').focus();">清除</button>
         
         <div id="div">
-            <p><a href="http://www.wuyoujian.com" onclick="test1();">调用测试-JN_Test</a></p>
-            <p><a href="http://www.wuyoujian.com" onclick="test2();">调用测试-JN_OpenDocument</a></p>
-            <p><a href="http://www.wuyoujian.com" onclick="test3();">调用测试-VersionNumber</a></p>
-            <p><a href="http://www.wuyoujian.com" onclick="test4();">调用测试-ShowLoading</a></p>
-            <p><a href="http://www.wuyoujian.com" onclick="test5();">调用测试-DismissLoading</a></p>
-            <p><a href="http://www.wuyoujian.com" onclick="test6();">调用测试-ShowMessage</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test1();">调用测试1-JN_Test</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test2();">调用测试2-JN_OpenDocument</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test3();">调用测试3-JN_VersionNumber</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test4();">调用测试4-JN_ShowLoading</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test5();">调用测试5-JN_DismissLoading</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test6();">调用测试6-JN_ShowMessage</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test7();">调用测试7-JN_SetValueWithKey</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test8();">调用测试8-JN_GetValueWithKey</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test9();">调用测试9-JN_Fingerprint</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test10();">调用测试10-JN_Sharing</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test11();">调用测试11-JN_Quit</a></p>
 
         </div>
     </body>
