@@ -47,17 +47,17 @@ public class AILoadingViewBuilder {
 
         layoutLoadingView(context);
 
-        backgroundelRelativeLayout = new BackgroundelRelativeLayout(context);
-        backgroundelRelativeLayout.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        backgroundelRelativeLayout.setGravity(Gravity.CENTER);
-        backgroundelRelativeLayout.setBackgroundColor(outsideBackgroundColor);
+        this.backgroundelRelativeLayout = new BackgroundelRelativeLayout(context);
+        this.backgroundelRelativeLayout.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        this.backgroundelRelativeLayout.setGravity(Gravity.CENTER);
+        this.backgroundelRelativeLayout.setBackgroundColor(this.outsideBackgroundColor);
 
 
-        textView.setText(text);
-        backgroundelRelativeLayout.addView(contentBackground);
+        this.textView.setText(text);
+        this.backgroundelRelativeLayout.addView(this.contentBackground);
 
-        if (loadingViewListener != null) {
-            loadingViewListener.startLoading();
+        if (this.loadingViewListener != null) {
+            this.loadingViewListener.startLoading();
         }
 
         //创建WindowManager
@@ -70,20 +70,20 @@ public class AILoadingViewBuilder {
             wlp.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;//不获得焦点
         }
 
-        wm.addView(backgroundelRelativeLayout, wlp);
+        wm.addView(this.backgroundelRelativeLayout, wlp);
     }
 
     public void dismiss() {
-        if (loadingViewListener != null) {
-            loadingViewListener.dismissLoading();
+        if (this.loadingViewListener != null) {
+            this.loadingViewListener.dismissLoading();
         }
 
         try {
-            if(backgroundelRelativeLayout == null)
+            if(this.backgroundelRelativeLayout == null)
                 return ;
-            WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-            wm.removeView(backgroundelRelativeLayout);
-            backgroundelRelativeLayout = null;
+            WindowManager wm = (WindowManager) this.context.getSystemService(Context.WINDOW_SERVICE);
+            wm.removeView(this.backgroundelRelativeLayout);
+            this.backgroundelRelativeLayout = null;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -125,13 +125,13 @@ public class AILoadingViewBuilder {
 
         public RoundFrameLayout(Context context) {
             super(context);
-            roundPath = new Path();
-            rectF = new RectF();
+            this.roundPath = new Path();
+            this.rectF = new RectF();
         }
 
         private void setRoundPath() {
             //添加一个圆角矩形到path中, 如果要实现任意形状的View, 只需要手动添加path就行
-            roundPath.addRoundRect(rectF, roundLayoutRadius, roundLayoutRadius, Path.Direction.CW);
+            this.roundPath.addRoundRect(this.rectF, this.roundLayoutRadius, this.roundLayoutRadius, Path.Direction.CW);
         }
 
         public void setRoundLayoutRadius(float roundLayoutRadius) {
@@ -143,14 +143,14 @@ public class AILoadingViewBuilder {
         @Override
         protected void onLayout(boolean changed, int l, int t, int r, int b) {
             super.onLayout(changed, l, t, r, b);
-            rectF.set(0f, 0f, getMeasuredWidth(), getMeasuredHeight());
+            this.rectF.set(0f, 0f, getMeasuredWidth(), getMeasuredHeight());
             setRoundPath();
         }
 
         @Override
         public void draw(Canvas canvas) {
-            if (roundLayoutRadius > 0f) {
-                canvas.clipPath(roundPath);
+            if (this.roundLayoutRadius > 0f) {
+                canvas.clipPath(this.roundPath);
             }
             super.draw(canvas);
         }

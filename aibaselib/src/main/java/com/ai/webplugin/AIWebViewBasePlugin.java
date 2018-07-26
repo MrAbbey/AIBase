@@ -220,7 +220,7 @@ public class AIWebViewBasePlugin {
         });
     }
 
-    // 提示语
+    // 自消失提示语
     public void JN_ShowMessage(final String message) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -231,6 +231,7 @@ public class AIWebViewBasePlugin {
     }
 
 
+    // 保存数据
     public void JN_SetValueWithKey(JSONArray array) {
         LocalStorageManager.getInstance().setContext(getActivity());
         if (array != null && array.length() >= 2) {
@@ -242,13 +243,15 @@ public class AIWebViewBasePlugin {
         }
     }
 
-
+    // 获取已存储的数据
     public void JN_GetValueWithKey(String key) {
         LocalStorageManager.getInstance().setContext(getActivity());
         String value = LocalStorageManager.getInstance().getString(key);
         callback("JN_GetValueWithKey",value,null);
     }
 
+
+    // 指纹验证
     public void JN_Fingerprint() {
 
         getActivity().runOnUiThread(new Runnable() {
