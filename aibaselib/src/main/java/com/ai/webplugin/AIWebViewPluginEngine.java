@@ -96,7 +96,7 @@ public class AIWebViewPluginEngine {
                 mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(mActivity,"插件方法:" + pluginName + "未在wade-plugin.xmlz中配置",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mActivity,"插件方法:" + pluginName + "未在wade-plugin.xml中配置",Toast.LENGTH_SHORT).show();
                     }
                 });
                 return;

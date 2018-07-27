@@ -13,7 +13,7 @@ window.WadeNAObj = (function() {
                 WadeNAObj.execute(callbackKey,string);
 			},
 
-			// 
+			//
             JN_JSONObj:function(obj,callback) {
                 // 方法名，即配置中的name
                 var callbackKey = 'JN_JSONObj';
