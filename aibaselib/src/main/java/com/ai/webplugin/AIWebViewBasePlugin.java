@@ -104,6 +104,20 @@ public class AIWebViewBasePlugin {
 
     }
 
+    public void JN_JSONObj(final JSONObject obj) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    Toast.makeText(getActivity(), obj.toString(), Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+
+                }
+            }
+        });
+    }
+
     // 退出程序
     public void JN_Quit(final String param) {
         // 创建构建器
@@ -307,5 +321,6 @@ public class AIWebViewBasePlugin {
         });
 
     }
+
 }
 

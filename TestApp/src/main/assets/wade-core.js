@@ -6,11 +6,20 @@ window.WadeNAObj = (function() {
 		    // 这个key生成的规则是：方法名称，即wade-plugin.xml里的name字段
             // 注意不要重复
 			// 测试函数，后面的方法，请按照这个方法扩展自己的自定义的方法
+			// 目前支持传给原生端的参数只有一个，类型: string, array,JSONObject(java侧是JSONObject,OC侧是NSDictionary)
 			JN_Test:function(string,callback) {
 				var callbackKey = 'JN_Test';
 				WadeNAObj.storageCallback(callbackKey,callback);
                 WadeNAObj.execute(callbackKey,string);
 			},
+
+			// 
+            JN_JSONObj:function(obj,callback) {
+                // 方法名，即配置中的name
+                var callbackKey = 'JN_JSONObj';
+                WadeNAObj.storageCallback(callbackKey,callback);
+                WadeNAObj.execute(callbackKey,obj);
+            },
 
             // 扩展自己的接口
             // 退出应用

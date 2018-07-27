@@ -87,10 +87,20 @@ public class AIWebViewPluginEngine {
 
         try {
             JSONObject jsonObject = new JSONObject(paramJSON);
-            String pluginName = jsonObject.optString("pluginName");
+            final String pluginName = jsonObject.optString("pluginName");
             Object paramObject = jsonObject.opt("params");
 
             AIWebViewBasePlugin pluginObj = mPlugins.get(pluginName);
+
+            if (pluginObj == null) {
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(mActivity,"插件方法:" + pluginName + "未在wade-plugin.xmlz中配置",Toast.LENGTH_SHORT).show();
+                    }
+                });
+                return;
+            }
 
             Class<?> clazz = pluginObj.getClass();
             Method method = mMethods.get(pluginName);
@@ -102,6 +112,12 @@ public class AIWebViewPluginEngine {
                 }
 
                 if(method == null) {
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(mActivity,"插件类未实现方法：" +pluginName,Toast.LENGTH_SHORT).show();
+                        }
+                    });
                     return;
                 } else {
                     mMethods.put(pluginName,method);

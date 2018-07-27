@@ -12,4 +12,5 @@
     <action name="JN_SetValueWithKey" class="com.ai.webplugin.AIWebViewBasePlugin"></action>
     <action name="JN_GetValueWithKey" class="com.ai.webplugin.AIWebViewBasePlugin"></action>
     <action name="JN_Fingerprint" class="com.ai.webplugin.AIWebViewBasePlugin"></action>
+    <action name="JN_JSONObj" class="com.ai.webplugin.AIWebViewBasePlugin"></action>
 </plugins>
