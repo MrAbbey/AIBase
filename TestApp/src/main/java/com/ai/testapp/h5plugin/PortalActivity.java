@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 
 import com.ai.base.AIBaseActivity;
 import com.ai.base.util.AESEncrypt;
+import com.ai.base.util.Utility;
 import com.ai.webplugin.AIWebViewClient;
 import com.ai.webplugin.AIWebViewPluginEngine;
 import com.ai.webplugin.config.GlobalCfg;
@@ -18,6 +19,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 
 public class PortalActivity extends AIBaseActivity {
 
@@ -139,10 +142,35 @@ public class PortalActivity extends AIBaseActivity {
         mLinearLayout.addView(mWebView,tvParams);
         setContentView(mLinearLayout);
 
-        // 设置H5插件引擎
-        setH5PluginEngine();
-        String url = GlobalCfg.getInstance().attr(GlobalCfg.CONFIG_FIELD_ONLINEADDR);
-        mWebView.loadUrl(url);
+        try {
+            // 设置H5插件引擎
+            setH5PluginEngine();
+            String url = GlobalCfg.getInstance().attr(GlobalCfg.CONFIG_FIELD_ONLINEADDR);
+            //mWebView.loadUrl(url);
+
+            url = "http://10.131.68.158:8080/order/newmbosslogin";
+
+            SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String timestamp = sDateFormat.format(new java.util.Date());
+
+            // 解密中文词
+            String key = "mboss陕西移动订单中心";
+            // 解密加密密钥
+            String aesKey = "www.asiainfo.com";
+
+            String staffId = "TESTSX37";
+
+            String signContent = key +"|" + timestamp + "|" + staffId;
+            String sign = AESEncrypt.encrypt(signContent,aesKey);
+            String tokenContent = timestamp + key + staffId;
+            String token = Utility.md5(tokenContent);
+
+            String address = url+"?sign=" + URLEncoder.encode(sign,"utf-8") + "&token=" + URLEncoder.encode(token,"utf-8");
+            mWebView.loadUrl(address);
+        } catch (Exception e) {
+
+        }
+
     }
 
     private void setH5PluginEngine() {
@@ -166,6 +194,7 @@ public class PortalActivity extends AIBaseActivity {
 
     @Override
     public void onBackPressed() {
-        moveTaskToBack(true);
+        super.onBackPressed();
+        //moveTaskToBack(false);
     }
 }

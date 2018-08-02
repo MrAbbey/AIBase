@@ -6,7 +6,7 @@
         <title>NGBOSS</title>
         <script type="text/javascript" src="wade-core.js"></script>
         <script type="text/javascript" src="wade-extend.js"></script>
-        <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=mruDuDKc7GUWG9wtaH3rd5Sk"></script>
+        <!-- <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=mruDuDKc7GUWG9wtaH3rd5Sk"></script> -->
         
         <script type="text/javascript">
             
@@ -74,28 +74,36 @@
                 });
             }
 
+            function test12() {
+
+                var obj = {"pluginName":"JN_Test","params":"伍友健，你好！"};
+                window.WadeNAObj.JN_JSONObj(obj,function(str) {
+                
+                });
+            }
+
 
 
         
-        function locationTest(longitude,latitude){
-            // 百度地图API功能
-            var ggPoint = new BMap.Point(longitude,latitude);
-            var convertor = new BMap.Convertor();
-            var pointArr = [];
-            pointArr.push(ggPoint);
-            convertor.translate(pointArr, 1, 5, function(data) {
-                                if(data.status === 0) {
-                                var bdPoint = data.points[0];
-                                var geoc = new BMap.Geocoder();
-                                geoc.getLocation(bdPoint, function(rs){
-                                                 var addComp = rs.addressComponents;
-                                                 addElementNode(addComp.city);
-                                                 });
-                                }
-                                });
+        // function locationTest(longitude,latitude){
+        //     // 百度地图API功能
+        //     var ggPoint = new BMap.Point(longitude,latitude);
+        //     var convertor = new BMap.Convertor();
+        //     var pointArr = [];
+        //     pointArr.push(ggPoint);
+        //     convertor.translate(pointArr, 1, 5, function(data) {
+        //                         if(data.status === 0) {
+        //                         var bdPoint = data.points[0];
+        //                         var geoc = new BMap.Geocoder();
+        //                         geoc.getLocation(bdPoint, function(rs){
+        //                                          var addComp = rs.addressComponents;
+        //                                          addElementNode(addComp.city);
+        //                                          });
+        //                         }
+        //                         });
                                 
                                 
-        }
+        // }
         
         function addElementNode(text) {
             var para=document.createElement("p");
@@ -125,6 +133,7 @@
             <p><a href="http://www.wuyoujian.com" onclick="test9();">调用测试9-JN_Fingerprint</a></p>
             <p><a href="http://www.wuyoujian.com" onclick="test10();">调用测试10-JN_Sharing</a></p>
             <p><a href="http://www.wuyoujian.com" onclick="test11();">调用测试11-JN_Quit</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test12();">调用测试12-JN_JSONObj</a></p>
 
         </div>
     </body>

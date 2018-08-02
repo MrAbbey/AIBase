@@ -1,15 +1,19 @@
 package com.ai.testapp.common;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.ai.base.loading.AILoadingViewBuilder;
+import com.ai.base.util.Utility;
 import com.ai.testapp.R;
 import com.ai.base.util.HttpUtil;
+import com.ai.testapp.h5plugin.PortalActivity;
 import com.qihoo360.replugin.RePlugin;
 import com.qihoo360.replugin.model.PluginInfo;
 
@@ -36,9 +40,16 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             @Override
             public void onClick(View v) {
                 //AILoadingViewBuilder.getInstance().show(MainActivity.this,"加载中...");
-                loadApk();
+               // loadApk();
+
+                Intent intent = new Intent(MainActivity.this, PortalActivity.class);
+                startActivity(intent);
             }
         });
+
+        String content = "mboss陕西移动订单中心&&&$$$$11144455";
+        String md5 = Utility.md5(content);
+        Log.d("md5",md5);
     }
 
 
