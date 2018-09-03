@@ -81,6 +81,16 @@ public class AIWebViewPluginEngine {
         return method;
     }
 
+//    @JavascriptInterface
+//    public void JN_PageBack() {
+//        mActivity.runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                mActivity.finish();
+//            }
+//        });
+//    }
+
 
     @JavascriptInterface
     public void JN_EXECUTE(String paramJSON) {
@@ -138,6 +148,7 @@ public class AIWebViewPluginEngine {
     }
 
 
+
     @SuppressLint("SetJavaScriptEnabled")
     public void registerPlugins(AIBaseActivity activity, WebView webView,String configFileName) {
 
@@ -151,6 +162,11 @@ public class AIWebViewPluginEngine {
             // 向webView中注入原生对象
             String handerName = "WadeNAObjHander";
             mWebView.addJavascriptInterface(this, handerName);
+
+            // 这种方式可以用来测试陕西版本的插件模式,把测试的接口实现在本类中。
+            // 并增加@JavascriptInterface注解
+            //mWebView.addJavascriptInterface(this,"ExtendScriptPlugin");
+
 
             // 存储系统中插件对象
             InputStream is = mActivity.getResources().getAssets().open(mPluginCfgFile);
