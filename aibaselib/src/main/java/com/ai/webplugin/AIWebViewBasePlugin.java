@@ -58,7 +58,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
     private WebView mWebView;
     private final int SELECT_PHOTOS_REQUSETCODE = 10000;
     private final int PHOTOGRAPH_REQUSETCODE = 10001;
-    private Uri photographiImageUri;
+    private Uri photographImageUri;
     private Handler mHandler = new Handler();
 
     public AIWebViewBasePlugin(AIBaseActivity activity, WebView webView) {
@@ -149,7 +149,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
                 callbackName_tmp = "JN_Photograph";
                 try {
                     // 将拍摄的照片显示出来
-                    bitmap = BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(photographiImageUri));
+                    bitmap = BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(photographImageUri));
                 } catch (Exception e) {
                 }
                 break;
@@ -387,7 +387,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
     }
 
     // 保存数据
-    public void JN_SetValueWithKey(JSONArray array) {
+    public void JN_SetValueWithKey(final JSONArray array) {
         if (array != null && array.length() >= 2) {
             try {
                 LocalStorageManager.getInstance().setContext(getActivity());
@@ -399,7 +399,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
     }
 
     // 获取已存储的数据
-    public void JN_GetValueWithKey(String key) {
+    public void JN_GetValueWithKey(final String key) {
         LocalStorageManager.getInstance().setContext(getActivity());
         String value = LocalStorageManager.getInstance().getString(key);
         callback("JN_GetValueWithKey",value,null);
@@ -463,7 +463,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
     }
 
     // 调动系统短信应用发送短信 -- 不需要权限
-    public void JN_SMS(JSONArray array) {
+    public void JN_SMS(final JSONArray array) {
         //第一个参数短信接收号码，第二参数是一个可选参数,发送的内容
         if (array != null && array.length() >= 1) {
             try {
@@ -502,7 +502,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
     }
 
     // 调动系统里的可以用于发邮件的邮箱应用列表 -- 不需要权限
-    public void JN_Email(JSONArray array) {
+    public void JN_Email(final JSONArray array) {
         //第一个参数收件人邮箱号
         //第二个参数邮件主题，可选参数
         //第三个邮件正文，可选参数
@@ -616,7 +616,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
                                     e.printStackTrace();
                                 }
                                 if (Build.VERSION.SDK_INT < 24) {
-                                    photographiImageUri = Uri.fromFile(outputImage);
+                                    photographImageUri = Uri.fromFile(outputImage);
                                 } else {
                                     GlobalCfg globalCfg = GlobalCfg.getInstance();
                                     String fileprovider = globalCfg.attr(GlobalCfg.CONFIG_FIELD_FILEPROVIDER);
@@ -624,11 +624,11 @@ public class AIWebViewBasePlugin implements AIIPlugin {
                                         Toast.makeText(mActivity,"请在manifest中配置FileProvider",Toast.LENGTH_LONG).show();
                                         return;
                                     }
-                                    photographiImageUri = FileProvider.getUriForFile(getActivity(), fileprovider, outputImage);
+                                    photographImageUri = FileProvider.getUriForFile(getActivity(), fileprovider, outputImage);
                                 }
                                 // 启动相机程序
                                 Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-                                intent.putExtra(MediaStore.EXTRA_OUTPUT, photographiImageUri);
+                                intent.putExtra(MediaStore.EXTRA_OUTPUT, photographImageUri);
                                 startActivityForResult(intent, PHOTOGRAPH_REQUSETCODE);
                             }
                         });

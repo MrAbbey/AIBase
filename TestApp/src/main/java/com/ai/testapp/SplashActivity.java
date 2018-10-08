@@ -40,8 +40,9 @@ public class SplashActivity extends AIBaseActivity {
 
     private void enterHomeActivity() {
         // 简单模式
-       // Intent intent = new Intent(this, MainActivity.class);
+        // Intent intent = new Intent(this, MainActivity.class);
         // 结合我们H5框架的模式
+        //Intent intent = new Intent(this, PortalActivity.class);
         Intent intent = new Intent(this, AIWebViewActivity.class);
         startActivity(intent);
         finish();
