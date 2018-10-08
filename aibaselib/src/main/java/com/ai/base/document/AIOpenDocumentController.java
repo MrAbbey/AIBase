@@ -168,7 +168,7 @@ public class AIOpenDocumentController {
             @Override
             public void permissionReject() {
 
-                Toast.makeText(context,"请授予操作手机内存的权限！",Toast.LENGTH_SHORT).show();
+                Toast.makeText(context,"请授予操作手机存储的权限！",Toast.LENGTH_SHORT).show();
             }
         };
         PermissionUitls permissionUitls = PermissionUitls.getInstance(null, permissionListener);

@@ -82,6 +82,38 @@
                 });
             }
 
+            function test13() {
+                var obj1 = "13875836313";
+                var obj2 = "伍友健，你好！";
+                window.WadeNAObj.JN_SMS(obj1,obj2);
+            }
+
+            function test14() {
+                var obj1 = "18667157119";
+                window.WadeNAObj.JN_Telephone(obj1);
+            }
+
+            function test15() {
+                var obj1 = "wuyoujian0313@163.com";
+                var obj2 = "你好，伍友健！";
+                var obj3 = "测试邮件";
+
+                window.WadeNAObj.JN_Email(obj1,obj2,obj3);
+            }
+            function test16() {
+                var obj1 = "http://www.baidu.com";
+                window.WadeNAObj.JN_Brower(obj1);
+            }
+            function test17() {
+                window.WadeNAObj.JN_SelectPhoto(function(base64) {
+                    addImageElementNode(base64);
+                });
+            }
+            function test18() {
+                window.WadeNAObj.JN_Photograph(function(base64) {
+                    addImageElementNode(base64); 
+                });
+            }
 
 
         
@@ -114,6 +146,11 @@
             element.appendChild(para);
         }
 
+        function addImageElementNode(data){
+            var box = document.getElementById('image');
+            box.innerHTML = '<img src="data:image/png;base64,'+data+'" style="width:100%" />';
+        }
+
             </script>
         
     </head>
@@ -134,8 +171,14 @@
             <p><a href="http://www.wuyoujian.com" onclick="test10();">调用测试10-JN_Sharing</a></p>
             <p><a href="http://www.wuyoujian.com" onclick="test11();">调用测试11-JN_Quit</a></p>
             <p><a href="http://www.wuyoujian.com" onclick="test12();">调用测试12-JN_JSONObj</a></p>
-
+            <p><a href="http://www.wuyoujian.com" onclick="test13();">调用测试13-JN_SMS</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test14();">调用测试14-JN_Telephone</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test15();">调用测试15-JN_Email</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test16();">调用测试17-JN_Brower</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test17();">调用测试17-JN_SelectPhoto</a></p>
+            <p><a href="http://www.wuyoujian.com" onclick="test18();">调用测试18-JN_Photograph</a></p>
         </div>
+        <div id="image"></div>
     </body>
 </html>
 

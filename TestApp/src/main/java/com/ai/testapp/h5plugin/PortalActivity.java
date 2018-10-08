@@ -146,9 +146,9 @@ public class PortalActivity extends AIBaseActivity {
             // 设置H5插件引擎
             setH5PluginEngine();
             String url = GlobalCfg.getInstance().attr(GlobalCfg.CONFIG_FIELD_ONLINEADDR);
-            //mWebView.loadUrl(url);
+            mWebView.loadUrl(url);
 
-            url = "http://10.131.68.158:8080/order/newmbosslogin";
+            //url = "http://10.131.68.158:8080/order/newmbosslogin";
 
             SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String timestamp = sDateFormat.format(new java.util.Date());

@@ -9,11 +9,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.FileProvider;
 import android.view.View;
 import android.webkit.JsResult;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
@@ -29,6 +31,8 @@ import com.ai.webplugin.config.GlobalCfg;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Properties;
 
 
@@ -43,6 +47,8 @@ public class AIWebViewActivity extends AIBaseActivity {
     private int mBackgroudColor = 0x000000;
     private int mBackgroundResId = -1;
     private int mWelcomeImageResId = -1;
+    private AIWebViewBasePlugin mPluginObj;
+    private String filterList[] = {"http://www.wuyoujian.com"};
 
     // intent的参数key
     public static String backgroundColorKey = "backgroundColor";
@@ -80,7 +86,10 @@ public class AIWebViewActivity extends AIBaseActivity {
                         return;
                     }
 
-                    mWelcomeImage.setVisibility(View.GONE);
+                    if (mWelcomeImageResId != -1) {
+                        mWelcomeImage.setVisibility(View.GONE);
+                    }
+
                     mWebView.setVisibility(View.VISIBLE);
                 }
             });
@@ -100,8 +109,8 @@ public class AIWebViewActivity extends AIBaseActivity {
             Intent intent = getIntent();
             mBackgroudColor = intent.getIntExtra(backgroundColorKey,0x000000);
             mWebUrl = intent.getStringExtra(webViewURLKey);
-            mBackgroundResId = intent.getIntExtra(backgroundResIdKey,0);
-            mWelcomeImageResId = intent.getIntExtra(welcomeImageResId,0);
+            mBackgroundResId = intent.getIntExtra(backgroundResIdKey,-1);
+            mWelcomeImageResId = intent.getIntExtra(welcomeImageResId,-1);
 
             mPluginCfgFile = intent.getStringExtra(pluginConfigKey);
             if (mPluginCfgFile == null || mPluginCfgFile.length() == 0) {
@@ -167,6 +176,44 @@ public class AIWebViewActivity extends AIBaseActivity {
             }
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            mWebView.setWebContentsDebuggingEnabled(true);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
+            mWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
+            try {
+                Class<?> clazz = mWebView.getSettings().getClass();
+                Method method = clazz.getMethod(
+                        "setAcceptThirdPartyCookies", boolean.class);
+                if (method != null) {
+                    method.invoke(mWebView.getSettings(), true);
+                }
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                Class<?> clazz = mWebView.getSettings().getClass();
+                Method method = clazz.getMethod("setAllowUniversalAccessFromFileURLs", boolean.class);
+                if (method != null) {
+                    method.invoke(mWebView.getSettings(), true);
+                }
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.getSettings().setCacheMode(mWebView.getSettings().LOAD_NO_CACHE);
         mWebView.getSettings().setDomStorageEnabled(true);
@@ -186,12 +233,23 @@ public class AIWebViewActivity extends AIBaseActivity {
                 mTimer.onFinish();
             }
 
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (Addressfilter(url)) return true;
+                return super.shouldOverrideUrlLoading(view, url);
+            }
 
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
 
-
+                String url = request.getUrl().toString();
+                if (Addressfilter(url)) return true;
+                return super.shouldOverrideUrlLoading(view,request);
+            }
         });
 
-        //可以采用默认的方式
+        //可采用默认的方式
         mWebView.setWebChromeClient(new WebChromeClient());
 
         //设置响应js 的Alert(); Confirm()函数
@@ -254,6 +312,17 @@ public class AIWebViewActivity extends AIBaseActivity {
         mTimer.start();
     }
 
+    // 过滤
+    private boolean Addressfilter(String url) {
+        boolean needFilter = false;
+        for (String filterUrl : filterList){
+            if(url.contains(filterUrl)){
+                return true;
+            }
+        }
+        return needFilter;
+    }
+
     private void setH5PluginEngine(WebView webView) {
         AIWebViewPluginEngine engine = AIWebViewPluginEngine.getInstance();
         engine.registerPlugins(this, webView,mPluginCfgFile);
@@ -283,5 +352,22 @@ public class AIWebViewActivity extends AIBaseActivity {
         } else {
             moveTaskToBack(true);
         }
+    }
+
+    public void startActivityForResult(AIWebViewBasePlugin plugin, Intent intent, int requestCode) {
+        mPluginObj = plugin;
+        startActivityForResult(intent,requestCode);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mPluginObj.onActivityResult(requestCode,resultCode,data);
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        PermissionUitls.getInstance();
+        PermissionUitls.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }

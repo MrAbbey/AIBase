@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.ai.Interfaces.ActivityJumpListener;
 import com.ai.base.util.LogUtil;
 import com.ai.base.util.PermissionUitls;
+import com.ai.webplugin.AIWebViewBasePlugin;
 
 /**
  * Created by wuyoujian on 17/3/29.
@@ -44,6 +45,16 @@ public abstract class AIBaseActivity extends AppCompatActivity {
         PermissionUitls.getInstance();
         PermissionUitls.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
+
+    public void startActivityForResult(AIWebViewBasePlugin plugin, Intent intent, int requestCode) {
+        super.startActivityForResult(intent,requestCode);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
 
     //用来控制应用前后台切换的逻辑
     private boolean isCurrentRunningForeground = true;

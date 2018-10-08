@@ -13,4 +13,11 @@
     <action name="JN_GetValueWithKey" class="com.ai.webplugin.AIWebViewBasePlugin"></action>
     <action name="JN_Fingerprint" class="com.ai.webplugin.AIWebViewBasePlugin"></action>
     <action name="JN_JSONObj" class="com.ai.webplugin.AIWebViewBasePlugin"></action>
+    <action name="JN_SMS" class="com.ai.webplugin.AIWebViewBasePlugin"></action>
+    <action name="JN_Telephone" class="com.ai.webplugin.AIWebViewBasePlugin"></action>
+    <action name="JN_Email" class="com.ai.webplugin.AIWebViewBasePlugin"></action>
+    <action name="JN_Brower" class="com.ai.webplugin.AIWebViewBasePlugin"></action>
+    <action name="JN_SelectPhoto" class="com.ai.webplugin.AIWebViewBasePlugin"></action>
+    <action name="JN_Photograph" class="com.ai.webplugin.AIWebViewBasePlugin"></action>
+
 </plugins>

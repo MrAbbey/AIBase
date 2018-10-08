@@ -93,13 +93,61 @@ window.WadeNAObj = (function() {
                 WadeNAObj.execute(callbackKey,key);
             },
 
-            // 获取数据,通过回调返回数据
+            // 指纹验证
             JN_Fingerprint:function(callback) {
                 // 方法名，即配置中的name
                 var callbackKey = 'JN_Fingerprint';
                 WadeNAObj.storageCallback(callbackKey,callback);
                 WadeNAObj.execute(callbackKey);
             },
+
+            // 发送短信，第一个参数，手机号，第二个参数：短信内容
+            JN_SMS:function(phoneNumber,content) {
+                // 方法名，即配置中的name
+                var callbackKey = 'JN_SMS';
+                WadeNAObj.execute(callbackKey,[phoneNumber,content]);
+            },
+
+            // 拨打电话，参数，手机号
+            JN_Telephone:function(phoneNumber) {
+                // 方法名，即配置中的name
+                var callbackKey = 'JN_Telephone';
+                WadeNAObj.execute(callbackKey,phoneNumber);
+            },
+
+            // 发邮件
+            //第一个参数收件人邮箱号
+            //第二个参数邮件主题
+            //第三个邮件正文
+            JN_Email:function(address,subject,content) {
+                // 方法名，即配置中的name
+                var callbackKey = 'JN_Email';
+                WadeNAObj.execute(callbackKey,[address,subject,content]);
+            },
+
+            // 打开浏览器，参数，网址
+            JN_Brower:function(urlString) {
+                // 方法名，即配置中的name
+                var callbackKey = 'JN_Brower';
+                WadeNAObj.execute(callbackKey,urlString);
+            },
+
+            // 打开相册选择图片，单张图片，图片数据通过base64回传
+            JN_SelectPhoto:function(callback) {
+                // 方法名，即配置中的name
+                var callbackKey = 'JN_SelectPhoto';
+                WadeNAObj.storageCallback(callbackKey,callback);
+                WadeNAObj.execute(callbackKey);
+            },
+
+            // 打开系统相机拍照，图片，图片数据通过base64回传
+            JN_Photograph:function(callback) {
+                // 方法名，即配置中的name
+                var callbackKey = 'JN_Photograph';
+                WadeNAObj.storageCallback(callbackKey,callback);
+                WadeNAObj.execute(callbackKey);
+            },
+
 		};
 	})();
 

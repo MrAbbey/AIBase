@@ -81,17 +81,6 @@ public class AIWebViewPluginEngine {
         return method;
     }
 
-//    @JavascriptInterface
-//    public void JN_PageBack() {
-//        mActivity.runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                mActivity.finish();
-//            }
-//        });
-//    }
-
-
     @JavascriptInterface
     public void JN_EXECUTE(String paramJSON) {
 
@@ -146,8 +135,6 @@ public class AIWebViewPluginEngine {
             e.printStackTrace();
         }
     }
-
-
 
     @SuppressLint("SetJavaScriptEnabled")
     public void registerPlugins(AIBaseActivity activity, WebView webView,String configFileName) {

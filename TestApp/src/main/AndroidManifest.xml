@@ -39,7 +39,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".h5plugin.PortalActivity"
+            android:name="com.ai.webplugin.AIWebViewActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>

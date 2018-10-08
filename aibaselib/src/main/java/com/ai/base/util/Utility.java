@@ -6,12 +6,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.widget.ImageView;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -330,4 +333,39 @@ public class Utility {
 			return "";
 		}
 	}
+
+	// 缩放图片
+	public static Bitmap zoomImage(Bitmap bgimage, double newWidth,
+								   double newHeight) {
+		// 获取这个图片的宽和高
+		float width = bgimage.getWidth();
+		float height = bgimage.getHeight();
+		// 创建操作图片用的matrix对象
+		Matrix matrix = new Matrix();
+		// 计算宽高缩放率
+		float scaleWidth = ((float) newWidth) / width;
+		float scaleHeight = ((float) newHeight) / height;
+		// 缩放图片动作
+		matrix.postScale(scaleWidth, scaleHeight);
+		Bitmap bitmap = Bitmap.createBitmap(bgimage, 0, 0, (int) width,
+				(int) height, matrix, true);
+		return bitmap;
+	}
+
+	// 压缩图片
+	public static Bitmap compressImage(Bitmap bitmap,int quality) {
+		if (bitmap.getByteCount() > 0) {
+			// 压缩图片
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			bitmap.compress(Bitmap.CompressFormat.PNG, quality, baos);
+
+			Bitmap result = BitmapFactory.decodeByteArray(baos.toByteArray(), 0, baos.toByteArray().length);
+
+			return result;
+		}
+
+		return null;
+	}
+
+
 }
