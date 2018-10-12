@@ -148,8 +148,8 @@ public class Utility {
 	}
 
 	/**
-	 * 保存图片为JPEG
-	 * @param b
+	 * 保存图片
+	 * @param b 图片数据
 	 * @param path 图片的全路径,包含文件名和后缀
      */
 	public static void saveBitmap(Bitmap b, String path){
@@ -253,6 +253,7 @@ public class Utility {
 		if ((packageName != null && packageName.length() > 0) &&
 				(activityName != null && activityName.length() > 0)) {
 
+			// 如果只是提供Activity类名的话，就以packageName为包名
 			String tempActivityName = activityName;
 			if (!tempActivityName.contains(".")) {
 				tempActivityName = packageName + "." + activityName;

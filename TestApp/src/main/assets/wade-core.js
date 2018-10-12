@@ -1,5 +1,4 @@
 window.WadeNAObj = (function() {
-
 	// 扩展区域
 	var WadeNAObj = (function(){
 		return {
@@ -190,7 +189,7 @@ window.WadeNAObj = (function() {
 
    WadeNAObj.osName=function() {
         var u = window.navigator.userAgent;
-        var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //g
+        var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //android
         var isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
         if (isAndroid) {
             //android操作系统
