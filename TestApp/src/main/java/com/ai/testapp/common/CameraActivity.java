@@ -2,12 +2,15 @@ package com.ai.testapp.common;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
+import android.graphics.drawable.Drawable;
+import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -31,13 +34,16 @@ import android.util.SparseIntArray;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.ai.base.util.Utility;
 import com.ai.testapp.R;
 
 import java.io.File;
@@ -54,106 +60,156 @@ import java.util.List;
 
 public class CameraActivity extends AppCompatActivity {
 
-    private TextureView tv;
     private Button btn;
-    //private String mCameraId = "1";//摄像头id（通常0代表后置摄像头，1代表前置摄像头）
-    private final int RESULT_CODE_CAMERA=1;//判断是否有拍照权限的标识码
-    private final int WRITE_EXTERNAL_STORAGE = 2;
+
     private CameraDevice cameraDevice;
     private CameraCaptureSession mPreviewSession;
     private CaptureRequest.Builder mCaptureRequestBuilder,captureRequestBuilder;
     private CaptureRequest mCaptureRequest;
     private ImageReader imageReader;
-    private int height=0,width=0;
+    private int height = 0,width= 0;
     private Size previewSize;
-    private ImageView iv;
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
-    static
-    {
+    static  {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
         ORIENTATIONS.append(Surface.ROTATION_90, 0);
         ORIENTATIONS.append(Surface.ROTATION_180, 270);
         ORIENTATIONS.append(Surface.ROTATION_270, 180);
     }
 
-    private void getAndroidScreenProperty(Context context) {
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        DisplayMetrics dm = new DisplayMetrics();
-        wm.getDefaultDisplay().getMetrics(dm);
-        int width = dm.widthPixels;         // 屏幕宽度（像素）
-        int height = dm.heightPixels;       // 屏幕高度（像素）
-        float density = dm.density;         // 屏幕密度（0.75 / 1.0 / 1.5）
-        int densityDpi = dm.densityDpi;     // 屏幕密度dpi（120 / 160 / 240）
-        // 屏幕宽度算法:屏幕宽度（像素）/屏幕密度
-        int screenWidth = (int) (width / density);  // 屏幕宽度(dp)
-        int screenHeight = (int) (height / density);// 屏幕高度(dp)
+    private TranslucencyView mMarkView;
+    private TextureView mTextView;
+    private FrameLayout mMainLayout;
+    private ImageButton mCloseButton;
+    private ImageButton mTakeButton;
+    private ImageButton mFlashButton;
+    private Boolean mIsFlashOn = false;
+    private String mCameraId = "-1";
 
+    private final int RESULT_CODE_CAMERA = 1;
+    private final int WRITE_EXTERNAL_STORAGE = 2;
 
-        Log.d("h_bl", "屏幕宽度（像素）：" + width);
-        Log.d("h_bl", "屏幕高度（像素）：" + height);
-        Log.d("h_bl", "屏幕密度（0.75 / 1.0 / 1.5）：" + density);
-        Log.d("h_bl", "屏幕密度dpi（120 / 160 / 240）：" + densityDpi);
-        Log.d("h_bl", "屏幕宽度（dp）：" + screenWidth);
-        Log.d("h_bl", "屏幕高度（dp）：" + screenHeight);
-    }
+    private void layoutMainView() {
+        mMainLayout = new FrameLayout(this);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT);
+        mMainLayout.setLayoutParams(params);
+        mMainLayout.setBackgroundColor(Color.TRANSPARENT);
 
-
-    private TranslucencyView view;
-    private FrameLayout frameLayout;
-    private void layoutMarkView() {
-
-        frameLayout = new FrameLayout(this);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(800,
-                800);
-        frameLayout.setLayoutParams(params);
-        frameLayout.setBackgroundColor(Color.TRANSPARENT);
-        setContentView(frameLayout);
-
-        tv = new TextureView(this);
+        mTextView = new TextureView(this);
         params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT);
-        frameLayout.addView(tv);
+        mMainLayout.addView(mTextView);
         //设置TextureView监听
-        tv.setSurfaceTextureListener(surfaceTextureListener);
+        mTextView.setSurfaceTextureListener(surfaceTextureListener);
 
-        view = new TranslucencyView(this);
-        view.setLayoutParams(params);
-        frameLayout.addView(view);
+        mMarkView = new TranslucencyView(this);
+        mMarkView.setLayoutParams(params);
+        mMainLayout.addView(mMarkView);
 
-        // 证件尺寸设计为85.6mm×54.0mm， 比例：856:540
+        mCloseButton = new ImageButton(this);
+        mCloseButton.setImageBitmap(CameraICONData.getCloseBitmap());
+        mCloseButton.setBackgroundColor(Color.TRANSPARENT);
+        mMainLayout.addView(mCloseButton);
+        mCloseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setResult(RESULT_CANCELED);
+                finish();
+            }
+        });
+
+        mTakeButton = new ImageButton(this);
+        mTakeButton.setImageBitmap(CameraICONData.getTakeBitmap());
+        mTakeButton.setBackgroundColor(Color.TRANSPARENT);
+        mMainLayout.addView(mTakeButton);
+        mTakeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                takePicture();
+            }
+        });
+
+        mFlashButton = new ImageButton(this);
+        mFlashButton.setImageBitmap(CameraICONData.getFlashoffBitmap());
+        mFlashButton.setBackgroundColor(Color.TRANSPARENT);
+        mMainLayout.addView(mFlashButton);
+        mFlashButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mIsFlashOn = !mIsFlashOn;
+                if (mIsFlashOn) {
+                    mFlashButton.setImageBitmap(CameraICONData.getFlashonBitmap());
+
+                } else {
+                    mFlashButton.setImageBitmap(CameraICONData.getFlashoffBitmap());
+                }
+
+                try {
+                    if (mPreviewSession != null) {
+                        int flashMode = mIsFlashOn ? CaptureRequest.FLASH_MODE_TORCH : CaptureRequest.FLASH_MODE_OFF;
+                        mCaptureRequestBuilder.set(CaptureRequest.FLASH_MODE, flashMode);
+                    }
+                    mPreviewSession.setRepeatingRequest(mCaptureRequestBuilder.build(), null, null);
+                } catch (CameraAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        setContentView(mMainLayout);
+    }
+
+    private void reLayoutViews() {
+        int buttonWidth = Utility.dip2px(this,40);
+        int buttonHeight = Utility.dip2px(this,40);
+        int takeWidth = Utility.dip2px(this,72);
+        int takeHeight = Utility.dip2px(this,72);
+        int takeBottomMargin = Utility.dip2px(this,40);
+        int buttonBottomMargin = (takeHeight-buttonHeight)/2 + takeBottomMargin;
+
+        int space = Utility.dip2px(this,32);
+        int mainWidth = mMainLayout.getWidth();
+        int margin = (mainWidth - 2*space - 2*buttonWidth - takeWidth)/2;
+
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(buttonWidth, buttonHeight);
+        params.topMargin = mMainLayout.getHeight() - buttonHeight - buttonBottomMargin;
+        params.leftMargin = margin;
+        mCloseButton.setLayoutParams(params);
+
+        params = new FrameLayout.LayoutParams(takeWidth, takeHeight);
+        params.topMargin = mMainLayout.getHeight() - takeHeight - takeBottomMargin;
+        params.leftMargin = space + margin + buttonWidth;
+        mTakeButton.setLayoutParams(params);
+
+        params = new FrameLayout.LayoutParams(buttonWidth, buttonHeight);
+        params.topMargin = mMainLayout.getHeight() - buttonHeight - buttonBottomMargin;
+        params.leftMargin = space + margin + buttonWidth + takeWidth + space;
+        mFlashButton.setLayoutParams(params);
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
+        reLayoutViews();
     }
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        layoutMarkView();
-//        setContentView(R.layout.activity_camera);
-//        tv = (TextureView) findViewById(R.id.tv);
-//        btn = (Button) findViewById(R.id.btn);
-//        iv= (ImageView) findViewById(R.id.iv);
-//
-//        //拍照
-//        // 证件尺寸设计为85.6mm×54.0mm， 比例：856:540
-//        btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                takePicture();
-//            }
-//        });
-//        //设置TextureView监听
-//        tv.setSurfaceTextureListener(surfaceTextureListener);
-//
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-//            //提示用户开户权限
-//            String[] perms = {"android.permission.WRITE_EXTERNAL_STORAGE"};
-//            ActivityCompat.requestPermissions(CameraActivity.this,perms, WRITE_EXTERNAL_STORAGE);
-//        }
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        layoutMainView();
+        checkPermisson();
+    }
+
+    private void checkPermisson() {
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            //提示用户开户权限
+            String[] perms = {"android.permission.WRITE_EXTERNAL_STORAGE"};
+            ActivityCompat.requestPermissions(CameraActivity.this,perms, WRITE_EXTERNAL_STORAGE);
+        }
     }
 
     @Override
@@ -167,12 +223,12 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        startCamera();
+        if (cameraDevice !=null) {
+            startCamera();
+        }
     }
 
-    /**TextureView的监听*/
-    private TextureView.SurfaceTextureListener surfaceTextureListener= new TextureView.SurfaceTextureListener() {
-
+    private TextureView.SurfaceTextureListener surfaceTextureListener = new TextureView.SurfaceTextureListener() {
         //可用
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
@@ -184,7 +240,6 @@ public class CameraActivity extends AppCompatActivity {
 
         @Override
         public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-
         }
 
         //释放
@@ -197,7 +252,6 @@ public class CameraActivity extends AppCompatActivity {
         //更新
         @Override
         public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-
         }
     };
 
@@ -209,9 +263,7 @@ public class CameraActivity extends AppCompatActivity {
                 //提示用户开户权限
                 String[] perms = {"android.permission.CAMERA"};
                 ActivityCompat.requestPermissions(CameraActivity.this,perms, RESULT_CODE_CAMERA);
-
             } else {
-
                 CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
                 String cameraId = "-1";
                 try {
@@ -230,94 +282,70 @@ public class CameraActivity extends AppCompatActivity {
 
                 if (cameraId != "-1") {
                     //设置摄像头特性
+                    mCameraId = cameraId;
                     setCameraCharacteristics(manager,cameraId);
                     manager.openCamera(cameraId, stateCallback, null);
                 }
             }
-
         } catch (CameraAccessException e){
             e.printStackTrace();
         }
     }
 
-
     /**设置摄像头的参数*/
-    private void setCameraCharacteristics(CameraManager manager,String cameraId)
-    {
-        try
-        {
+    private void setCameraCharacteristics(CameraManager manager,String cameraId) {
+        try {
             // 获取指定摄像头的特性
-            CameraCharacteristics characteristics
-                    = manager.getCameraCharacteristics(cameraId);
+            CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
             // 获取摄像头支持的配置属性
-            StreamConfigurationMap map = characteristics.get(
-                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+            StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             // 获取摄像头支持的最大尺寸
-            Size largest = Collections.max(
-                    Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)),new CompareSizesByArea());
+            Size largest = Collections.max(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)),new CompareSizesByArea());
             // 创建一个ImageReader对象，用于获取摄像头的图像数据,2代表ImageReader中最多可以获取两帧图像流
-            imageReader = ImageReader.newInstance(largest.getWidth(), largest.getHeight(),
-                    ImageFormat.JPEG, 2);
+            imageReader = ImageReader.newInstance(largest.getWidth(), largest.getHeight(), ImageFormat.JPEG, 2);
             //设置获取图片的监听
             imageReader.setOnImageAvailableListener(imageAvailableListener,null);
             // 获取最佳的预览尺寸
-            previewSize = chooseOptimalSize(map.getOutputSizes(
-                    SurfaceTexture.class), width, height, largest);
-        }
-        catch (CameraAccessException e)
-        {
-            e.printStackTrace();
-        }
-        catch (NullPointerException e)
-        {
+            previewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class), width, height, largest);
+        } catch (CameraAccessException e) {
+            //e.printStackTrace();
+        } catch (NullPointerException e) {
         }
     }
-    private static Size chooseOptimalSize(Size[] choices
-            , int width, int height, Size aspectRatio)
-    {
+
+    private static Size chooseOptimalSize(Size[] choices, int width, int height, Size aspectRatio) {
         // 收集摄像头支持的大过预览Surface的分辨率
         List<Size> bigEnough = new ArrayList<>();
         int w = aspectRatio.getWidth();
         int h = aspectRatio.getHeight();
-        for (Size option : choices)
-        {
+        for (Size option : choices) {
             //不失真的图片，且大于预览窗口的大小
             if (option.getHeight() == option.getWidth() * h / w &&
-                    option.getWidth() >= width && option.getHeight() >= height)
-            {
+                    option.getWidth() >= width && option.getHeight() >= height) {
                 bigEnough.add(option);
             }
         }
         // 如果找到多个预览尺寸，获取其中面积最小的
-        if (bigEnough.size() > 0)
-        {
+        if (bigEnough.size() > 0) {
             return Collections.min(bigEnough, new CompareSizesByArea());
-        }
-        else
-        {
+        } else {
             //没有合适的预览尺寸
             return choices[0];
         }
     }
 
-
     // 为Size定义一个比较器Comparator
-    static class CompareSizesByArea implements Comparator<Size>
-    {
+    static class CompareSizesByArea implements Comparator<Size> {
         @Override
-        public int compare(Size lhs, Size rhs)
-        {
+        public int compare(Size lhs, Size rhs) {
             // 强转为long保证不会发生溢出
             return Long.signum((long) lhs.getWidth() * lhs.getHeight() -
                     (long) rhs.getWidth() * rhs.getHeight());
         }
     }
 
-
-
     /**摄像头状态的监听*/
-    private CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback()
-    {
+    private CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
         // 摄像头被打开时触发该方法
         @Override
         public void onOpened(CameraDevice cameraDevice){
@@ -328,16 +356,14 @@ public class CameraActivity extends AppCompatActivity {
 
         // 摄像头断开连接时触发该方法
         @Override
-        public void onDisconnected(CameraDevice cameraDevice)
-        {
+        public void onDisconnected(CameraDevice cameraDevice) {
             CameraActivity.this.cameraDevice.close();
             CameraActivity.this.cameraDevice = null;
 
         }
         // 打开摄像头出现错误时触发该方法
         @Override
-        public void onError(CameraDevice cameraDevice, int error)
-        {
+        public void onError(CameraDevice cameraDevice, int error) {
             cameraDevice.close();
         }
     };
@@ -346,7 +372,7 @@ public class CameraActivity extends AppCompatActivity {
      * 开始预览
      */
     private void takePreview() {
-        SurfaceTexture mSurfaceTexture = tv.getSurfaceTexture();
+        SurfaceTexture mSurfaceTexture = mTextView.getSurfaceTexture();
         //设置TextureView的缓冲区大小
         mSurfaceTexture.setDefaultBufferSize(previewSize.getWidth(), previewSize.getHeight());
         //获取Surface显示预览数据
@@ -371,30 +397,21 @@ public class CameraActivity extends AppCompatActivity {
                     } catch (CameraAccessException e) {
                         e.printStackTrace();
                     }
-
                 }
 
                 @Override
                 public void onConfigureFailed(CameraCaptureSession session) {
-
                 }
             }, null);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
-
     }
-
-
 
     /**拍照*/
     private void takePicture()  {
-        getAndroidScreenProperty(this);
-
-        try
-        {
-            if (cameraDevice == null)
-            {
+        try {
+            if (cameraDevice == null) {
                 return;
             }
             // 创建拍照请求
@@ -404,7 +421,6 @@ public class CameraActivity extends AppCompatActivity {
             // 将imageReader的surface设为目标
             captureRequestBuilder.addTarget(imageReader.getSurface());
             // 获取设备方向
-
             int rotation =  getWindowManager().getDefaultDisplay().getRotation();
             // 根据设备方向计算设置照片的方向
             captureRequestBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
@@ -414,20 +430,16 @@ public class CameraActivity extends AppCompatActivity {
             CaptureRequest captureRequest = captureRequestBuilder.build();
             //设置拍照监听
             mPreviewSession.capture(captureRequest,captureCallback, null);
-        }
-        catch (CameraAccessException e)
-        {
-            e.printStackTrace();
+        } catch (CameraAccessException e) {
+            //e.printStackTrace();
         }
     }
 
     /**监听拍照结果*/
-    private CameraCaptureSession.CaptureCallback captureCallback= new CameraCaptureSession.CaptureCallback()
-    {
+    private CameraCaptureSession.CaptureCallback captureCallback= new CameraCaptureSession.CaptureCallback() {
         // 拍照成功
         @Override
-        public void onCaptureCompleted(CameraCaptureSession session,CaptureRequest request,TotalCaptureResult result)
-        {
+        public void onCaptureCompleted(CameraCaptureSession session,CaptureRequest request,TotalCaptureResult result) {
             // 重设自动对焦模式
             captureRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_CANCEL);
             // 设置自动曝光模式
@@ -475,18 +487,25 @@ public class CameraActivity extends AppCompatActivity {
                 FileOutputStream fileOutputStream = new FileOutputStream(file);
                 fileOutputStream.write(data);
                 fileOutputStream.close();
+//                //显示图片
+//                BitmapFactory.Options options = new BitmapFactory.Options();
+//                options.inSampleSize = 2;
+//                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, options);
+                //
 
-                //显示图片
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inSampleSize = 2;
-                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, options);
-                iv.setImageBitmap(bitmap);
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
+                setResult(0);
+                finish();
             } catch (IOException e) {
-                e.printStackTrace();
+                setResult(0);
+                finish();
             } finally {
                 image.close();
+                Intent intent = new Intent();
+                intent.putExtra("photoPath",file.getAbsolutePath());
+                setResult(RESULT_OK,intent);
+                finish();
             }
         }
 
@@ -498,7 +517,7 @@ public class CameraActivity extends AppCompatActivity {
         switch(permsRequestCode){
             case RESULT_CODE_CAMERA:
                 boolean cameraAccepted = grantResults[0]==PackageManager.PERMISSION_GRANTED;
-                if(cameraAccepted){
+                if(cameraAccepted) {
                     //授权成功之后，调用系统相机进行拍照操作等
                     openCamera();
                 }else{
@@ -515,12 +534,12 @@ public class CameraActivity extends AppCompatActivity {
 
     /**启动拍照*/
     private void startCamera(){
-        if (tv.isAvailable()) {
+        if (mTextView.isAvailable()) {
             if(cameraDevice==null) {
                 openCamera();
             }
         } else {
-            tv.setSurfaceTextureListener(surfaceTextureListener);
+            mTextView.setSurfaceTextureListener(surfaceTextureListener);
         }
     }
 
@@ -531,6 +550,5 @@ public class CameraActivity extends AppCompatActivity {
             cameraDevice.close();
             cameraDevice=null;
         }
-
     }
 }

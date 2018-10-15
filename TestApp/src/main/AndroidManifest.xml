@@ -69,7 +69,8 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".common.CameraActivity"></activity>
+        <activity android:name=".common.CameraActivity"
+            ></activity>
     </application>
 
 </manifest>

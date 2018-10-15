@@ -46,6 +46,6 @@ public class SplashActivity extends AIBaseActivity {
         //Intent intent = new Intent(this, PortalActivity.class);
         Intent intent = new Intent(this, CameraActivity.class);
         startActivity(intent);
-        finish();
+       // finish();
     }
 }
