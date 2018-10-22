@@ -147,6 +147,13 @@ window.WadeNAObj = (function() {
                 WadeNAObj.execute(callbackKey);
             },
 
+            // 自定义证件拍照
+            JN_TakeCertificate:function(callback) {
+                // 方法名，即配置中的name
+                var callbackKey = 'JN_TakeCertificate';
+                WadeNAObj.storageCallback(callbackKey,callback);
+                WadeNAObj.execute(callbackKey);
+            }
 		};
 	})();
 

@@ -1,9 +1,9 @@
-package com.ai.base.CertificateCamera;
+package com.ai.base.certificateCamera;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-public class CameraICONData {
+public class AICameraICONData {
     // 关闭按钮图片
     private static char camera_close_png[] = {
             0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,

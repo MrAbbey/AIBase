@@ -14,7 +14,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
@@ -22,11 +21,11 @@ import android.support.v4.content.FileProvider;
 import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.util.Base64;
 import android.util.Log;
-import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.widget.Toast;
 import com.ai.base.AIBaseActivity;
+import com.ai.base.certificateCamera.AICertificateCameraActivity;
 import com.ai.base.document.AIOpenDocumentController;
 import com.ai.base.fingerprint.FingerprintUtil;
 import com.ai.base.loading.AILoadingViewBuilder;
@@ -41,11 +40,9 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLDecoder;
-
-import static android.app.Activity.RESULT_OK;
 
 
 /**
@@ -56,8 +53,9 @@ public class AIWebViewBasePlugin implements AIIPlugin {
 
     private AIBaseActivity mActivity;
     private WebView mWebView;
-    private final int SELECT_PHOTOS_REQUSETCODE = 10000;
-    private final int PHOTOGRAPH_REQUSETCODE = 10001;
+    private final int REQUSETCODE_SELECT_PHOTOS = 10000;
+    private final int REQUSETCODE_PHOTOGRAPH = 10001;
+    private final int REQUSETCODE_TAKECERTIFICATE = 10002;
     private Uri photographImageUri;
     private Handler mHandler = new Handler();
 
@@ -122,8 +120,42 @@ public class AIWebViewBasePlugin implements AIIPlugin {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             // 处理相册选择图片和拍照图片
-            if (requestCode == SELECT_PHOTOS_REQUSETCODE || requestCode == PHOTOGRAPH_REQUSETCODE){
+            if (requestCode == REQUSETCODE_SELECT_PHOTOS || requestCode == REQUSETCODE_PHOTOGRAPH){
                 handlePhoto(requestCode,data);
+            } else if(requestCode == REQUSETCODE_TAKECERTIFICATE) {
+                String path = data.getStringExtra(AICertificateCameraActivity.kImageSavePathKey);
+                File file = new File(path);
+                if (file.exists()){
+                    FileInputStream fis = null;
+                    try {
+                        fis = new FileInputStream(file);
+                        // 设置一个，每次装载信息的容器
+                        byte[] buffer = new byte[1024];
+                        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                        // 开始读取数据
+                        int len = 0;// 每次读取到的数据的长度
+                        // len值为-1时，表示没有数据了
+                        while ((len = fis.read(buffer)) != -1) {
+                            // append方法往sb对象里面添加数据
+                            outputStream.write(buffer, 0, len);
+                        }
+                        // 输出字符串
+                        byte[] byteArray = outputStream.toByteArray();
+                        if (byteArray.length <= 0) return;
+                        final String base64Str = Base64.encodeToString(byteArray, Base64.NO_WRAP);
+                        if (base64Str.length() <= 0 ) return;
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                callback("JN_TakeCertificate",base64Str,null);
+                            }
+                        });
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
     }
@@ -133,7 +165,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
         Bitmap bitmap = null;
         String callbackName_tmp = "JN_SelectPhoto";
         switch (requestCode) {
-            case SELECT_PHOTOS_REQUSETCODE:
+            case REQUSETCODE_SELECT_PHOTOS:
                 callbackName_tmp = "JN_SelectPhoto";
                 // 判断手机系统版本号
                 if (Build.VERSION.SDK_INT >= 19) {
@@ -145,7 +177,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
                     bitmap = handleImageBeforeKitKat(data);
                 }
                 break;
-            case PHOTOGRAPH_REQUSETCODE:
+            case REQUSETCODE_PHOTOGRAPH:
                 callbackName_tmp = "JN_Photograph";
                 try {
                     // 将拍摄的照片显示出来
@@ -569,7 +601,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
                                 public void run() {
                                     Intent intent = new Intent(Intent.ACTION_PICK);
                                     intent.setType("image/*");//相片类型
-                                    startActivityForResult(intent,SELECT_PHOTOS_REQUSETCODE);
+                                    startActivityForResult(intent,REQUSETCODE_SELECT_PHOTOS);
                                 }
                             });
                         } catch (Exception e) {
@@ -629,7 +661,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
                                 // 启动相机程序
                                 Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
                                 intent.putExtra(MediaStore.EXTRA_OUTPUT, photographImageUri);
-                                startActivityForResult(intent, PHOTOGRAPH_REQUSETCODE);
+                                startActivityForResult(intent, REQUSETCODE_PHOTOGRAPH);
                             }
                         });
                     }
@@ -643,6 +675,18 @@ public class AIWebViewBasePlugin implements AIIPlugin {
         };
         PermissionUitls permissionUitls = PermissionUitls.getInstance(null, permissionListener);
         permissionUitls.permssionCheck(permissionCode,checkPermissinos);
+    }
+
+    // 打开系统相机拍照 -- 需要相机权限
+    public void JN_TakeCertificate() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // 创建File对象，用于存储拍照后的图片
+                Intent intent = new Intent(getActivity(), AICertificateCameraActivity.class);
+                startActivityForResult(intent, REQUSETCODE_TAKECERTIFICATE);
+            }
+        });
     }
 }
 

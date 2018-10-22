@@ -19,5 +19,5 @@
     <action name="JN_Brower" class="com.ai.webplugin.AIWebViewBasePlugin"></action>
     <action name="JN_SelectPhoto" class="com.ai.webplugin.AIWebViewBasePlugin"></action>
     <action name="JN_Photograph" class="com.ai.webplugin.AIWebViewBasePlugin"></action>
-
+    <action name="JN_TakeCertificate" class="com.ai.webplugin.AIWebViewBasePlugin"></action>
 </plugins>

@@ -10,8 +10,9 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.ImageView;
 
-import com.ai.base.CertificateCamera.CertificateCameraActivity;
+import com.ai.base.certificateCamera.AICertificateCameraActivity;
 import com.ai.base.AIBaseActivity;
+import com.ai.webplugin.AIWebViewActivity;
 
 import java.io.File;
 
@@ -51,10 +52,10 @@ public class SplashActivity extends AIBaseActivity {
         // 简单模式
         //Intent intent = new Intent(this, MainActivity.class);
         // 结合我们H5框架的模式
-        //Intent intent = new Intent(this, PortalActivity.class);
-        Intent intent = new Intent(this, CertificateCameraActivity.class);
+        Intent intent = new Intent(this, AIWebViewActivity.class);
+        //Intent intent = new Intent(this, AICertificateCameraActivity.class);
         startActivityForResult(intent,1);
-       // finish();
+        finish();
     }
 
     @Override

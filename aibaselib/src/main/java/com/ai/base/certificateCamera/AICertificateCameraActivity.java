@@ -1,4 +1,4 @@
-package com.ai.base.CertificateCamera;
+package com.ai.base.certificateCamera;
 
 import android.Manifest;
 import android.content.Context;
@@ -63,7 +63,7 @@ import java.util.concurrent.Semaphore;
 //  参考google官网demo
 //  专业拍身份证和银行卡照片
 //  by wuyj
-public class CertificateCameraActivity extends AIBaseActivity {
+public class AICertificateCameraActivity extends AIBaseActivity {
 
     // 相机的状态
     private static final int STATE_PREVIEW = 0;
@@ -96,7 +96,7 @@ public class CertificateCameraActivity extends AIBaseActivity {
         ORIENTATIONS.append(Surface.ROTATION_270, 180);
     }
 
-    private TranslucencyView mMarkView;
+    private AITranslucencyView mMarkView;
     private TextureView mTextureView;
     private FrameLayout mMainLayout;
     private ImageButton mCloseButton;
@@ -106,6 +106,7 @@ public class CertificateCameraActivity extends AIBaseActivity {
 
     private final int RESULT_CODE_CAMERA = 1;
     private final int WRITE_EXTERNAL_STORAGE = 2;
+    public static final String kImageSavePathKey = "photoPath";
 
     private void layoutMainView() {
         mManager = (CameraManager)getSystemService(Context.CAMERA_SERVICE);
@@ -122,12 +123,12 @@ public class CertificateCameraActivity extends AIBaseActivity {
         mMainLayout.addView(mTextureView);
         mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
 
-        mMarkView = new TranslucencyView(this);
+        mMarkView = new AITranslucencyView(this);
         mMarkView.setLayoutParams(params);
         mMainLayout.addView(mMarkView);
 
         mCloseButton = new ImageButton(this);
-        mCloseButton.setImageBitmap(CameraICONData.getCloseBitmap());
+        mCloseButton.setImageBitmap(AICameraICONData.getCloseBitmap());
         mCloseButton.setBackgroundColor(Color.TRANSPARENT);
         mMainLayout.addView(mCloseButton);
         mCloseButton.setOnClickListener(new View.OnClickListener() {
@@ -139,7 +140,7 @@ public class CertificateCameraActivity extends AIBaseActivity {
         });
 
         mTakeButton = new ImageButton(this);
-        mTakeButton.setImageBitmap(CameraICONData.getTakeBitmap());
+        mTakeButton.setImageBitmap(AICameraICONData.getTakeBitmap());
         mTakeButton.setBackgroundColor(Color.TRANSPARENT);
         mMainLayout.addView(mTakeButton);
         mTakeButton.setOnClickListener(new View.OnClickListener() {
@@ -150,7 +151,7 @@ public class CertificateCameraActivity extends AIBaseActivity {
         });
 
         mFlashButton = new ImageButton(this);
-        mFlashButton.setImageBitmap(CameraICONData.getFlashoffBitmap());
+        mFlashButton.setImageBitmap(AICameraICONData.getFlashoffBitmap());
         mFlashButton.setBackgroundColor(Color.TRANSPARENT);
         mMainLayout.addView(mFlashButton);
         mFlashButton.setOnClickListener(new View.OnClickListener() {
@@ -167,10 +168,10 @@ public class CertificateCameraActivity extends AIBaseActivity {
     private void setFlashStatus(Boolean on) {
         try {
             if (on) {
-                mFlashButton.setImageBitmap(CameraICONData.getFlashonBitmap());
+                mFlashButton.setImageBitmap(AICameraICONData.getFlashonBitmap());
 
             } else {
-                mFlashButton.setImageBitmap(CameraICONData.getFlashoffBitmap());
+                mFlashButton.setImageBitmap(AICameraICONData.getFlashoffBitmap());
             }
             if (mCaptureSession != null) {
                 int flashMode = on ? CaptureRequest.FLASH_MODE_TORCH : CaptureRequest.FLASH_MODE_OFF;
@@ -259,7 +260,7 @@ public class CertificateCameraActivity extends AIBaseActivity {
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             //提示用户开户权限
             String[] perms = {"android.permission.WRITE_EXTERNAL_STORAGE"};
-            ActivityCompat.requestPermissions(CertificateCameraActivity.this,perms, WRITE_EXTERNAL_STORAGE);
+            ActivityCompat.requestPermissions(AICertificateCameraActivity.this,perms, WRITE_EXTERNAL_STORAGE);
         }
     }
 
@@ -267,7 +268,7 @@ public class CertificateCameraActivity extends AIBaseActivity {
     private final ImageReader.OnImageAvailableListener mOnImageAvailableListener = new ImageReader.OnImageAvailableListener() {
         @Override
         public void onImageAvailable(ImageReader reader) {
-            mBackgroundHandler.post(new CertificateCameraActivity.ImageSaver(CertificateCameraActivity.this,
+            mBackgroundHandler.post(new AICertificateCameraActivity.ImageSaver(AICertificateCameraActivity.this,
                     reader.acquireNextImage(),
                     mMarkView.getTransparencyRect(),
                     new Size(mMarkView.getWidth(), mMarkView.getHeight())));
@@ -660,7 +661,7 @@ public class CertificateCameraActivity extends AIBaseActivity {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 //提示用户开户权限
                 String[] perms = {"android.permission.CAMERA"};
-                ActivityCompat.requestPermissions(CertificateCameraActivity.this,perms, RESULT_CODE_CAMERA);
+                ActivityCompat.requestPermissions(AICertificateCameraActivity.this,perms, RESULT_CODE_CAMERA);
             } else {
                 mManager.openCamera(mCameraId, mStateCallback, mBackgroundHandler);
             }
@@ -778,7 +779,7 @@ public class CertificateCameraActivity extends AIBaseActivity {
                     try {
                         bos.close();
                         Intent intent = new Intent();
-                        intent.putExtra("photoPath",file.getAbsolutePath());
+                        intent.putExtra(kImageSavePathKey,file.getAbsolutePath());
                         mActivityCompat.setResult(RESULT_OK,intent);
                         mActivityCompat.finish();
                     } catch (IOException e) {

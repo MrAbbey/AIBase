@@ -1,4 +1,4 @@
-package com.ai.base.CertificateCamera;
+package com.ai.base.certificateCamera;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -7,16 +7,15 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 
-public class TranslucencyView extends View {
+public class AITranslucencyView extends View {
     private  final Context mContext;
 
-    public TranslucencyView(Context context){this(context,null);}
-    public TranslucencyView(Context context, AttributeSet attributeSet){this(context,attributeSet,0);}
-    public TranslucencyView(Context context, AttributeSet attributeSet, int defStyleAttr){
+    public AITranslucencyView(Context context){this(context,null);}
+    public AITranslucencyView(Context context, AttributeSet attributeSet){this(context,attributeSet,0);}
+    public AITranslucencyView(Context context, AttributeSet attributeSet, int defStyleAttr){
         super(context,attributeSet,defStyleAttr);
         this.mContext=context;
         setWillNotDraw(false);
