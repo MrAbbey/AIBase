@@ -69,7 +69,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".common.CameraActivity"
+        <activity android:name="com.ai.base.CertificateCamera.CertificateCameraActivity"
             ></activity>
     </application>
 

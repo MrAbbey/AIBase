@@ -1,4 +1,4 @@
-package com.ai.testapp.common;
+package com.ai.base.CertificateCamera;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -6,7 +6,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.support.constraint.solver.widgets.Rectangle;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -21,7 +22,7 @@ public class TranslucencyView extends View {
         setWillNotDraw(false);
     }
 
-    public Rectangle getTransparencyRectangle() {
+    public Rect getTransparencyRect() {
         int width = this.getWidth();
         int height = this.getHeight();
 
@@ -31,18 +32,20 @@ public class TranslucencyView extends View {
         int top = (height - imageHeight)/2;
         int left = margin;
 
-        Rectangle rect = new Rectangle();
-        rect.x = left;
-        rect.y = top;
-        rect.width = imageWidth;
-        rect.height = imageHeight;
+
+        Rect rect = new Rect();
+        rect.left = left;
+        rect.top = top;
+        rect.right = left + imageWidth;
+        rect.bottom = top + imageHeight;
+
         return rect;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Rectangle rect = getTransparencyRectangle();
+        Rect rect = getTransparencyRect();
         // 存储画布
         int sc = canvas.saveLayer(0, 0, canvas.getWidth(), canvas.getHeight(), null, Canvas.ALL_SAVE_FLAG);
         // 创建画笔
@@ -51,7 +54,7 @@ public class TranslucencyView extends View {
         p.setStyle(Paint.Style.STROKE);
         p.setStrokeWidth(10.0f);
         p.setAntiAlias(true);
-        canvas.drawRect(rect.x,rect.y,rect.x + rect.width,rect.y +rect.height,p);
+        canvas.drawRect(rect.left,rect.top,rect.right,rect.bottom,p);
         canvas.drawColor(Color.parseColor("#9f000000"));
         p.setColor(Color.WHITE);
         p.setStrokeWidth (2);//设置画笔宽度
@@ -59,13 +62,13 @@ public class TranslucencyView extends View {
         p.setStyle(Paint.Style.FILL);//绘图样式，对于设文字和几何图形都有效
         p.setTextAlign(Paint.Align.CENTER);
         p.setTextSize(70);
-        canvas.drawText("请把证件置于方框中",rect.getCenterX(),rect.y - 30,p);
-        canvas.drawText("点击屏幕对焦",rect.getCenterX(),rect.y+ 10 + rect.height + 80,p);
+        canvas.drawText("请把证件置于方框中",rect.centerX(),rect.top - 30,p);
+        //canvas.drawText("点击屏幕对焦",rect.getCenterX(),rect.y+ 10 + rect.height + 80,p);
 
         PorterDuffXfermode porterDuffXfermode=new PorterDuffXfermode(PorterDuff.Mode.DST_OUT);
         p.setXfermode(porterDuffXfermode);
         p.setStyle(Paint.Style.FILL);
-        canvas.drawRect(rect.x,rect.y,rect.x + rect.width,rect.y +rect.height,p);
+        canvas.drawRect(rect.left,rect.top,rect.right,rect.bottom,p);
 
         // 还原混合模式
         p.setXfermode(null);

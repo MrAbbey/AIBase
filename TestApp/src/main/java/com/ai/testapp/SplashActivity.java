@@ -6,20 +6,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.TypedValue;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.ImageView;
 
-import com.ai.testapp.common.CameraActivity;
-import com.ai.testapp.common.MainActivity;
-import com.ai.testapp.h5plugin.PortalActivity;
+import com.ai.base.CertificateCamera.CertificateCameraActivity;
 import com.ai.base.AIBaseActivity;
-import com.ai.webplugin.AIWebViewActivity;
-import com.ai.webplugin.config.GlobalCfg;
 
 import java.io.File;
-import java.io.InputStream;
 
 public class SplashActivity extends AIBaseActivity {
 
@@ -58,7 +52,7 @@ public class SplashActivity extends AIBaseActivity {
         //Intent intent = new Intent(this, MainActivity.class);
         // 结合我们H5框架的模式
         //Intent intent = new Intent(this, PortalActivity.class);
-        Intent intent = new Intent(this, CameraActivity.class);
+        Intent intent = new Intent(this, CertificateCameraActivity.class);
         startActivityForResult(intent,1);
        // finish();
     }

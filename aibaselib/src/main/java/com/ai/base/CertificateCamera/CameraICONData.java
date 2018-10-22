@@ -1,4 +1,4 @@
-package com.ai.testapp.common;
+package com.ai.base.CertificateCamera;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
