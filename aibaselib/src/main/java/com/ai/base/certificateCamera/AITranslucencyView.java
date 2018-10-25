@@ -26,17 +26,17 @@ public class AITranslucencyView extends View {
         int height = this.getHeight();
 
         int margin = (int)(20);
-        int imageWidth = (int)(width - margin*2);
-        int imageHeight = (int)(imageWidth *(540/856f));
-        int top = (height - imageHeight)/2;
+        int transparencyWidth = (int)(width - margin*2);
+        int transparencyHeight = (int)(transparencyWidth *(540/856f));
+        int top = (height - transparencyHeight)/2;
         int left = margin;
 
 
         Rect rect = new Rect();
         rect.left = left;
         rect.top = top;
-        rect.right = left + imageWidth;
-        rect.bottom = top + imageHeight;
+        rect.right = left + transparencyWidth;
+        rect.bottom = top + transparencyHeight;
 
         return rect;
     }
