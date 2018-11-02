@@ -7,11 +7,13 @@ import android.os.Handler;
 import android.util.Log;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 
 import com.ai.base.AIBaseActivity;
 import com.ai.base.util.AESEncrypt;
 import com.ai.base.util.Utility;
+import com.ai.base.webviewCacheInterceptor.AICacheWebViewClient;
 import com.ai.webplugin.AIWebViewClient;
 import com.ai.webplugin.AIWebViewPluginEngine;
 import com.ai.webplugin.config.GlobalCfg;
@@ -129,16 +131,11 @@ public class PortalActivity extends AIBaseActivity {
         mWebView = new WebView(this);
         mWebView.setBackgroundColor(Color.WHITE);
         mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.getSettings().setDomStorageEnabled(true);
         mWebView.getSettings().setDefaultTextEncodingName("utf-8");
-        mWebView.setWebViewClient(new AIWebViewClient("","") {
+        mWebView.setWebViewClient(new AICacheWebViewClient(this));
 
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-            }
-        });
-
-        mWebView.setWebChromeClient(new WebChromeClient(){});
+        mWebView.setWebChromeClient(new WebChromeClient());
 
         LinearLayout.LayoutParams tvParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
@@ -148,7 +145,7 @@ public class PortalActivity extends AIBaseActivity {
         try {
             // 设置H5插件引擎
             setH5PluginEngine();
-            String url = GlobalCfg.getInstance().attr(GlobalCfg.CONFIG_FIELD_ONLINEADDR);
+            String url = "https://plan.wadecn.com/#/";// GlobalCfg.getInstance().attr(GlobalCfg.CONFIG_FIELD_ONLINEADDR);
             mWebView.loadUrl(url);
 
             //url = "http://10.131.68.158:8080/order/newmbosslogin";

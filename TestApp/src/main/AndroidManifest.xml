@@ -71,6 +71,8 @@
 
         <activity android:name="com.ai.base.certificateCamera.AICertificateCameraActivity"
             ></activity>
+        <activity android:name=".h5plugin.PortalActivity"
+            ></activity>
     </application>
 
 </manifest>

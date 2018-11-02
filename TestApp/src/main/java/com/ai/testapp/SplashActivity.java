@@ -10,11 +10,14 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.ImageView;
 
-import com.ai.base.certificateCamera.AICertificateCameraActivity;
 import com.ai.base.AIBaseActivity;
+import com.ai.base.util.Utility;
+import com.ai.base.webviewCacheInterceptor.AIResURLUtils;
+import com.ai.testapp.h5plugin.PortalActivity;
 import com.ai.webplugin.AIWebViewActivity;
 
 import java.io.File;
+import java.util.Map;
 
 public class SplashActivity extends AIBaseActivity {
 
@@ -28,6 +31,12 @@ public class SplashActivity extends AIBaseActivity {
         super.onCreate(savedInstanceState);
         //
         setContentView(R.layout.splash_layout);
+
+        String url = "https://plan.wadecn.com/static/js/13.b3b118d3d3bdbd86777c.js";
+        Map<String,String> fields = AIResURLUtils.getResURLFieldsFromUrl(url);
+        String resUrl = fields.get("url");
+        String extension = fields.get("extension");
+        String saveFileName = Utility.md5(resUrl)+'.' + extension;
 
 //        mWebView = (WebView) findViewById(R.id.splash_webView);
 //        mWebView.loadUrl(kSplashHtml);
@@ -52,7 +61,7 @@ public class SplashActivity extends AIBaseActivity {
         // 简单模式
         //Intent intent = new Intent(this, MainActivity.class);
         // 结合我们H5框架的模式
-        Intent intent = new Intent(this, AIWebViewActivity.class);
+        Intent intent = new Intent(this, PortalActivity.class);
         //Intent intent = new Intent(this, AICertificateCameraActivity.class);
         startActivityForResult(intent,1);
         finish();

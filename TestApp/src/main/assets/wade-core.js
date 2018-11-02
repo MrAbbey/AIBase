@@ -202,6 +202,7 @@ window.WadeNAObj = (function() {
             //android操作系统
             return 'a';
         }
+
         if (isIOS) {
             //iOS操作系统
             return 'i';
