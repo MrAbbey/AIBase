@@ -3,6 +3,7 @@ package com.ai.base.webviewCacheInterceptor;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +27,7 @@ public class AIResURLUtils {
                 url = url.substring(0, query);
             }
 
+
             int filenamePos = url.lastIndexOf('/');
             String urlString = url.substring(0,filenamePos);
             String filename = 0 <= filenamePos ? url.substring(filenamePos + 1) : url;
@@ -47,6 +49,12 @@ public class AIResURLUtils {
                 temp.put("filename", resName + "." + extension);
                 temp.put("extension", extension);
                 temp.put("url", urlString + "/" + resName + "." + extension);
+
+                try {
+                    URL u = new URL(url);
+                    temp.put("path", u.getPath());
+                } catch (MalformedURLException e) {
+                }
 
                 return temp;
             }

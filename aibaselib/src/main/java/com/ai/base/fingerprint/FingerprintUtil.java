@@ -19,8 +19,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.R;
-
 /**
  * Created by wuyoujian on 2018/3/12.
  */

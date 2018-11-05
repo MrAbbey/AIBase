@@ -16,11 +16,13 @@ public class AESEncrypt {
 
     // 加密
     public static String encrypt(String content ,String key) throws Exception {
-        return encrypt(content.getBytes("utf-8"),key);
+        byte[] encrypted =   encrypt(content.getBytes("utf-8"),key);
+        String encryString = Base64.encodeToString(encrypted,Base64.NO_WRAP);
+        return encryString;
     }
 
     // 加密
-    public static String encrypt(byte[] bytes ,String key) throws Exception {
+    public static byte[] encrypt(byte[] bytes ,String key) throws Exception {
 
         if(key == null) {
             return null;
@@ -35,18 +37,21 @@ public class AESEncrypt {
         IvParameterSpec iv = new IvParameterSpec(ivParameter.getBytes("utf-8"));
         cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
         byte[] encrypted = cipher.doFinal(bytes);
-
-        String encryString = Base64.encodeToString(encrypted,Base64.NO_WRAP);
-        return encryString;
+        return encrypted;
     }
 
     // 解密
     public static String decrypt(String encryptString,String key) throws Exception {
-        return decrypt(encryptString.getBytes("utf-8"),key);
+        byte[] bytes = encryptString.getBytes("utf-8");
+        // 先用base64解密
+        byte[] encrypted = Base64.decode(bytes,Base64.NO_WRAP);
+        byte[] decrptedBytes = decrypt(encrypted,key);
+        String originalString = new String(decrptedBytes, "utf-8");
+        return originalString;
     }
 
     // 解密
-    public static String decrypt(byte[] bytes,String key) throws Exception {
+    public static byte[] decrypt(byte[] bytes,String key) throws Exception {
         try {
             byte[] raw = key.getBytes("utf-8");
             SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
@@ -54,11 +59,8 @@ public class AESEncrypt {
             IvParameterSpec iv = new IvParameterSpec(ivParameter.getBytes("utf-8"));
             cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
 
-            // 先用base64解密
-            byte[] encrypted = Base64.decode(bytes,Base64.NO_WRAP);
-            byte[] original = cipher.doFinal(encrypted);
-            String originalString = new String(original, "utf-8");
-            return originalString;
+            byte[] original = cipher.doFinal(bytes);
+            return original;
         } catch (Exception ex) {
             return null;
         }

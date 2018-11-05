@@ -32,7 +32,7 @@ public class SplashActivity extends AIBaseActivity {
         //
         setContentView(R.layout.splash_layout);
 
-        String url = "https://plan.wadecn.com/static/js/13.b3b118d3d3bdbd86777c.js";
+        String url = "https://plan.wadecn.com";
         Map<String,String> fields = AIResURLUtils.getResURLFieldsFromUrl(url);
         String resUrl = fields.get("url");
         String extension = fields.get("extension");

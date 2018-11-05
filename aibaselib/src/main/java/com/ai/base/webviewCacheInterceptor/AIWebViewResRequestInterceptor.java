@@ -1,5 +1,6 @@
 package com.ai.base.webviewCacheInterceptor;
 
+import android.app.Activity;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
@@ -7,13 +8,11 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 
+import com.ai.base.util.AESEncrypt;
 import com.ai.base.util.Utility;
-
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,21 +29,26 @@ import javax.net.ssl.SSLSession;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
-public class AIWebViewResRequestInterceptor implements AIInterceptorInterface {
+public class AIWebViewResRequestInterceptor {
 
     private OkHttpClient mHttpClient = null;
     private String mCacheFilePath;
-    private Context mContext;
+    private Activity mContext;
     private long mConnectTimeout;
     private long mReadTimeout;
     // 默认不缓存
     private boolean mForceCache = false;
+    //
+    private String mEntryptKey = "www.asiainfo.com";
 
     private String mOrigin = "";
     private String mReferer="";
     private String mUserAgent="";
+
+    // debug模式下，缓存文件夹以及文件不是隐藏的
+    private boolean mDebug;
+
 
     // 单例
     private static volatile  AIWebViewResRequestInterceptor webViewResRequestInterceptor;
@@ -76,6 +80,37 @@ public class AIWebViewResRequestInterceptor implements AIInterceptorInterface {
         return webViewResRequestInterceptor;
     }
 
+    public void init(Builder builder){
+        this.mConnectTimeout = builder.mConnectTimeout;
+        this.mReadTimeout = builder.mReadTimeout;
+        this.mContext = builder.mContext;
+        this.mCacheFilePath = builder.mCacheFilePath;
+        this.mForceCache = builder.mForceCache;
+        this.mDebug = builder.mDebug;
+        if (TextUtils.isEmpty(this.mCacheFilePath)) {
+            if (this.mContext != null) {
+                this.mCacheFilePath = this.mContext.getFilesDir() + (this.mDebug?"":".") + "/AIWebviewCache";
+                File file = new File(this.mCacheFilePath);
+                if (!file.exists()) {
+                    file.mkdir();
+                }
+            }
+        }
+
+        if (!builder.mCacheExtensions.isEmpty()) {
+            for (String ext:builder.mCacheExtensions) {
+                addCacheExtension(ext);
+            }
+        }
+
+        if (!builder.mEntryptKey.isEmpty()) {
+            this.mEntryptKey = builder.mEntryptKey;
+        }
+
+
+        initHttpClient();
+    }
+
     public void addCacheExtension(String extension) {
         if (TextUtils.isEmpty(extension)) {
             return;
@@ -95,39 +130,27 @@ public class AIWebViewResRequestInterceptor implements AIInterceptorInterface {
         mCacheExtension.remove(ext);
     }
 
+    public WebResourceResponse interceptRequest(WebView view,WebResourceRequest request) {
+        return interceptRequest(view,request.getUrl().toString(),request.getRequestHeaders());
+    }
 
-    public boolean canCache(String extension) {
+    public WebResourceResponse interceptRequest(WebView view,String url) {
+        return interceptRequest(view,url,buildHeaders(view,url));
+    }
+
+    public void clearCache() {
+        File resFile = new File(mCacheFilePath);
+        if (resFile.exists() && resFile.isDirectory()) {
+            resFile.delete();
+        }
+    }
+
+    private boolean canCache(String extension) {
         if (TextUtils.isEmpty(extension)) {
             return false;
         }
         extension = extension.toLowerCase().trim();
         return mCacheExtension.contains(extension);
-    }
-
-
-    public void init(Builder builder){
-        this.mConnectTimeout = builder.mConnectTimeout;
-        this.mReadTimeout = builder.mReadTimeout;
-        this.mContext = builder.mContext;
-        this.mCacheFilePath = builder.mCacheFilePath;
-        this.mForceCache = builder.mForceCache;
-        if (TextUtils.isEmpty(this.mCacheFilePath)) {
-            if (this.mContext != null) {
-                this.mCacheFilePath = this.mContext.getFilesDir() + "/AIWebviewCache";
-                File file = new File(this.mCacheFilePath);
-                if (!file.exists()) {
-                    file.mkdir();
-                }
-            }
-        }
-
-        if (!builder.mCacheExtensions.isEmpty()) {
-            for (String ext:builder.mCacheExtensions) {
-                addCacheExtension(ext);
-            }
-        }
-
-        initHttpClient();
     }
 
     private void initHttpClient(){
@@ -143,12 +166,19 @@ public class AIWebViewResRequestInterceptor implements AIInterceptorInterface {
         mHttpClient = builder.build();
     }
 
-    private Map<String, String> buildHeaders(WebView webView,String url){
+    private Map<String, String> buildHeaders(final WebView webView,String url){
 
         Map<String, String> headers  = new HashMap<String, String>();
         mReferer = url;
         mOrigin = AIResURLUtils.getOriginUrl(mReferer);
-        //mUserAgent = webView.getSettings().getUserAgentString();
+        if (mContext != null) {
+            mContext.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mUserAgent = webView.getSettings().getUserAgentString();
+                }
+            });
+        }
 
         if (!TextUtils.isEmpty(mOrigin)){
             headers.put("Origin",mOrigin);
@@ -156,35 +186,21 @@ public class AIWebViewResRequestInterceptor implements AIInterceptorInterface {
         if (!TextUtils.isEmpty(mReferer)){
             headers.put("Referer",mReferer);
         }
+
         if (!TextUtils.isEmpty(mUserAgent)){
             headers.put("User-Agent",mUserAgent);
         }
+
         return headers;
     }
 
-    @Override
-    public WebResourceResponse interceptRequest(WebView view,WebResourceRequest request) {
-        return interceptRequest(view,request.getUrl().toString(),request.getRequestHeaders());
-    }
-
-    public WebResourceResponse interceptRequest(WebView view,String url) {
-        return interceptRequest(view,url,buildHeaders(view,url));
-    }
-
-    @Override
-    public void clearCache() {
-        File resFile = new File(mCacheFilePath);
-        if (resFile.exists() && resFile.isDirectory()) {
-            resFile.delete();
-        }
-    }
-
-    public WebResourceResponse interceptRequest(WebView view,String url,Map<String, String> headers){
+    // 返回null，走正常的webview的请求
+    private WebResourceResponse interceptRequest(WebView view,final String url,Map<String, String> headers){
         Map<String,String> fields = AIResURLUtils.getResURLFieldsFromUrl(url);
         if (fields == null || fields.isEmpty()) return null;
         String resUrl = fields.get("url");
-        String extension = fields.get("extension");
-        String saveFileName = Utility.md5(resUrl)+'.' + extension;
+        final String extension = fields.get("extension");
+        String saveFileName = (this.mDebug?"":".") + Utility.md5(resUrl)+'.' + extension;
 
         String mimeType = AIResURLUtils.getMimeTypeFromUrl(url);
         final File resFile = new File(mCacheFilePath + "/" + saveFileName);
@@ -192,7 +208,7 @@ public class AIWebViewResRequestInterceptor implements AIInterceptorInterface {
             byte[] bytes = null;
             if (resFile.exists()) {
                 // 存在本地缓存
-                Log.d("from location:",url);
+                Log.d("from location",url);
                 InputStream inputStream = null;
                 try {
                     // 根据path路径实例化一个输入流的对象
@@ -200,10 +216,39 @@ public class AIWebViewResRequestInterceptor implements AIInterceptorInterface {
                     int length = inputStream.available();
                     byte [] buffer = new byte[length];
                     inputStream.read(buffer);
+                    if (buffer.length <= 0) {
+                        // 文件大小为0，说明保存异常
+                        resFile.delete();
+                        if (inputStream != null) {
+                            try {
+                                inputStream.close();
+                            } catch (IOException ee) {
+
+                            }
+                        }
+                        return null;
+                    }
                     bytes = buffer;
 
-                } catch (IOException e){
+                } catch (IOException e) {
+                    // 读取异常
+                    resFile.delete();
                 } finally {
+                    if (extension.equalsIgnoreCase("js")) {
+                        // 只有js加密存储
+                        try {
+                            byte[] decrypted = AESEncrypt.decrypt(bytes, mEntryptKey);
+                            if (decrypted == null || decrypted.length <= 0) {
+                                resFile.delete();
+                            }
+                            bytes = decrypted;
+
+                        } catch (Exception e) {
+                            resFile.delete();
+                        } finally {
+                        }
+                    }
+
                     if (inputStream != null) {
                         try {
                             inputStream.close();
@@ -215,7 +260,7 @@ public class AIWebViewResRequestInterceptor implements AIInterceptorInterface {
 
             } else {
                 // 在线获取，并存储到本地
-                Log.d("from server:",url);
+                Log.d("from server",url);
 
                 try {
                     if (canCache(extension)) {
@@ -226,11 +271,15 @@ public class AIWebViewResRequestInterceptor implements AIInterceptorInterface {
                         Request request =  reqBuilder.build();
                         Response response = mHttpClient.newCall(request).execute();
                         bytes = response.body().bytes();
+                    } else {
+                        return null;
                     }
 
-                } catch (IOException e) { }
+                } catch (IOException e) {
+                }
 
                 final byte[] temp = bytes;
+                // 保存到本地
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -238,7 +287,28 @@ public class AIWebViewResRequestInterceptor implements AIInterceptorInterface {
                         try {
                             outStream = new FileOutputStream(resFile);
                             if (temp != null && temp.length > 0) {
-                                outStream.write(temp);
+                                try {
+                                    if (extension.equalsIgnoreCase("js")) {
+                                        // 只有js加密存储
+                                        byte[] encrypted = AESEncrypt.encrypt(temp,mEntryptKey);
+                                        if (encrypted == null || (encrypted != null && encrypted.length <= 0)) {
+                                            if (outStream != null) {
+                                                try {
+                                                    outStream.close();
+                                                } catch (IOException ee) {
+
+                                                }
+                                            }
+                                        } else {
+                                            outStream.write(encrypted);
+                                            Log.d("save to location",url);
+                                        }
+                                    } else {
+                                        outStream.write(temp);
+                                        Log.d("save to location",url);
+                                    }
+                                } catch (Exception e) {
+                                }
                             }
                         } catch (IOException e) {
                         } finally {
@@ -254,7 +324,10 @@ public class AIWebViewResRequestInterceptor implements AIInterceptorInterface {
                 }).start();
             }
 
-            WebResourceResponse webResourceResponse  = new WebResourceResponse(mimeType, "", new ByteArrayInputStream(bytes));
+            WebResourceResponse webResourceResponse = null;
+            if (bytes != null && bytes.length > 0) {
+                webResourceResponse  = new WebResourceResponse(mimeType, "", new ByteArrayInputStream(bytes));
+            }
             return webResourceResponse;
         }
 
@@ -267,11 +340,13 @@ public class AIWebViewResRequestInterceptor implements AIInterceptorInterface {
         private String mCacheFilePath;
         private long mConnectTimeout = 20;
         private long mReadTimeout = 20;
-        private Context mContext;
+        private Activity mContext;
         private boolean mForceCache = false;
         private ArrayList<String> mCacheExtensions;
+        private String mEntryptKey;
+        private boolean mDebug;
 
-        public Builder(Context context){
+        public Builder(Activity context){
             mContext = context;
             mCacheExtensions = new ArrayList<>();
         }
@@ -308,6 +383,19 @@ public class AIWebViewResRequestInterceptor implements AIInterceptorInterface {
             }
             return this;
         }
+
+        public Builder setEncryptKey(String encryptKey){
+            if (encryptKey != null){
+                mEntryptKey  = encryptKey;
+            }
+            return this;
+        }
+
+        public Builder setDebug(boolean debug){
+            mDebug = debug;
+            return this;
+        }
+
         public AIWebViewResRequestInterceptor build(){
             return new AIWebViewResRequestInterceptor();
         }

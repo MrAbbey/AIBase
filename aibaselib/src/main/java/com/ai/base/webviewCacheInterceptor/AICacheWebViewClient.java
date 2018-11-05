@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -12,14 +13,8 @@ import android.webkit.WebViewClient;
 public class AICacheWebViewClient extends WebViewClient {
 
     private  Context mClientContext;
-    public AICacheWebViewClient(Context context) {
+    public AICacheWebViewClient(Context context, AIWebViewResRequestInterceptor.Builder builder) {
         mClientContext = context;
-
-        AIWebViewResRequestInterceptor.Builder builder = new AIWebViewResRequestInterceptor.Builder(mClientContext);
-        builder.setConnectTimeoutSecond(30000)
-                .setForceCache(true)
-                .setReadTimeoutSecond(30000);
-
         AIWebViewResRequestInterceptor.getInstance().init(builder);
     }
 

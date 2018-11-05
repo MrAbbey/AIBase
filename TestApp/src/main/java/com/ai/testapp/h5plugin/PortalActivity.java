@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
@@ -14,7 +15,7 @@ import com.ai.base.AIBaseActivity;
 import com.ai.base.util.AESEncrypt;
 import com.ai.base.util.Utility;
 import com.ai.base.webviewCacheInterceptor.AICacheWebViewClient;
-import com.ai.webplugin.AIWebViewClient;
+import com.ai.base.webviewCacheInterceptor.AIWebViewResRequestInterceptor;
 import com.ai.webplugin.AIWebViewPluginEngine;
 import com.ai.webplugin.config.GlobalCfg;
 
@@ -132,8 +133,24 @@ public class PortalActivity extends AIBaseActivity {
         mWebView.setBackgroundColor(Color.WHITE);
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.getSettings().setDomStorageEnabled(true);
+
+        WebSettings webSettings = mWebView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setAllowFileAccess(true);
+        webSettings.setUseWideViewPort(true);
+        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setSupportZoom(true);
+        webSettings.setBuiltInZoomControls(false);
+        webSettings.setDisplayZoomControls(false);
+
         mWebView.getSettings().setDefaultTextEncodingName("utf-8");
-        mWebView.setWebViewClient(new AICacheWebViewClient(this));
+        mWebView.setWebViewClient(new AICacheWebViewClient(this,new AIWebViewResRequestInterceptor.Builder(this).setConnectTimeoutSecond(30000)
+                .setForceCache(true)
+                .setReadTimeoutSecond(30000)
+                .setEncryptKey("www.asiainf2.com")
+                .setDebug(true)));
 
         mWebView.setWebChromeClient(new WebChromeClient());
 
@@ -166,7 +183,7 @@ public class PortalActivity extends AIBaseActivity {
             String token = Utility.md5(tokenContent);
 
             String address = url+"?sign=" + URLEncoder.encode(sign,"utf-8") + "&token=" + URLEncoder.encode(token,"utf-8");
-            mWebView.loadUrl(address);
+            //mWebView.loadUrl(address);
         } catch (Exception e) {
 
         }
