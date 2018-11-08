@@ -213,7 +213,7 @@ public class AIWebViewPluginEngine {
             @Override
             public void run() {
                 GlobalCfg globalCfg = GlobalCfg.getInstance();
-                String url = globalCfg.attr(GlobalCfg.CONFIG_FIELD_VESSIONURL);
+                String url =  (String)globalCfg.attr(GlobalCfg.CONFIG_FIELD_VESSIONURL);
 
                 // 如果接口传入了URL就这个URL生效
                 if (versionConfigUrl != null && versionConfigUrl.length() > 0) {
@@ -224,7 +224,7 @@ public class AIWebViewPluginEngine {
                     return;
                 }
 
-                String locationVersion = globalCfg.attr(GlobalCfg.CONFIG_FIELD_VERSION);
+                String locationVersion =  (String)globalCfg.attr(GlobalCfg.CONFIG_FIELD_VERSION);
 
                 OkHttpBaseAPI okHttpBaseAPI = new OkHttpBaseAPI();
                 String data = okHttpBaseAPI.httpGetTask(url, "getVersion");
@@ -307,7 +307,7 @@ public class AIWebViewPluginEngine {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
             GlobalCfg globalCfg = GlobalCfg.getInstance();
-            String fileprovider = globalCfg.attr(GlobalCfg.CONFIG_FIELD_FILEPROVIDER);
+            String fileprovider =  (String)globalCfg.attr(GlobalCfg.CONFIG_FIELD_FILEPROVIDER);
             if (fileprovider == null) {
                 Toast.makeText(mActivity,"请在manifest中配置FileProvider",Toast.LENGTH_LONG).show();
                 return;

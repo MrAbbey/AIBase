@@ -1,6 +1,6 @@
 package com.ai.webplugin.config;
 
-import com.ai.base.util.XMLParser;
+import com.ai.base.util.Parser;
 import com.ai.base.util.Utility;
 
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public class ApkPluginCfg extends AbstractCfg {
 
     /**
      * load config
-     * @return IData
+     * @return
      */
     @Override
     protected HashMap<String,Object> loadConfig() {
@@ -44,9 +44,9 @@ public class ApkPluginCfg extends AbstractCfg {
         try {
             HashSet hashSet;
             if (this.stream != null) {
-                hashSet = XMLParser.loadXML(stream, CONFIG_FIND_PATH);
+                hashSet = Parser.loadXML(stream, CONFIG_FIND_PATH);
             } else {
-                hashSet = XMLParser.loadXML(fileName, CONFIG_FIND_PATH);
+                hashSet = Parser.loadXML(fileName, CONFIG_FIND_PATH);
             }
 
             for (int i=0; i<hashSet.size(); i++) {
@@ -78,7 +78,7 @@ public class ApkPluginCfg extends AbstractCfg {
     /**
      * get
      * @param name
-     * @return IData
+     * @return
      */
     public HashMap<String,String> get(String name) {
         HashMap<String,String> data = (HashMap<String,String>)cache.get(name);

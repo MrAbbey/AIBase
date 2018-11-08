@@ -1,6 +1,6 @@
 package com.ai.webplugin.config;
 
-import com.ai.base.util.XMLParser;
+import com.ai.base.util.Parser;
 import com.ai.base.util.Utility;
 
 import java.util.HashMap;
@@ -17,6 +17,8 @@ public class GlobalCfg extends AbstractCfg {
 	public static final String CONFIG_FIELD_VESSIONURL = "version.url";
 	public static final String CONFIG_FIELD_FILEPROVIDER = "fileprovider";
 	public static final String CONFIG_FIELD_APPNAME = "app.name";
+	public static final String CONFIG_FIELD_CACHE = "resCache";
+    public static final String CONFIG_FIELD_DEBUG = "isDebug";
 
 	//
 	private static GlobalCfg instance;
@@ -36,16 +38,16 @@ public class GlobalCfg extends AbstractCfg {
 
 	/**
 	 * load config
-	 * @return IData
+	 * @return
 	 */
 	@Override
 	protected HashMap<String, Object> loadConfig() {
 		super.loadConfig();
 		try {
 			if (this.stream != null) {
-				return XMLParser.loadProperties(this.stream);
+				return Parser.loadProperties(this.stream);
 			}
-			return XMLParser.loadProperties(fileName);
+			return Parser.loadProperties(fileName);
 		} catch (Exception e) {
 			Utility.error(e);
 		}

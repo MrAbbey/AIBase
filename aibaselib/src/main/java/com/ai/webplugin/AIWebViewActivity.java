@@ -20,9 +20,12 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.ai.base.AIBaseActivity;
 import com.ai.base.util.PermissionUitls;
+import com.ai.base.webviewCacheInterceptor.AICacheWebViewClient;
+import com.ai.base.webviewCacheInterceptor.AIWebViewResRequestInterceptor;
 import com.ai.webplugin.config.GlobalCfg;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -52,12 +55,6 @@ public class AIWebViewActivity extends AIBaseActivity {
     public static String pluginConfigKey = "pluginConfig";
 
 
-    public interface  ConnectTimeoutListener {
-        public void connectTimeout();
-    }
-
-    ConnectTimeoutListener timeoutListener;
-
     private long myCountDownTime = 0;
     private static final long LONGMAX = 300000L;
     private static final long INTERVAL = 1000L;
@@ -73,9 +70,7 @@ public class AIWebViewActivity extends AIBaseActivity {
                 @Override
                 public void run() {
                     if (myCountDownTime <= 2*INTERVAL) {
-                        if (timeoutListener != null) {
-                            timeoutListener.connectTimeout();
-                        }
+                        Toast.makeText(AIWebViewActivity.this,"连接网路超时，请重试",Toast.LENGTH_LONG).show();
                         return;
                     }
 
@@ -120,7 +115,7 @@ public class AIWebViewActivity extends AIBaseActivity {
                 GlobalCfg globalCfg = GlobalCfg.getInstance();
                 globalCfg.parseConfig(is);
 
-                mWebUrl = GlobalCfg.getInstance().attr(GlobalCfg.CONFIG_FIELD_ONLINEADDR);
+                mWebUrl = (String) GlobalCfg.getInstance().attr(GlobalCfg.CONFIG_FIELD_ONLINEADDR);
             }
 
         } catch (Exception e) {
@@ -211,12 +206,21 @@ public class AIWebViewActivity extends AIBaseActivity {
         mWebView.getSettings().setCacheMode(mWebView.getSettings().LOAD_NO_CACHE);
         mWebView.getSettings().setDomStorageEnabled(true);
         mWebView.getSettings().setDefaultTextEncodingName("utf-8");
-        mWebView.setWebViewClient(new WebViewClient(){
+
+        GlobalCfg globalCfg = GlobalCfg.getInstance();
+        boolean isCache = globalCfg.attr(GlobalCfg.CONFIG_FIELD_CACHE).equalsIgnoreCase("true");
+        boolean isDebug = globalCfg.attr(GlobalCfg.CONFIG_FIELD_DEBUG).equalsIgnoreCase("true");
+        String encryptKey = globalCfg.attr(GlobalCfg.CONFIG_FIELD_ENCRYPTKEY);
+        mWebView.setWebViewClient(new AICacheWebViewClient(new AIWebViewResRequestInterceptor.Builder(this).setConnectTimeoutSecond(30000)
+                .setForceCache(isCache)
+                .setReadTimeoutSecond(30000)
+                .setEncryptKey(encryptKey)
+                .setDebug(isDebug)){
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 GlobalCfg globalCfg = GlobalCfg.getInstance();
-                String version = globalCfg.attr(GlobalCfg.CONFIG_FIELD_VERSION);
+                String version = (String)globalCfg.attr(GlobalCfg.CONFIG_FIELD_VERSION);
                 String js = String.format("setAppVersion('版本：%s');",version);
                 view.evaluateJavascript(js, new ValueCallback<String>() {
                     @Override
@@ -224,21 +228,6 @@ public class AIWebViewActivity extends AIBaseActivity {
                 });
 
                 mTimer.onFinish();
-            }
-
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (Addressfilter(url)) return true;
-                return super.shouldOverrideUrlLoading(view, url);
-            }
-
-            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-
-                String url = request.getUrl().toString();
-                if (Addressfilter(url)) return true;
-                return super.shouldOverrideUrlLoading(view,request);
             }
         });
 
@@ -288,8 +277,7 @@ public class AIWebViewActivity extends AIBaseActivity {
         */
 
         // 修改ua使得web端正确判断
-        GlobalCfg globalCfg = GlobalCfg.getInstance();
-        String userAgent = globalCfg.attr(GlobalCfg.CONFIG_FIELD_USERAGENT);
+        String userAgent = (String)globalCfg.attr(GlobalCfg.CONFIG_FIELD_USERAGENT);
         if (!userAgent.isEmpty()) {
             String ua = mWebView.getSettings().getUserAgentString();
             mWebView.getSettings().setUserAgentString(ua+";" + userAgent);

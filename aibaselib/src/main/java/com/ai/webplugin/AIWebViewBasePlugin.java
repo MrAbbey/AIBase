@@ -349,7 +349,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
             @Override
             public void run() {
                 GlobalCfg globalCfg = GlobalCfg.getInstance();
-                String fileProvider = globalCfg.attr(GlobalCfg.CONFIG_FIELD_FILEPROVIDER);
+                String fileProvider = (String)globalCfg.attr(GlobalCfg.CONFIG_FIELD_FILEPROVIDER);
                 if (fileProvider == null || fileProvider.length()== 0) {
                     try {
                         InputStream is = getActivity().getResources().getAssets().open("global.properties");
@@ -358,7 +358,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
 
                     }
 
-                    fileProvider = globalCfg.attr(GlobalCfg.CONFIG_FIELD_FILEPROVIDER);
+                    fileProvider =  (String)globalCfg.attr(GlobalCfg.CONFIG_FIELD_FILEPROVIDER);
                 }
                 AIOpenDocumentController.getInstance().openOnlineFileInContext(getActivity(), url, fileProvider);
             }
@@ -373,7 +373,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
     // 获取版本号
     public void JN_VersionNumber() {
         GlobalCfg globalCfg = GlobalCfg.getInstance();
-        String versionNumber = globalCfg.attr(GlobalCfg.CONFIG_FIELD_VERSION);
+        String versionNumber =  (String)globalCfg.attr(GlobalCfg.CONFIG_FIELD_VERSION);
         if (versionNumber == null || versionNumber.length()== 0) {
             try {
                 InputStream is = getActivity().getResources().getAssets().open("global.properties");
@@ -382,7 +382,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
 
             }
 
-            versionNumber = globalCfg.attr(GlobalCfg.CONFIG_FIELD_VERSION);
+            versionNumber =  (String)globalCfg.attr(GlobalCfg.CONFIG_FIELD_VERSION);
         }
 
         callback("JN_VersionNumber",versionNumber,null);
@@ -651,7 +651,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
                                     photographImageUri = Uri.fromFile(outputImage);
                                 } else {
                                     GlobalCfg globalCfg = GlobalCfg.getInstance();
-                                    String fileprovider = globalCfg.attr(GlobalCfg.CONFIG_FIELD_FILEPROVIDER);
+                                    String fileprovider =  (String)globalCfg.attr(GlobalCfg.CONFIG_FIELD_FILEPROVIDER);
                                     if (fileprovider == null) {
                                         Toast.makeText(mActivity,"请在manifest中配置FileProvider",Toast.LENGTH_LONG).show();
                                         return;

@@ -1,6 +1,6 @@
 package com.ai.webplugin.config;
 
-import com.ai.base.util.XMLParser;
+import com.ai.base.util.Parser;
 import com.ai.base.util.Utility;
 
 import java.util.HashMap;
@@ -31,7 +31,7 @@ public class WebViewPluginCfg extends AbstractCfg {
 	
 	/**
 	 * load config
-	 * @return IData
+	 * @return
 	 */
 	@Override
 	protected HashMap<String,Object> loadConfig() {
@@ -40,9 +40,9 @@ public class WebViewPluginCfg extends AbstractCfg {
 		try {
 			HashSet hashSet;
 			if (this.stream != null) {
-				hashSet = XMLParser.loadXML(this.stream, CONFIG_FIND_PATH);
+				hashSet = Parser.loadXML(this.stream, CONFIG_FIND_PATH);
 			} else {
-				hashSet = XMLParser.loadXML(this.fileName, CONFIG_FIND_PATH);
+				hashSet = Parser.loadXML(this.fileName, CONFIG_FIND_PATH);
 			}
 
 			for (int i=0; i<hashSet.size(); i++) {

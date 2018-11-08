@@ -88,7 +88,7 @@ public class AIWebViewResRequestInterceptor {
         this.mDebug = builder.mDebug;
         if (TextUtils.isEmpty(this.mCacheFilePath)) {
             if (this.mContext != null) {
-                this.mCacheFilePath = this.mContext.getFilesDir() + (this.mDebug?"":".") + "/AIWebviewCache";
+                this.mCacheFilePath = this.mContext.getFilesDir() + "/" + (this.mDebug?"":".") + "AIWebviewCache";
                 File file = new File(this.mCacheFilePath);
                 if (!file.exists()) {
                     file.mkdir();

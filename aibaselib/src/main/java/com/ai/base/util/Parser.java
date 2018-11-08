@@ -14,7 +14,7 @@ import java.util.Properties;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-public class XMLParser {
+public class Parser {
 
 	public static HashSet loadXML(InputStream stream, String findPath) throws Exception {
 		if (stream == null) Utility.error(" not data found");
