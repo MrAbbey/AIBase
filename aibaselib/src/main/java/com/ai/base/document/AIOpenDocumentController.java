@@ -11,7 +11,6 @@ import android.os.Environment;
 import android.support.v4.content.FileProvider;
 import android.widget.Toast;
 
-import com.ai.base.SourceManager.app.MobileAppInfo;
 import com.ai.base.okHttp.OkHttpBaseAPI;
 import com.ai.base.util.FileUtilCommon;
 import com.ai.base.util.PermissionUitls;

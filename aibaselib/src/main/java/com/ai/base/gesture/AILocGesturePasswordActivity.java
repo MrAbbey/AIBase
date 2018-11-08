@@ -11,8 +11,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ai.Interfaces.AIGesturePasswordListener;
-import com.ai.base.ActivityConfig;
 import com.ai.base.AIBaseActivity;
 import com.ai.base.util.Utility;
 
@@ -28,11 +26,23 @@ public class AILocGesturePasswordActivity extends AIBaseActivity {
     private RelativeLayout mRelativeLayout;
     private TextView mTextView;
     private AIGesturePasswordLayout mGesturePasswordLayout;
-    private AIGesturePasswordListener aiGesturePasswordListener;
+
+    public interface AIGesturePasswordListener {
+        void switchToOther();//回到密码输入页面
+    }
+    public AIGesturePasswordListener aiGesturePasswordListener;
     /**
      * 发送密码错误结果广播
      */
     public static final String kPasswordErrorBroadcast = "com.ai.base.passwordError.LOCAL_BROADCAST";
+
+    public String getmAnswer() {
+        return mAnswer;
+    }
+
+    public void setmAnswer(String mAnswer) {
+        this.mAnswer = mAnswer;
+    }
 
     private String mAnswer;
     /**
@@ -50,17 +60,12 @@ public class AILocGesturePasswordActivity extends AIBaseActivity {
         super.onDestroy();
     }
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle("手势密码");
-
-        try {
-            String answer = ActivityConfig.getInstance().getGestureAnswer();
-            this.mAnswer = answer;
-        } catch (Exception e) {
-        }
-        aiGesturePasswordListener = ActivityConfig.getInstance().getAiGesturePasswordListener();
         initView();
     }
 
@@ -113,7 +118,10 @@ public class AILocGesturePasswordActivity extends AIBaseActivity {
             public void onClick(View v) {
                 Button btn = (Button)v;
                 btn.setTextColor(Color.GRAY);
-                aiGesturePasswordListener.backLogin();
+                if (aiGesturePasswordListener != null) {
+                    aiGesturePasswordListener.switchToOther();
+                }
+
                 finish();
             }
         });
@@ -132,7 +140,6 @@ public class AILocGesturePasswordActivity extends AIBaseActivity {
             mGesturePasswordLayout.setViewColor(true);
             finish();
         } else {
-
             mTextView.setText("输入不正确");
             mGesturePasswordLayout.setViewColor(false);
             mTryCount --;
@@ -177,8 +184,9 @@ public class AILocGesturePasswordActivity extends AIBaseActivity {
         Toast.makeText(this, "错误次数太多，请重新用密码登录", Toast.LENGTH_SHORT).show();
 
         sendPasswordErrorBroadcast();
-        aiGesturePasswordListener.backLogin();
-        finish();
+        if (aiGesturePasswordListener != null) {
+            aiGesturePasswordListener.switchToOther();
+        }
         finish();
     }
 
@@ -190,6 +198,5 @@ public class AILocGesturePasswordActivity extends AIBaseActivity {
                     gestureEvent(password);
                 }
             };
-
 
 }

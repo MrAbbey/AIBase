@@ -15,11 +15,6 @@ android {
         abortOnError false
     }
 
-    packagingOptions {
-        exclude 'code.en_US'
-        exclude 'code.zh_CN'
-    }
-
     buildTypes {
         release {
             minifyEnabled false

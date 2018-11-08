@@ -27,6 +27,8 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Timer;
 
+import okhttp3.Cache;
+
 public class PortalActivity extends AIBaseActivity {
 
     private WebView mWebView;
@@ -144,10 +146,14 @@ public class PortalActivity extends AIBaseActivity {
         webSettings.setSupportZoom(true);
         webSettings.setBuiltInZoomControls(false);
         webSettings.setDisplayZoomControls(false);
+        webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
 
+        GlobalCfg globalCfg = GlobalCfg.getInstance();
+        String cacheRes = globalCfg.attr("cacheRes");
+        boolean isCache = cacheRes.equalsIgnoreCase("true");
         mWebView.getSettings().setDefaultTextEncodingName("utf-8");
-        mWebView.setWebViewClient(new AICacheWebViewClient(this,new AIWebViewResRequestInterceptor.Builder(this).setConnectTimeoutSecond(30000)
-                .setForceCache(true)
+        mWebView.setWebViewClient(new AICacheWebViewClient(new AIWebViewResRequestInterceptor.Builder(this).setConnectTimeoutSecond(30000)
+                .setForceCache(isCache)
                 .setReadTimeoutSecond(30000)
                 .setEncryptKey("www.asiainf2.com")
                 .setDebug(true)));
@@ -162,7 +168,7 @@ public class PortalActivity extends AIBaseActivity {
         try {
             // 设置H5插件引擎
             setH5PluginEngine();
-            String url = "https://plan.wadecn.com/#/";// GlobalCfg.getInstance().attr(GlobalCfg.CONFIG_FIELD_ONLINEADDR);
+            String url = GlobalCfg.getInstance().attr(GlobalCfg.CONFIG_FIELD_ONLINEADDR);
             mWebView.loadUrl(url);
 
             //url = "http://10.131.68.158:8080/order/newmbosslogin";

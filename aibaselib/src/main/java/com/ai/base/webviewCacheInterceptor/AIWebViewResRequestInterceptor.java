@@ -1,7 +1,6 @@
 package com.ai.base.webviewCacheInterceptor;
 
 import android.app.Activity;
-import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.WebResourceRequest;
@@ -106,7 +105,6 @@ public class AIWebViewResRequestInterceptor {
         if (!builder.mEntryptKey.isEmpty()) {
             this.mEntryptKey = builder.mEntryptKey;
         }
-
 
         initHttpClient();
     }
@@ -331,6 +329,7 @@ public class AIWebViewResRequestInterceptor {
             return webResourceResponse;
         }
 
+        Log.d("no cache",url);
         return null;
     }
 

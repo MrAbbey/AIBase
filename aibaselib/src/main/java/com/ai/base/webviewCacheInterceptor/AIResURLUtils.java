@@ -63,26 +63,6 @@ public class AIResURLUtils {
         return null;
     }
 
-    public static String getURLToFileNameFromUrl(String url) {
-        if (!TextUtils.isEmpty(url)) {
-            int fragment = url.lastIndexOf('#');
-            if (fragment > 0) {
-                url = url.substring(0, fragment);
-            }
-
-            int query = url.lastIndexOf('?');
-            if (query > 0) {
-                url = url.substring(0, query);
-            }
-
-            int filenamePos = url.lastIndexOf('/');
-            String urlString = url.substring(0,filenamePos);
-            return urlString;
-        }
-
-        return "";
-    }
-
     public static String getFileExtensionFromUrl(String url) {
         String fileName = getFileNameFromUrl(url);
 
@@ -110,6 +90,21 @@ public class AIResURLUtils {
 
             int filenamePos = url.lastIndexOf('/');
             String filename = 0 <= filenamePos ? url.substring(filenamePos + 1) : url;
+            if (!filename.isEmpty() && filename.split("\\.").length>=3) {
+                // 特殊处理类似这样的链接：https://plan.wadecn.com/static/js/1.691bfa0f04239df1f079.js
+                int dotPos = filename.lastIndexOf('.');
+                String extension = "";
+                if (0 <= dotPos) {
+                    extension = filename.substring(dotPos + 1);
+                }
+                dotPos = filename.indexOf('.');
+                String resName = "";
+                if (0 <= dotPos) {
+                    resName = filename.substring(0, dotPos);
+                }
+
+                return resName + "." + extension;
+            }
 
             return filename;
         }

@@ -20,20 +20,13 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.ai.base.AIBaseActivity;
-import com.ai.base.SourceManager.app.MobileAppInfo;
-import com.ai.base.okHttp.OkHttpBaseAPI;
-import com.ai.base.util.FileUtilCommon;
 import com.ai.base.util.PermissionUitls;
 import com.ai.webplugin.config.GlobalCfg;
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Properties;
 
 
 public class AIWebViewActivity extends AIBaseActivity {

@@ -12,9 +12,7 @@ import android.webkit.WebViewClient;
 
 public class AICacheWebViewClient extends WebViewClient {
 
-    private  Context mClientContext;
-    public AICacheWebViewClient(Context context, AIWebViewResRequestInterceptor.Builder builder) {
-        mClientContext = context;
+    public AICacheWebViewClient(AIWebViewResRequestInterceptor.Builder builder) {
         AIWebViewResRequestInterceptor.getInstance().init(builder);
     }
 
@@ -47,16 +45,12 @@ public class AICacheWebViewClient extends WebViewClient {
 
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view,String url) {
-        WebResourceResponse resourceResponse = AIWebViewResRequestInterceptor.getInstance().interceptRequest(view,url);
-        if (resourceResponse != null) return  resourceResponse;
-        return super.shouldInterceptRequest(view,url);
+        return AIWebViewResRequestInterceptor.getInstance().interceptRequest(view,url);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-        WebResourceResponse resourceResponse = AIWebViewResRequestInterceptor.getInstance().interceptRequest(view,request);
-        if (resourceResponse != null) return resourceResponse;
-        return super.shouldInterceptRequest(view,request);
+        return AIWebViewResRequestInterceptor.getInstance().interceptRequest(view,request);
     }
 }

@@ -1,8 +1,9 @@
 package com.ai.webplugin.config;
 
-import com.ai.base.util.Parser;
+import com.ai.base.util.XMLParser;
 import com.ai.base.util.Utility;
-import com.ailk.common.data.IData;
+
+import java.util.HashMap;
 
 public class GlobalCfg extends AbstractCfg {
 	public static final String CONFIG_FIELD_ONLINEADDR = "online.addr";
@@ -38,13 +39,13 @@ public class GlobalCfg extends AbstractCfg {
 	 * @return IData
 	 */
 	@Override
-	protected IData loadConfig() {
+	protected HashMap<String, Object> loadConfig() {
 		super.loadConfig();
 		try {
 			if (this.stream != null) {
-				return Parser.loadProperties(this.stream);
+				return XMLParser.loadProperties(this.stream);
 			}
-			return Parser.loadProperties(fileName);
+			return XMLParser.loadProperties(fileName);
 		} catch (Exception e) {
 			Utility.error(e);
 		}
@@ -57,7 +58,7 @@ public class GlobalCfg extends AbstractCfg {
 	 * @return String
 	 */
 	public String attr(String name) {
-		return cache.getString(name);
+		return (String)cache.get(name);
 	}
 	
 }

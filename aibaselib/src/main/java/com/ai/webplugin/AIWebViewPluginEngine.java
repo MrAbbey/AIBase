@@ -17,7 +17,6 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.ai.base.AIBaseActivity;
-import com.ai.base.SourceManager.app.MobileAppInfo;
 import com.ai.base.okHttp.OkHttpBaseAPI;
 import com.ai.base.util.FileUtilCommon;
 import com.ai.base.util.PermissionUitls;
@@ -283,7 +282,7 @@ public class AIWebViewPluginEngine {
                 OkHttpBaseAPI okHttpBaseAPI = new OkHttpBaseAPI();
                 byte[] data = okHttpBaseAPI.httpGetFileDataTask(apkURL, "apkDonwload");
 
-                String filePath = MobileAppInfo.getSdcardPath() + "/" + "apk";
+                String filePath = mActivity.getFilesDir() + "/" + "apk";
                 final String apkPath = filePath + "/temp.apk";
                 FileUtilCommon.writeByte2File(filePath, "temp.apk", data, "");
                 mActivity.runOnUiThread(new Runnable() {

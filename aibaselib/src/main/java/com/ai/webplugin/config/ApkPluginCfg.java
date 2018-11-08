@@ -1,10 +1,10 @@
 package com.ai.webplugin.config;
 
-import com.ai.base.util.Parser;
+import com.ai.base.util.XMLParser;
 import com.ai.base.util.Utility;
-import com.ailk.common.data.IData;
-import com.ailk.common.data.IDataset;
-import com.ailk.common.data.impl.DataMap;
+
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created by wuyoujian on 17/5/1.
@@ -38,22 +38,22 @@ public class ApkPluginCfg extends AbstractCfg {
      * @return IData
      */
     @Override
-    protected IData loadConfig() {
+    protected HashMap<String,Object> loadConfig() {
         super.loadConfig();
-        IData config = new DataMap();
+        HashMap<String,Object> config = new HashMap();
         try {
-            IDataset dataset;
+            HashSet hashSet;
             if (this.stream != null) {
-                dataset = Parser.loadXML(stream, CONFIG_FIND_PATH);
+                hashSet = XMLParser.loadXML(stream, CONFIG_FIND_PATH);
             } else {
-                dataset = Parser.loadXML(fileName, CONFIG_FIND_PATH);
+                hashSet = XMLParser.loadXML(fileName, CONFIG_FIND_PATH);
             }
 
-            for (int i=0; i<dataset.size(); i++) {
-                IData data = dataset.getData(i);
-                String name = data.getString(CONFIG_ATTR_NAME);
-                String packageName = data.getString(CONFIG_ATTR_PACKAGENAME);
-                String clsname = data.getString(CONFIG_ATTR_CLASS);
+            for (int i=0; i<hashSet.size(); i++) {
+                HashMap<String,String> data = (HashMap)hashSet.toArray()[i];
+                String name = data.get(CONFIG_ATTR_NAME);
+                String packageName = data.get(CONFIG_ATTR_PACKAGENAME);
+                String clsname = data.get(CONFIG_ATTR_CLASS);
                 if (name == null || "".equals(name)) {
                     Utility.error(CONFIG_ATTR_NAME + " not nullable, [" + fileName + "]");
                 }
@@ -80,21 +80,9 @@ public class ApkPluginCfg extends AbstractCfg {
      * @param name
      * @return IData
      */
-    public IData get(String name) {
-        IData data = cache.getData(name);
+    public HashMap<String,String> get(String name) {
+        HashMap<String,String> data = (HashMap<String,String>)cache.get(name);
         if (data == null) Utility.error(name + " not exist, [" + fileName + "]");
-        return data;
-    }
-
-    /**
-     * get
-     * @param name
-     * @param defval
-     * @return IData
-     */
-    public IData get(String name, IData defval) {
-        IData data = cache.getData(name);
-        if (data == null) data = defval;
         return data;
     }
 
@@ -105,7 +93,7 @@ public class ApkPluginCfg extends AbstractCfg {
      * @return String
      */
     public String attr(String name, String attr) {
-        IData data = get(name);
-        return data.getString(attr);
+        HashMap<String,String> data = get(name);
+        return data.get(attr);
     }
 }

@@ -32,11 +32,12 @@ public class SplashActivity extends AIBaseActivity {
         //
         setContentView(R.layout.splash_layout);
 
-        String url = "https://plan.wadecn.com";
+        String url = "https://plan.wadecn.com/static/js/1.js";
         Map<String,String> fields = AIResURLUtils.getResURLFieldsFromUrl(url);
         String resUrl = fields.get("url");
         String extension = fields.get("extension");
         String saveFileName = Utility.md5(resUrl)+'.' + extension;
+        String fileName = AIResURLUtils.getFileNameFromUrl(url);
 
 //        mWebView = (WebView) findViewById(R.id.splash_webView);
 //        mWebView.loadUrl(kSplashHtml);

@@ -3,9 +3,6 @@ package com.ai.base.util;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 
-import com.ailk.common.data.IData;
-import com.ailk.common.data.impl.DataMap;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -54,19 +51,6 @@ public class SharedPrefHelper {
 
         for(int i$ = 0; i$ < len$; ++i$) {
             String key = arr$[i$];
-            datas.put(key, sharedata.getString(key, ""));
-        }
-
-        return datas;
-    }
-
-    public final IData get(String sharedName, JSONArray keys) throws JSONException {
-        SharedPreferences sharedata = this.context.getSharedPreferences(sharedName, 0);
-        DataMap datas = new DataMap();
-        int i = 0;
-
-        for(int len = keys.length(); i < len; ++i) {
-            String key = keys.getString(i);
             datas.put(key, sharedata.getString(key, ""));
         }
 

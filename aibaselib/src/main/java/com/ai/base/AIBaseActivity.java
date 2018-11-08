@@ -1,12 +1,9 @@
 package com.ai.base;
 
-
-import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import com.ai.Interfaces.ActivityJumpListener;
 import com.ai.base.util.LogUtil;
 import com.ai.base.util.PermissionUitls;
 import com.ai.webplugin.AIWebViewBasePlugin;
@@ -55,41 +52,16 @@ public abstract class AIBaseActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-
-    //用来控制应用前后台切换的逻辑
-    private boolean isCurrentRunningForeground = true;
     @Override
     public void onStart() {
         super.onStart();
-        if (!isCurrentRunningForeground) {
-            if (ActivityConfig.getInstance().isShowGesturePasswordActivity()
-                    && !(getClassName().equals("com.ai.aiportal.gesture.AIGesturePasswordActivity"))
-                    && mEnbleGesturePwd) {
-                ActivityJumpListener activityJumpListener = ActivityConfig.getInstance().getActivityJumpListener();
-                if (activityJumpListener != null) //宿主app进入
-                {
-                    activityJumpListener.jumpToAILocGesturePasswordActivity();
-                } else {
-                    Intent intent = new Intent();
-                    intent.setComponent(new ComponentName("com.ai.aiportal", "com.ai.aiportal.gesture.AIGesturePasswordActivity"));
-                    startActivity(intent);
-                }
-            }
-            LogUtil.d("song", ">>>>>>>>>>>>>>>>>>>切到前台 activity process");
-        }
     }
     @Override
     public void onStop() {
         super.onStop();
-        isCurrentRunningForeground = isRunningForeground();
-        if (!isCurrentRunningForeground) {
-            ActivityConfig.getInstance().saveLockTime();
-            LogUtil.d("song",">>>>>>>>>>>>>>>>>>>切到后台 activity process");
-        }
     }
 
     public boolean isRunningForeground() {
-
         if (AIActivityLifecycleListener.getInstance().getRefCount() == 0) {
             return false;
         }
