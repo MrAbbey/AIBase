@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import android.os.CountDownTimer;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.FileProvider;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.JsResult;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -38,20 +41,17 @@ public class AIWebViewActivity extends AIBaseActivity {
     private ImageView mWelcomeImage;
     private LinearLayout mLinearLayout;
     private String mWebUrl;
-    private static String mGlabalCfgFile = "global.properties";
     private static String mPluginCfgFile = "wade-plugin.xml";
     private int mBackgroudColor = 0x000000;
     private int mBackgroundResId = -1;
     private int mWelcomeImageResId = -1;
     private AIWebViewBasePlugin mPluginObj;
-    private String filterList[] = {"http://www.wuyoujian.com"};
 
     // intent的参数key
     public static String backgroundColorKey = "backgroundColor";
     public static String backgroundResIdKey = "backgroundResID";
     public static String welcomeImageResId = "welcomeImageResId";
     public static String webViewURLKey = "webViewURL";
-    public static String globalConfigKey = "globalConfig";
     public static String pluginConfigKey = "pluginConfig";
 
 
@@ -86,10 +86,16 @@ public class AIWebViewActivity extends AIBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setPortraitFullscreen();
         super.onCreate(savedInstanceState);
         initConfigParam();
         initWebView();
-        AIWebViewPluginEngine.getInstance().checkUpdate(null);
+    }
+
+    private void setPortraitFullscreen() {
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+        //this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     private void initConfigParam () {
@@ -106,15 +112,6 @@ public class AIWebViewActivity extends AIBaseActivity {
             }
 
             if (mWebUrl == null || mWebUrl.length() == 0) {
-                // 解析全局配置
-                mGlabalCfgFile = intent.getStringExtra(globalConfigKey);
-                if (mGlabalCfgFile == null || mGlabalCfgFile.length() == 0 ) {
-                    mGlabalCfgFile = "global.properties";
-                }
-                InputStream is = this.getResources().getAssets().open(mGlabalCfgFile);
-                GlobalCfg globalCfg = GlobalCfg.getInstance();
-                globalCfg.parseConfig(is);
-
                 mWebUrl = (String) GlobalCfg.getInstance().attr(GlobalCfg.CONFIG_FIELD_ONLINEADDR);
             }
 
@@ -291,17 +288,6 @@ public class AIWebViewActivity extends AIBaseActivity {
         setH5PluginEngine(mWebView);
         mWebView.loadUrl(mWebUrl);
         mTimer.start();
-    }
-
-    // 过滤
-    private boolean Addressfilter(String url) {
-        boolean needFilter = false;
-        for (String filterUrl : filterList){
-            if(url.contains(filterUrl)){
-                return true;
-            }
-        }
-        return needFilter;
     }
 
     private void setH5PluginEngine(WebView webView) {

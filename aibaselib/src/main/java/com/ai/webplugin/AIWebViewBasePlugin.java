@@ -367,7 +367,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
 
     // 自动更新
     public void JN_CheckVersion(final String versionConfigUrl) {
-        AIWebViewPluginEngine.getInstance().checkUpdate(versionConfigUrl);
+        mActivity.checkUpdate(versionConfigUrl);
     }
 
     // 获取版本号

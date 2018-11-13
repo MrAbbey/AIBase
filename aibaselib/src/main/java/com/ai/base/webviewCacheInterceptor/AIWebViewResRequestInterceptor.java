@@ -170,6 +170,8 @@ public class AIWebViewResRequestInterceptor {
         mReferer = url;
         mOrigin = AIResURLUtils.getOriginUrl(mReferer);
         if (mContext != null) {
+            // 拦截器都是在webview的子线程中执行，所有webview的接口都需要在
+            // 跟webview同一个线程中执行。
             mContext.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

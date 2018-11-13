@@ -220,8 +220,8 @@ public class AICertificateCameraActivity extends AIBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         setPortraitFullscreen();
+        super.onCreate(savedInstanceState);
         layoutMainView();
         checkPermisson();
     }

@@ -1,9 +1,7 @@
 package com.ai.base.okHttp;
 
-import android.content.ContextWrapper;
-import android.text.TextUtils;
-import android.util.Log;
 
+import android.text.TextUtils;
 import com.ai.base.okHttp.callback.OnDownloadListener;
 
 import java.io.ByteArrayOutputStream;
