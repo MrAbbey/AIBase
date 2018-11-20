@@ -205,8 +205,18 @@ public class AIWebViewActivity extends AIBaseActivity {
         mWebView.getSettings().setDefaultTextEncodingName("utf-8");
 
         GlobalCfg globalCfg = GlobalCfg.getInstance();
-        boolean isCache = globalCfg.attr(GlobalCfg.CONFIG_FIELD_CACHE).equalsIgnoreCase("true");
-        boolean isDebug = globalCfg.attr(GlobalCfg.CONFIG_FIELD_DEBUG).equalsIgnoreCase("true");
+        boolean isCache = false;
+        String isCacheStr = globalCfg.attr(GlobalCfg.CONFIG_FIELD_CACHE);
+        if (isCacheStr != null) {
+            isCache = isCacheStr.equalsIgnoreCase("true");
+        }
+
+        boolean isDebug = false;
+        String isDebugStr = globalCfg.attr(GlobalCfg.CONFIG_FIELD_DEBUG);
+        if (isDebugStr != null) {
+            isDebug = isDebugStr.equalsIgnoreCase("true");
+        }
+
         String encryptKey = globalCfg.attr(GlobalCfg.CONFIG_FIELD_ENCRYPTKEY);
         mWebView.setWebViewClient(new AICacheWebViewClient(new AIWebViewResRequestInterceptor.Builder(this).setConnectTimeoutSecond(30000)
                 .setForceCache(isCache)

@@ -102,7 +102,7 @@ public class AIWebViewResRequestInterceptor {
             }
         }
 
-        if (!builder.mEntryptKey.isEmpty()) {
+        if (!TextUtils.isEmpty(builder.mEntryptKey)) {
             this.mEntryptKey = builder.mEntryptKey;
         }
 

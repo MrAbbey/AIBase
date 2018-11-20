@@ -42,7 +42,6 @@ public class PortalActivity extends AIBaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mEnbleGesturePwd = false;
         initParam();
         initWebView();
 
@@ -213,7 +212,6 @@ public class PortalActivity extends AIBaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        mEnbleGesturePwd = true;
     }
 
     @Override
