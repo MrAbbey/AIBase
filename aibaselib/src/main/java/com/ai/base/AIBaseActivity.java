@@ -51,7 +51,7 @@ public abstract class AIBaseActivity extends AppCompatActivity {
         AIActivityCollector.getInstance().addActivity(this);
         // 初始化app参数
         initGlobalParam();
-        checkUpdate(null);
+        checkVersion(null);
         AIListenNetWorkingStatus.getInstance().listener(this);
     }
 
@@ -146,7 +146,7 @@ public abstract class AIBaseActivity extends AppCompatActivity {
 //    }
 
     /* check 版本 helper API begin */
-    public void checkUpdate(final String versionConfigUrl) {
+    public void checkVersion(final String versionConfigUrl) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -158,10 +158,13 @@ public abstract class AIBaseActivity extends AppCompatActivity {
                     url = versionConfigUrl;
                 }
 
+                Log.d("wuyoujian",versionConfigUrl);
+
                 if (url == null || url.length() == 0) {
                     return;
                 }
 
+                Log.d("wuyoujian****",versionConfigUrl);
                 String locationVersion = globalCfg.attr(GlobalCfg.CONFIG_FIELD_VERSION);
 
                 OkHttpBaseAPI okHttpBaseAPI = new OkHttpBaseAPI();

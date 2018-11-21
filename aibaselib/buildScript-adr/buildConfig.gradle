@@ -1,0 +1,35 @@
+android {
+    // 请根据xxx.jks证书情况配置
+    signingConfigs {
+        config {
+            keyAlias 'wmshell-cer'
+            keyPassword '123456'
+            storeFile file('../wmshell-cer.jks')
+            storePassword '123456'
+
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.config
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            debuggable false
+        }
+    }
+}
+
+//Copy类型
+task makeCopy(type: Copy) {
+    //设置拷贝的文件
+    from('build/outputs/apk/')
+    //打进jar包后的文件目录
+    into('../buildScript/apk/')
+    //（我们只关心apk文件）
+    include('*.apk')
+}
+
+// 打包请在控制台中执行：./buildScript-adr/build.sh

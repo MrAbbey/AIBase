@@ -43,7 +43,7 @@ public class AIWebViewPluginEngine {
 
     private WebView mWebView;
     private AIBaseActivity mActivity;
-    private String  mPluginCfgFile = "wade-plugin.xml";
+    private String  mPluginCfgFile = "modular-plugin-adr.xml";
     private Map<String, AIWebViewBasePlugin> mPlugins = new HashMap<>();
     private Map<String, Method> mMethods = new HashMap<>();
     private Handler mHandler = new Handler();
@@ -94,7 +94,7 @@ public class AIWebViewPluginEngine {
                 mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(mActivity,"插件方法:" + pluginName + "未在wade-plugin.xml中配置",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mActivity,"插件方法:" + pluginName + "未在modular-plugin-adr.xml中配置",Toast.LENGTH_SHORT).show();
                     }
                 });
                 return;

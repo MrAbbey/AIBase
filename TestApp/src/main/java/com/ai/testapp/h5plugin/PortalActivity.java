@@ -3,12 +3,10 @@ package com.ai.testapp.h5plugin;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 
 import com.ai.base.AIBaseActivity;
@@ -25,9 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.Timer;
-
-import okhttp3.Cache;
 
 public class PortalActivity extends AIBaseActivity {
 
@@ -35,7 +30,7 @@ public class PortalActivity extends AIBaseActivity {
     private LinearLayout mLinearLayout;
 
     private static String mGlabalCfgFile = "global.properties";
-    private static String mPluginCfgFile = "wade-plugin.xml";
+    private static String mPluginCfgFile = "modular-plugin-adr.xml";
 
 
     @Override

@@ -41,19 +41,18 @@ public class AIWebViewActivity extends AIBaseActivity {
     private ImageView mWelcomeImage;
     private LinearLayout mLinearLayout;
     private String mWebUrl;
-    private static String mPluginCfgFile = "wade-plugin.xml";
+    private static String mPluginCfgFile = "modular-plugin-adr.xml";
     private int mBackgroudColor = 0x000000;
     private int mBackgroundResId = -1;
     private int mWelcomeImageResId = -1;
     private AIWebViewBasePlugin mPluginObj;
 
     // intent的参数key
+    public static String webViewURLKey = "webViewURL";
+    public static String pluginConfigKey = "pluginConfig";
     public static String backgroundColorKey = "backgroundColor";
     public static String backgroundResIdKey = "backgroundResID";
     public static String welcomeImageResId = "welcomeImageResId";
-    public static String webViewURLKey = "webViewURL";
-    public static String pluginConfigKey = "pluginConfig";
-
 
     private long myCountDownTime = 0;
     private static final long LONGMAX = 300000L;
@@ -108,7 +107,7 @@ public class AIWebViewActivity extends AIBaseActivity {
 
             mPluginCfgFile = intent.getStringExtra(pluginConfigKey);
             if (mPluginCfgFile == null || mPluginCfgFile.length() == 0) {
-                mPluginCfgFile = "wade-plugin.xml";
+                mPluginCfgFile = "modular-plugin-adr.xml";
             }
 
             if (mWebUrl == null || mWebUrl.length() == 0) {
@@ -226,13 +225,13 @@ public class AIWebViewActivity extends AIBaseActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                GlobalCfg globalCfg = GlobalCfg.getInstance();
-                String version = (String)globalCfg.attr(GlobalCfg.CONFIG_FIELD_VERSION);
-                String js = String.format("setAppVersion('版本：%s');",version);
-                view.evaluateJavascript(js, new ValueCallback<String>() {
-                    @Override
-                    public void onReceiveValue(String value) {}
-                });
+//                GlobalCfg globalCfg = GlobalCfg.getInstance();
+//                String version = (String)globalCfg.attr(GlobalCfg.CONFIG_FIELD_VERSION);
+//                String js = String.format("setAppVersion('版本：%s');",version);
+//                view.evaluateJavascript(js, new ValueCallback<String>() {
+//                    @Override
+//                    public void onReceiveValue(String value) {}
+//                });
 
                 mTimer.onFinish();
             }

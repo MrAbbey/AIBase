@@ -2,7 +2,7 @@ window.WadeNAObj = (function() {
 	// 扩展区域
 	var WadeNAObj = (function(){
 		return {
-		    // 这个key生成的规则是：方法名称，即wade-plugin.xml里的name字段
+		    // 这个key生成的规则是：方法名称，即modular-plugin-adr.xml(modular-plugin.xml)里的name字段
             // 注意不要重复
 			// 测试函数，后面的方法，请按照这个方法扩展自己的自定义的方法
 			// 目前支持传给原生端的参数只有一个，类型: string, array,JSONObject(java侧是JSONObject,OC侧是NSDictionary)
@@ -29,10 +29,10 @@ window.WadeNAObj = (function() {
             },
 
             // 分享应用链接到系统剪切板
-            JN_Sharing:function(url,callback) {
+            JN_Sharing:function(content,callback) {
                 var callbackKey = 'JN_Sharing';
                 WadeNAObj.storageCallback(callbackKey,callback);
-                WadeNAObj.execute(callbackKey,url);
+                WadeNAObj.execute(callbackKey,content);
             },
 
             // 打开文档
