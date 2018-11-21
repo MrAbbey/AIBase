@@ -58,6 +58,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
     private final int REQUSETCODE_TAKECERTIFICATE = 10002;
     private Uri photographImageUri;
     private Handler mHandler = new Handler();
+    private final static String jsObjName = "modular";
 
     public AIWebViewBasePlugin(AIBaseActivity activity, WebView webView) {
         this.mActivity = activity;
@@ -92,7 +93,7 @@ public class AIWebViewBasePlugin implements AIIPlugin {
 
     public void callback(String actionName, String param, final ValueCallback<String> callback) {
         param = Utility.encodeForJs(param);
-        final String javascript = "window.WadeNAObj.callback(\'" + actionName + "\',\'" + param + "\')";
+        final String javascript = "window." + jsObjName + ".callback(\'" + actionName + "\',\'" + param + "\')";
         excuteJavascript(javascript,callback);
     }
 

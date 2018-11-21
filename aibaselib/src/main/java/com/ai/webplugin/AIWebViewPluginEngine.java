@@ -47,6 +47,7 @@ public class AIWebViewPluginEngine {
     private Map<String, AIWebViewBasePlugin> mPlugins = new HashMap<>();
     private Map<String, Method> mMethods = new HashMap<>();
     private Handler mHandler = new Handler();
+    private static String mHanderName = "modularHander";
 
     private static AIWebViewPluginEngine instance;
     public static AIWebViewPluginEngine getInstance() {
@@ -146,8 +147,7 @@ public class AIWebViewPluginEngine {
         if (!Utility.isFileExists(mActivity,mPluginCfgFile)) return;
         try {
             // 向webView中注入原生对象
-            String handerName = "WadeNAObjHander";
-            mWebView.addJavascriptInterface(this, handerName);
+            mWebView.addJavascriptInterface(this, mHanderName);
 
             // 这种方式可以用来测试陕西版本的插件模式,把测试的接口实现在本类中。
             // 并增加@JavascriptInterface注解

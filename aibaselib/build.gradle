@@ -23,7 +23,7 @@ android {
     }
 }
 
-dependencies {
+    dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.squareup.okhttp3:okhttp:3.1.2'
@@ -48,5 +48,4 @@ task makeJar(type: Copy) {
 }
 
 makeJar.dependsOn(build)
-
 //gradlew makeJar

@@ -1,8 +1,8 @@
-window.ExtendNAObj = (function() {
+window.extendModular = (function() {
 
-    if(WadeNAObj) {
+    if(modular) {
         // 扩展区域
-    	var ExtendNAObj = (function(){
+    	var extendModular = (function(){
     		return {
 
     		    // 这个key生成的规则是：原生对象名_原生方法名
@@ -10,23 +10,23 @@ window.ExtendNAObj = (function() {
     			JN_ShowMessage:function(string,callback) {
     				// 方法名，即配置中的name
     				var callbackKey = 'JN_ShowMessage';
-    				WadeNAObj.storageCallback(callbackKey,callback);
-                    WadeNAObj.execute(callbackKey,string);
+    				modular.storeCallback(callbackKey,callback);
+                    modular.execute(callbackKey,string);
     			},
 
     			// 分享应用
                 JN_OpenDocument:function(url,callback) {
                     var callbackKey = 'JN_OpenDocument';
-                    WadeNAObj.storageCallback(callbackKey,callback);
-                    WadeNAObj.execute(callbackKey,url);
+                    modular.storeCallback(callbackKey,callback);
+                    modular.execute(callbackKey,url);
                 },
     		};
     	})();
 
 
-        // 拷贝ExtendNAObj到WadeNAObj
+        // 拷贝ExtendNAObj到modular
         //
-        extendObj(WadeNAObj, ExtendNAObj);
+        extendObj(modular, extendModular);
         function extendObj(tag, obj){
             var target = tag || {};
             if (typeof target !== "object"){
@@ -46,6 +46,6 @@ window.ExtendNAObj = (function() {
             }
             return target;
         }
-    	return ExtendNAObj;
+    	return extendModular;
     }
 })();

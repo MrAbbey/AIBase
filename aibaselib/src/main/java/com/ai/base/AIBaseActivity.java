@@ -158,13 +158,10 @@ public abstract class AIBaseActivity extends AppCompatActivity {
                     url = versionConfigUrl;
                 }
 
-                Log.d("wuyoujian",versionConfigUrl);
-
                 if (url == null || url.length() == 0) {
                     return;
                 }
 
-                Log.d("wuyoujian****",versionConfigUrl);
                 String locationVersion = globalCfg.attr(GlobalCfg.CONFIG_FIELD_VERSION);
 
                 OkHttpBaseAPI okHttpBaseAPI = new OkHttpBaseAPI();
