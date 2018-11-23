@@ -21,6 +21,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.ai.base.loading.AILoadingViewBuilder;
@@ -181,19 +182,20 @@ public abstract class AIBaseActivity extends AppCompatActivity {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(AIBaseActivity.this);
                                 // 设置参数
                                 builder.setTitle("提示")
-                                        .setMessage("远端发现新版本请更新后重新启动应用")
-                                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                checkPermission();
-                                                updateApk(versionURL);
-                                                dialog.dismiss();
-                                            }
-                                        });
+                                        .setMessage("远端发现新版本请更新后重新启动应用");
+                                builder.setPositiveButton("确定",null);
                                 AlertDialog dialog = builder.create();
                                 dialog.setCancelable(false);
                                 dialog.show();
+                                //现在builder中这样写确定按钮
+                                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        //如果想关闭dialog直接加上下面这句代码就行
+                                        //dialog.cancel();
+                                        updateApk(versionURL);
+                                    }
+                                });
                             }
                         });
                     } else {
@@ -257,7 +259,6 @@ public abstract class AIBaseActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setDataAndType(uriPath, "application/vnd.android.package-archive");
         startActivity(intent);
-        Runtime.getRuntime().exit(0);
     }
 
     private boolean isExist(String apkFilePath) {
