@@ -11,6 +11,7 @@ public class LocalStorageManager {
 
     public final static String sharedPreferencesName = "LocalStorageManager";
     private String mEncryptKey = "www.asiainfo.com";
+    private String mEncryptIV = "aiaiaiaiaiaiaiai";
     private Context mContext;
     private static LocalStorageManager instance;
     public static LocalStorageManager getInstance() {
@@ -48,7 +49,7 @@ public class LocalStorageManager {
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         try {
-            String encryptValue = AESEncrypt.encrypt(value, mEncryptKey);
+            String encryptValue = AESEncrypt.encrypt(value, mEncryptKey,mEncryptIV);
             editor.putString(key,encryptValue);
             editor.commit();
         } catch (Exception e) {
@@ -63,7 +64,7 @@ public class LocalStorageManager {
         String encryptValue = sharedPreferences.getString(key,null);
         try {
             if (encryptValue != null) {
-                String value = AESEncrypt.decrypt(encryptValue,mEncryptKey);
+                String value = AESEncrypt.decrypt(encryptValue,mEncryptKey,mEncryptIV);
                 return value;
             }
         } catch (Exception e) {

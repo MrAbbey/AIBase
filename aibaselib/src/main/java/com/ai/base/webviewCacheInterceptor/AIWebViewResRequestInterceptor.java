@@ -40,7 +40,8 @@ public class AIWebViewResRequestInterceptor {
     // 默认不缓存
     private boolean mForceCache = false;
     //
-    private String mEntryptKey = "www.asiainfo.com";
+    private String mEncryptKey = "www.asiainfo.com";
+    private String mEncryptIV = "aiaiaiaiaiaiaiai";
 
     private String mOrigin = "";
     private String mReferer= "";
@@ -109,8 +110,12 @@ public class AIWebViewResRequestInterceptor {
             }
         }
 
-        if (!TextUtils.isEmpty(builder.mEntryptKey)) {
-            this.mEntryptKey = builder.mEntryptKey;
+        if (!TextUtils.isEmpty(builder.mEncryptKey)) {
+            this.mEncryptKey = builder.mEncryptKey;
+        }
+
+        if (!TextUtils.isEmpty(builder.mEncryptIV)) {
+            this.mEncryptIV = builder.mEncryptIV;
         }
 
         // 初始化
@@ -255,7 +260,7 @@ public class AIWebViewResRequestInterceptor {
                 if (fileName.endsWith("js")) {
                     // 只有js加密存储
                     try {
-                        byte[] decrypted = AESEncrypt.decrypt(bytes, mEntryptKey);
+                        byte[] decrypted = AESEncrypt.decrypt(bytes, mEncryptKey,mEncryptIV);
                         if (decrypted == null || decrypted.length <= 0) {
                             resFile.delete();
                         }
@@ -309,7 +314,7 @@ public class AIWebViewResRequestInterceptor {
                         try {
                             if (fileName.endsWith("js")) {
                                 // 只有js加密存储
-                                byte[] encrypted = AESEncrypt.encrypt(temp,mEntryptKey);
+                                byte[] encrypted = AESEncrypt.encrypt(temp,mEncryptKey,mEncryptIV);
                                 if (encrypted == null || (encrypted != null && encrypted.length <= 0)) {
                                     if (outStream != null) {
                                         try {
@@ -391,7 +396,8 @@ public class AIWebViewResRequestInterceptor {
         private Activity mContext;
         private boolean mForceCache = false;
         private ArrayList<String> mCacheExtensions;
-        private String mEntryptKey;
+        private String mEncryptKey;
+        private String mEncryptIV;
         private boolean mDebug;
 
         public Builder(Activity context){
@@ -434,7 +440,14 @@ public class AIWebViewResRequestInterceptor {
 
         public Builder setEncryptKey(String encryptKey){
             if (encryptKey != null){
-                mEntryptKey  = encryptKey;
+                mEncryptKey  = encryptKey;
+            }
+            return this;
+        }
+
+        public Builder setEncryptIV(String encryptIV){
+            if (encryptIV != null){
+                mEncryptIV  = encryptIV;
             }
             return this;
         }

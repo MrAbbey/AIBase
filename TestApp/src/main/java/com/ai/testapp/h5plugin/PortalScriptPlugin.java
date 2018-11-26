@@ -172,7 +172,7 @@ public class PortalScriptPlugin extends AIWebViewBasePlugin {
 
         String token = "isLoginNoSms=1&loginToSuccessPage=1&mobile=" + "13908711390";
         try {
-            token = AESEncrypt.encrypt(token, "www.asiainfo.com");
+            token = AESEncrypt.encrypt(token, "www.asiainfo.com","aiaiaiaiaiaiaiai");
             token = URLEncoder.encode(token,"utf-8");
             Log.d("token",token);
         } catch (Exception e) {

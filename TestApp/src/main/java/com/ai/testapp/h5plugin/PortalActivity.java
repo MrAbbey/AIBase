@@ -43,13 +43,13 @@ public class PortalActivity extends AIBaseActivity {
         try {
             String key = "_weimeitiancheng";
             String content1 = "你好，我是伍友健！！！！***#";
-            String encryptString1 = AESEncrypt.encrypt(content1,key);
+            String encryptString1 = AESEncrypt.encrypt(content1,key,"aiaiaiaiaiaiaiai");
 
             String content2 = "你好，我是伍友健！13223232**@@@";
-            String encryptString2 = AESEncrypt.encrypt(content2,key);
+            String encryptString2 = AESEncrypt.encrypt(content2,key,"aiaiaiaiaiaiaiai");
 
             String en = "n3sz56iSPxrQ8Ql4u/dagc09MLg1fBIa44yrtY3TRalEwvKW2bLs0JsXnn9BBRbW";
-            String des = AESEncrypt.decrypt(en,key);
+            String des = AESEncrypt.decrypt(en,key,"aiaiaiaiaiaiaiai");
 
             Log.d("888",encryptString2);
         } catch (Exception e) {
@@ -179,7 +179,7 @@ public class PortalActivity extends AIBaseActivity {
             String staffId = "TESTSX37";
 
             String signContent = key +"|" + timestamp + "|" + staffId;
-            String sign = AESEncrypt.encrypt(signContent,aesKey);
+            String sign = AESEncrypt.encrypt(signContent,aesKey,"aiaiaiaiaiaiaiai");
             String tokenContent = timestamp + key + staffId;
             String token = Utility.md5(tokenContent);
 

@@ -8,21 +8,19 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Created by wuyoujian on 2017/5/5.
+ *  * 可以直接编译成java平台使用的代码，只需要替换Base64，采用java平台的即可
  */
 
 public class AESEncrypt {
-
-    private static String ivParameter = "aiaiaiaiaiaiaiai";
-
     // 加密
-    public static String encrypt(String content ,String key) throws Exception {
-        byte[] encrypted =   encrypt(content.getBytes("utf-8"),key);
+    public static String encrypt(String content ,String key,String ivParameter) throws Exception {
+        byte[] encrypted =   encrypt(content.getBytes("utf-8"),key,ivParameter);
         String encryString = Base64.encodeToString(encrypted,Base64.NO_WRAP);
         return encryString;
     }
 
     // 加密
-    public static byte[] encrypt(byte[] bytes ,String key) throws Exception {
+    public static byte[] encrypt(byte[] bytes ,String key,String ivParameter) throws Exception {
 
         if(key == null) {
             return null;
@@ -41,17 +39,17 @@ public class AESEncrypt {
     }
 
     // 解密
-    public static String decrypt(String encryptString,String key) throws Exception {
+    public static String decrypt(String encryptString,String key,String ivParameter) throws Exception {
         byte[] bytes = encryptString.getBytes("utf-8");
         // 先用base64解密
         byte[] encrypted = Base64.decode(bytes,Base64.NO_WRAP);
-        byte[] decrptedBytes = decrypt(encrypted,key);
+        byte[] decrptedBytes = decrypt(encrypted,key,ivParameter);
         String originalString = new String(decrptedBytes, "utf-8");
         return originalString;
     }
 
     // 解密
-    public static byte[] decrypt(byte[] bytes,String key) throws Exception {
+    public static byte[] decrypt(byte[] bytes,String key,String ivParameter) throws Exception {
         try {
             byte[] raw = key.getBytes("utf-8");
             SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
