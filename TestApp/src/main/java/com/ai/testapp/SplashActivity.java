@@ -2,10 +2,12 @@ package com.ai.testapp;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.ImageView;
@@ -17,6 +19,7 @@ import com.ai.testapp.h5plugin.PortalActivity;
 import com.ai.webplugin.AIWebViewActivity;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 public class SplashActivity extends AIBaseActivity {
@@ -42,13 +45,31 @@ public class SplashActivity extends AIBaseActivity {
 //        mWebView = (WebView) findViewById(R.id.splash_webView);
 //        mWebView.loadUrl(kSplashHtml);
 
-        imageView = (ImageView)findViewById(R.id.iv_splash);
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                enterHomeActivity();
-            }
-        });
+//        imageView = (ImageView)findViewById(R.id.iv_splash);
+//        imageView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                enterHomeActivity();
+//            }
+//        });
+
+        SharedPreferences.Editor shareEditor = getSharedPreferences("cachekey", 0).edit();
+        shareEditor.putString("key1","value1");
+        shareEditor.putString("key2","value2");
+        shareEditor.putString("key3","value3");
+        shareEditor.putString("key4","value4");
+        shareEditor.putString("key5","value5");
+        shareEditor.putString("key6","value6");
+        shareEditor.putString("key7","value7");
+        shareEditor.commit();
+
+
+        try {
+            HashMap<String, String> hashMap = (HashMap<String, String>) getSharedPreferences("cachekey",0).getAll();
+            Log.d("wuyoujian",hashMap.toString());
+        } catch (Exception e) {
+
+        }
 
         new Handler().postDelayed(new Runnable() {
             @Override

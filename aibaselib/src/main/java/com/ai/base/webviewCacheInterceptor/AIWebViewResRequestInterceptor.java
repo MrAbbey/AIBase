@@ -1,6 +1,7 @@
 package com.ai.base.webviewCacheInterceptor;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.WebResourceRequest;
@@ -42,11 +43,17 @@ public class AIWebViewResRequestInterceptor {
     private String mEntryptKey = "www.asiainfo.com";
 
     private String mOrigin = "";
-    private String mReferer="";
-    private String mUserAgent="";
+    private String mReferer= "";
+    private String mUserAgent= "";
 
     // debug模式下，缓存文件夹以及文件不是隐藏的
     private boolean mDebug;
+
+    // 缓存键值对
+    private HashMap<String, String> mCacheMap;
+
+    private final String mSharedPreferencesKey = "AIWebViewResCacheKeyValue";
+
 
 
     // 单例
@@ -106,7 +113,27 @@ public class AIWebViewResRequestInterceptor {
             this.mEntryptKey = builder.mEntryptKey;
         }
 
+        // 初始化
         initHttpClient();
+
+        // 从SharedPreferences中读取缓存键值对
+        readCacheMapFromSharedPreferences();
+    }
+
+    private void readCacheMapFromSharedPreferences() {
+        SharedPreferences sharedata = this.mContext.getSharedPreferences(mSharedPreferencesKey, 0);
+        this.mCacheMap = (HashMap<String, String>) sharedata.getAll();
+    }
+
+    private void putCacheKeyValue(String key, String value) {
+        // 存储到磁盘
+        SharedPreferences sharedata = this.mContext.getSharedPreferences(mSharedPreferencesKey, 0);
+        SharedPreferences.Editor editor = sharedata.edit();
+        editor.putString(key,value);
+        editor.commit();
+
+        // 同时把更新内存中的键值对
+        this.mCacheMap.put(key,value);
     }
 
     public void addCacheExtension(String extension) {
@@ -129,11 +156,11 @@ public class AIWebViewResRequestInterceptor {
     }
 
     public WebResourceResponse interceptRequest(WebView view,WebResourceRequest request) {
-        return interceptRequest(view,request.getUrl().toString(),request.getRequestHeaders());
+        return interceptRequest(request.getUrl().toString(),request.getRequestHeaders());
     }
 
     public WebResourceResponse interceptRequest(WebView view,String url) {
-        return interceptRequest(view,url,buildHeaders(view,url));
+        return interceptRequest(url,buildHeaders(view,url));
     }
 
     public void clearCache() {
@@ -194,61 +221,22 @@ public class AIWebViewResRequestInterceptor {
         return headers;
     }
 
-    // 返回null，走正常的webview的请求
-    private WebResourceResponse interceptRequest(WebView view,final String url,Map<String, String> headers){
-        Map<String,String> fields = AIResURLUtils.getResURLFieldsFromUrl(url);
-        if (fields == null || fields.isEmpty()) return null;
-        String resUrl = fields.get("url");
-        final String extension = fields.get("extension");
-        String saveFileName = (this.mDebug?"":".") + Utility.md5(resUrl)+'.' + extension;
+    private byte[] readDataFromFile(String fileName) {
+        final File resFile = new File(mCacheFilePath + "/" + fileName);
 
-        String mimeType = AIResURLUtils.getMimeTypeFromUrl(url);
-        final File resFile = new File(mCacheFilePath + "/" + saveFileName);
-        if (mForceCache) {
-            byte[] bytes = null;
-            if (resFile.exists()) {
-                // 存在本地缓存
-                Log.d("from location",url);
-                InputStream inputStream = null;
-                try {
-                    // 根据path路径实例化一个输入流的对象
-                    inputStream = new FileInputStream(resFile);
-                    int length = inputStream.available();
-                    byte [] buffer = new byte[length];
-                    inputStream.read(buffer);
-                    if (buffer.length <= 0) {
-                        // 文件大小为0，说明保存异常
-                        resFile.delete();
-                        if (inputStream != null) {
-                            try {
-                                inputStream.close();
-                            } catch (IOException ee) {
-
-                            }
-                        }
-                        return null;
-                    }
-                    bytes = buffer;
-
-                } catch (IOException e) {
-                    // 读取异常
+        byte[] bytes = null;
+        if (resFile.exists()) {
+            // 存在本地缓存
+            InputStream inputStream = null;
+            try {
+                // 根据path路径实例化一个输入流的对象
+                inputStream = new FileInputStream(resFile);
+                int length = inputStream.available();
+                byte [] buffer = new byte[length];
+                inputStream.read(buffer);
+                if (buffer.length <= 0) {
+                    // 文件大小为0，说明保存异常
                     resFile.delete();
-                } finally {
-                    if (extension.equalsIgnoreCase("js")) {
-                        // 只有js加密存储
-                        try {
-                            byte[] decrypted = AESEncrypt.decrypt(bytes, mEntryptKey);
-                            if (decrypted == null || decrypted.length <= 0) {
-                                resFile.delete();
-                            }
-                            bytes = decrypted;
-
-                        } catch (Exception e) {
-                            resFile.delete();
-                        } finally {
-                        }
-                    }
-
                     if (inputStream != null) {
                         try {
                             inputStream.close();
@@ -256,74 +244,135 @@ public class AIWebViewResRequestInterceptor {
 
                         }
                     }
+                    return null;
+                }
+                bytes = buffer;
+
+            } catch (IOException e) {
+                // 读取异常
+                resFile.delete();
+            } finally {
+                if (fileName.endsWith("js")) {
+                    // 只有js加密存储
+                    try {
+                        byte[] decrypted = AESEncrypt.decrypt(bytes, mEntryptKey);
+                        if (decrypted == null || decrypted.length <= 0) {
+                            resFile.delete();
+                        }
+                        bytes = decrypted;
+
+                    } catch (Exception e) {
+                        resFile.delete();
+                    } finally {
+                    }
                 }
 
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException ee) {
+
+                    }
+                }
+            }
+        }
+
+        return bytes;
+    }
+
+    private byte[] readDataFromServer(String url,Map<String, String> headers,final String fileName) {
+
+        byte[] bytes = null;
+        try {
+            Request.Builder reqBuilder = new Request.Builder().url(url);
+            for (Map.Entry<String,String> entry:headers.entrySet()){
+                reqBuilder.addHeader(entry.getKey(),entry.getValue());
+            }
+            Request request =  reqBuilder.build();
+            // 同一子线程中获取
+            Response response = mHttpClient.newCall(request).execute();
+            bytes = response.body().bytes();
+
+        } catch (IOException e) {
+        }
+
+        final byte[] temp = bytes;
+        // 保存到本地
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OutputStream outStream = null;
+                try {
+                    final File resFile = new File(mCacheFilePath + "/" + fileName);
+                    outStream = new FileOutputStream(resFile);
+                    if (temp != null && temp.length > 0) {
+                        try {
+                            if (fileName.endsWith("js")) {
+                                // 只有js加密存储
+                                byte[] encrypted = AESEncrypt.encrypt(temp,mEntryptKey);
+                                if (encrypted == null || (encrypted != null && encrypted.length <= 0)) {
+                                    if (outStream != null) {
+                                        try {
+                                            outStream.close();
+                                        } catch (IOException ee) {
+
+                                        }
+                                    }
+                                } else {
+                                    outStream.write(encrypted);
+                                }
+                            } else {
+                                outStream.write(temp);
+                            }
+                        } catch (Exception e) {
+                        }
+                    }
+                } catch (IOException e) {
+                } finally {
+                    if (outStream != null) {
+                        try {
+                            outStream.close();
+                        } catch (IOException ee) {
+
+                        }
+                    }
+                }
+            }
+        }).start();
+
+        return bytes;
+    }
+
+    // 返回null，走正常的webview的请求
+    private WebResourceResponse interceptRequest(final String url,Map<String, String> headers){
+
+        // 分析资源url地址
+        Map<String,String> fields = AIResURLUtils.getResURLFieldsFromUrl(url);
+        if (fields == null || fields.isEmpty()) return null;
+
+        final String extension = fields.get("extension");
+        // 不是存的类型直接返回
+        if (!canCache(extension)) return null;
+
+        if (mForceCache) {
+            String resUrl = fields.get("url");
+            byte[] bytes;
+            String fileName = (this.mDebug?"":".") + Utility.md5(resUrl)+'.' + extension;
+            if (mCacheMap.containsValue(url)) {
+                // 首先判读是否在缓存中
+                Log.d("from location",url);
+                bytes = readDataFromFile(fileName);
             } else {
+                // 未缓存，第一，需要更缓存键值对，第二，需要从服务器上下载
+                putCacheKeyValue(resUrl,url);
+
                 // 在线获取，并存储到本地
                 Log.d("from server",url);
-
-                try {
-                    if (canCache(extension)) {
-                        Request.Builder reqBuilder = new Request.Builder().url(url);
-                        for (Map.Entry<String,String> entry:headers.entrySet()){
-                            reqBuilder.addHeader(entry.getKey(),entry.getValue());
-                        }
-                        Request request =  reqBuilder.build();
-                        Response response = mHttpClient.newCall(request).execute();
-                        bytes = response.body().bytes();
-                    } else {
-                        return null;
-                    }
-
-                } catch (IOException e) {
-                }
-
-                final byte[] temp = bytes;
-                // 保存到本地
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        OutputStream outStream = null;
-                        try {
-                            outStream = new FileOutputStream(resFile);
-                            if (temp != null && temp.length > 0) {
-                                try {
-                                    if (extension.equalsIgnoreCase("js")) {
-                                        // 只有js加密存储
-                                        byte[] encrypted = AESEncrypt.encrypt(temp,mEntryptKey);
-                                        if (encrypted == null || (encrypted != null && encrypted.length <= 0)) {
-                                            if (outStream != null) {
-                                                try {
-                                                    outStream.close();
-                                                } catch (IOException ee) {
-
-                                                }
-                                            }
-                                        } else {
-                                            outStream.write(encrypted);
-                                            Log.d("save to location",url);
-                                        }
-                                    } else {
-                                        outStream.write(temp);
-                                        Log.d("save to location",url);
-                                    }
-                                } catch (Exception e) {
-                                }
-                            }
-                        } catch (IOException e) {
-                        } finally {
-                            if (outStream != null) {
-                                try {
-                                    outStream.close();
-                                } catch (IOException ee) {
-
-                                }
-                            }
-                        }
-                    }
-                }).start();
+                // 从服务器上获取
+                bytes = readDataFromServer(url,headers,fileName);
             }
 
+            String mimeType = AIResURLUtils.getMimeTypeFromUrl(url);
             WebResourceResponse webResourceResponse = null;
             if (bytes != null && bytes.length > 0) {
                 webResourceResponse  = new WebResourceResponse(mimeType, "", new ByteArrayInputStream(bytes));
@@ -331,10 +380,8 @@ public class AIWebViewResRequestInterceptor {
             return webResourceResponse;
         }
 
-        Log.d("no cache",url);
         return null;
     }
-
 
     public static class Builder {
 
